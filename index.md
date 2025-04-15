@@ -29,30 +29,3 @@
   </footer>
 </body>
 </html>
-
-body {
-  font-family: Arial, sans-serif;
-  margin: 0;
-  padding: 0;
-  background: #f4f4f4;
-  color: #333;
-}
-header {
-  background: #2c3e50;
-  color: white;
-  padding: 1em;
-  text-align: center;
-}
-nav a {
-  color: white;
-  margin: 0 1em;
-  text-decoration: none;
-}
-main {
-  padding: 2em;
-}
-footer {
-  background: #ddd;
-  padding: 1em;
-  text-align: center;
-}
