@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Emmanuel Ankoh – Personal Site</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
