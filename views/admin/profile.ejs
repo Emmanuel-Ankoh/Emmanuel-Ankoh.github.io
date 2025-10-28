@@ -96,8 +96,9 @@
         const form = document.currentScript.closest('form');
         const aboutEditor = document.getElementById('about-editor');
         const aboutTextarea = form.querySelector('textarea[name="aboutBody"]');
+        let quill = null;
         if (aboutEditor && window.Quill) {
-          const quill = new Quill(aboutEditor, {
+          quill = new Quill(aboutEditor, {
             theme: 'snow',
             modules: {
               toolbar: [
@@ -111,9 +112,6 @@
             }
           });
           quill.root.innerHTML = aboutTextarea.value || '';
-          form.addEventListener('submit', () => {
-            aboutTextarea.value = quill.root.innerHTML;
-          });
         }
         const initialTimeline = JSON.parse((document.getElementById('initial-timeline')?.textContent)||'[]');
         const initialSkills = JSON.parse((document.getElementById('initial-skills')?.textContent)||'[]');
@@ -213,7 +211,35 @@
         form.addEventListener('input', (e)=>{
           if (form.contains(e.target)) serialize();
         });
-        form.addEventListener('submit', ()=>{ serialize(); });
+        form.addEventListener('submit', (e)=>{
+          serialize();
+          // Sync Quill -> textarea
+          if (quill) {
+            aboutTextarea.value = quill.root.innerHTML;
+          }
+          // Require non-empty About Body
+          const aboutPlain = (aboutTextarea.value || '').replace(/<[^>]+>/g,'').trim();
+          if (!aboutPlain) {
+            e.preventDefault();
+            alert('About Body cannot be empty.');
+            return false;
+          }
+          // Enforce CTA pairs
+          const pText = form.querySelector('input[name="homeCtaPrimaryText"]').value.trim();
+          const pUrl = form.querySelector('input[name="homeCtaPrimaryUrl"]').value.trim();
+          const sText = form.querySelector('input[name="homeCtaSecondaryText"]').value.trim();
+          const sUrl = form.querySelector('input[name="homeCtaSecondaryUrl"]').value.trim();
+          if ((pText && !pUrl) || (!pText && pUrl)) {
+            e.preventDefault();
+            alert('Primary CTA text and URL must both be provided.');
+            return false;
+          }
+          if ((sText && !sUrl) || (!sText && sUrl)) {
+            e.preventDefault();
+            alert('Secondary CTA text and URL must both be provided.');
+            return false;
+          }
+        });
       })();
     </script>
     <div class="toolbar">

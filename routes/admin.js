@@ -293,6 +293,13 @@ router.post('/profile', ensureAuth, avatarUpload,
         secondaryText: req.body.homeCtaSecondaryText || settings.homeCta?.secondaryText,
         secondaryUrl: req.body.homeCtaSecondaryUrl || settings.homeCta?.secondaryUrl
       };
+      // Validate CTA pairs: if one is provided, require the other
+      if ((settings.homeCta.primaryText && !settings.homeCta.primaryUrl) || (!settings.homeCta.primaryText && settings.homeCta.primaryUrl)) {
+        return res.status(400).render('admin/profile', { title: 'Profile', settings, error: 'Primary CTA text and URL must both be provided.', success: null });
+      }
+      if ((settings.homeCta.secondaryText && !settings.homeCta.secondaryUrl) || (!settings.homeCta.secondaryText && settings.homeCta.secondaryUrl)) {
+        return res.status(400).render('admin/profile', { title: 'Profile', settings, error: 'Secondary CTA text and URL must both be provided.', success: null });
+      }
       // Parse timeline and skills JSON safely
       try {
         if (req.body.timeline) {
@@ -320,8 +327,17 @@ router.post('/profile', ensureAuth, avatarUpload,
           allowProtocolRelative: false
         });
         settings.aboutBody = clean;
+        // Make About Body mandatory (non-empty) to avoid empty content saves if requested
+        if (!settings.aboutBody || !settings.aboutBody.trim()) {
+          return res.status(400).render('admin/profile', { title: 'Profile', settings, error: 'About Body cannot be empty.', success: null });
+        }
       }
-      await settings.save();
+      try {
+        await settings.save();
+      } catch (e) {
+        console.error('Failed to save settings:', e);
+        return res.status(400).render('admin/profile', { title: 'Profile', settings, error: 'Failed to save settings. Please check your inputs and try again.', success: null });
+      }
       req.session.flash = { type: 'success', message: 'Profile updated' };
       res.redirect('/admin/profile');
     } catch (e) { next(e); }
