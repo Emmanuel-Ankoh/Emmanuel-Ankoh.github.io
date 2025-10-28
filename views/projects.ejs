@@ -1,9 +1,15 @@
 <%- include('partials/head', { title }) %>
 <main id="main" class="container">
   <h1>Projects</h1>
-  <form method="GET" action="/projects" style="margin:.5rem 0 1rem;display:flex;gap:.5rem">
-    <input name="q" value="<%= typeof q !== 'undefined' ? q : '' %>" placeholder="Search by title, tech, description..." style="flex:1"/>
-    <button class="btn" type="submit">Search</button>
+  <form method="GET" action="/projects" style="margin:.5rem 0 1rem;display:flex;gap:.5rem;flex-wrap:wrap">
+    <input name="q" value="<%= typeof q !== 'undefined' ? q : '' %>" placeholder="Search by title, tech, description..." style="flex:1;min-width:220px"/>
+    <select name="tech" aria-label="Filter by technology">
+      <option value="">All Tech</option>
+      <% (techs || []).forEach(t => { %>
+        <option value="<%= t %>" <%= tech === t ? 'selected' : '' %>><%= t %></option>
+      <% }) %>
+    </select>
+    <button class="btn" type="submit">Apply</button>
   </form>
   <div class="grid">
     <% if ((projects || []).length === 0) { %>
@@ -11,7 +17,7 @@
     <% } %>
     <% (projects || []).forEach((p, i) => { %>
       <article class="card" data-aos="fade-up" data-aos-delay="<%= i * 40 %>">
-        <img src="<%= p.imageUrl || '/images/placeholder.svg' %>" alt="Screenshot of <%= p.title %>" />
+        <img src="<%= p.imageUrl || '/images/placeholder.svg' %>" alt="Screenshot of <%= p.title %>" loading="lazy" decoding="async" />
         <div class="card-body">
           <h3><a href="/projects/<%= p.slug %>"><%= p.title %></a></h3>
           <p><%= p.description %></p>
@@ -28,5 +34,12 @@
       </article>
     <% }) %>
   </div>
+  <% if (typeof page !== 'undefined' && typeof pages !== 'undefined' && pages > 1) { %>
+    <div style="margin-top:1rem;display:flex;gap:.5rem;flex-wrap:wrap">
+      <% for (let i=1;i<=pages;i++){ %>
+        <a class="btn" href="/projects?<%= 'page=' + i + (q ? ('&q=' + encodeURIComponent(q)) : '') + (tech ? ('&tech=' + encodeURIComponent(tech)) : '') %>"><%= i === page ? ('['+i+']') : i %></a>
+      <% } %>
+    </div>
+  <% } %>
 </main>
 <%- include('partials/footer') %>

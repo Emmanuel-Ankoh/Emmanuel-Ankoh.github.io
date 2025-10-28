@@ -66,6 +66,13 @@
           <% }) %>
         </tbody>
       </table>
+      <% if (typeof page !== 'undefined' && typeof pages !== 'undefined' && pages > 1) { %>
+        <div style="margin-top:.75rem;display:flex;gap:.5rem;flex-wrap:wrap">
+          <% for (let i=1;i<=pages;i++){ %>
+            <a class="btn" href="/admin/projects?<%= 'page=' + i + (q ? ('&q=' + encodeURIComponent(q)) : '') %>"><%= i === page ? ('['+i+']') : i %></a>
+          <% } %>
+        </div>
+      <% } %>
     </div>
   </section>
 </main>

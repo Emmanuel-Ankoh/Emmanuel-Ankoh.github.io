@@ -122,9 +122,14 @@ router.post('/messages/bulk-delete', ensureAuth, async (req, res, next) => {
 router.get('/projects', ensureAuth, async (req, res, next) => {
   try {
     const q = (req.query.q || '').trim();
+    const page = Math.max(parseInt(req.query.page || '1', 10), 1);
+    const limit = Math.min(Math.max(parseInt(req.query.limit || '10', 10), 1), 50);
     const filter = q ? { title: { $regex: q, $options: 'i' } } : {};
-    const projects = await Project.find(filter).sort({ createdAt: -1 }).lean();
-    res.render('admin/projects', { title: 'Manage Projects', projects, project: null, q });
+    const [items, total] = await Promise.all([
+      Project.find(filter).sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit).lean(),
+      Project.countDocuments(filter)
+    ]);
+    res.render('admin/projects', { title: 'Manage Projects', projects: items, project: null, q, page, pages: Math.ceil(total / limit) });
   } catch (err) {
     next(err);
   }
@@ -162,10 +167,15 @@ router.post('/projects', ensureAuth, upload.single('image'),
 router.get('/projects/:id/edit', ensureAuth, async (req, res, next) => {
   try {
     const q = (req.query.q || '').trim();
+    const page = Math.max(parseInt(req.query.page || '1', 10), 1);
+    const limit = Math.min(Math.max(parseInt(req.query.limit || '10', 10), 1), 50);
     const filter = q ? { title: { $regex: q, $options: 'i' } } : {};
-    const projects = await Project.find(filter).sort({ createdAt: -1 }).lean();
+    const [projects, total] = await Promise.all([
+      Project.find(filter).sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit).lean(),
+      Project.countDocuments(filter)
+    ]);
     const project = await Project.findById(req.params.id).lean();
-    res.render('admin/projects', { title: 'Edit Project', projects, project, q });
+    res.render('admin/projects', { title: 'Edit Project', projects, project, q, page, pages: Math.ceil(total / limit) });
   } catch (err) {
     next(err);
   }

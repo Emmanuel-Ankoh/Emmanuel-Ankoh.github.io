@@ -29,15 +29,29 @@ router.get('/about', (req, res) => {
 router.get('/projects', async (req, res, next) => {
   try {
     const q = (req.query.q || '').trim();
-    const filter = q
-      ? { $or: [
-          { title: { $regex: q, $options: 'i' } },
-          { description: { $regex: q, $options: 'i' } },
-          { tech: { $elemMatch: { $regex: q, $options: 'i' } } }
-        ] }
-      : {};
-    const projects = await Project.find(filter).sort({ createdAt: -1 }).lean();
-    res.render('projects', { title: 'Projects', projects, q });
+    const tech = (req.query.tech || '').trim();
+    const page = Math.max(parseInt(req.query.page || '1', 10), 1);
+    const limit = Math.min(Math.max(parseInt(req.query.limit || '9', 10), 1), 50);
+
+    const filter = {};
+    if (q) {
+      filter.$or = [
+        { title: { $regex: q, $options: 'i' } },
+        { description: { $regex: q, $options: 'i' } },
+        { tech: { $elemMatch: { $regex: q, $options: 'i' } } }
+      ];
+    }
+    if (tech) {
+      filter.tech = { $elemMatch: { $regex: `^${tech}$`, $options: 'i' } };
+    }
+
+    const [items, total, techs] = await Promise.all([
+      Project.find(filter).sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit).lean(),
+      Project.countDocuments(filter),
+      Project.distinct('tech')
+    ]);
+    const pages = Math.max(1, Math.ceil(total / limit));
+    res.render('projects', { title: 'Projects', projects: items, q, tech, page, pages, techs: (techs || []).filter(Boolean).sort() });
   } catch (err) {
     next(err);
   }

@@ -30,7 +30,20 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
 // Middleware
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: {
+    useDefaults: true,
+    directives: {
+      "default-src": ["'self'"],
+      "img-src": ["'self'", "data:", "https://res.cloudinary.com"],
+      "script-src": ["'self'", "'unsafe-inline'", "https://cdn.quilljs.com", "https://www.google.com", "https://www.gstatic.com"],
+      "style-src": ["'self'", "'unsafe-inline'", "https://cdn.quilljs.com", "https://fonts.googleapis.com"],
+      "font-src": ["'self'", "https://fonts.gstatic.com"],
+      "connect-src": ["'self'", "https://res.cloudinary.com"],
+      "frame-src": ["https://www.google.com"]
+    }
+  }
+}));
 const limiter = rateLimit({ windowMs: 60 * 1000, max: 100 });
 app.use(limiter);
 app.use(express.urlencoded({ extended: true }));
@@ -40,7 +53,12 @@ const sessionOptions = {
   secret: process.env.SESSION_SECRET || 'supersecret',
   resave: false,
   saveUninitialized: false,
-  cookie: { maxAge: 1000 * 60 * 60 * 24 }
+  cookie: {
+    maxAge: 1000 * 60 * 60 * 24,
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production'
+  }
 };
 
 try {
