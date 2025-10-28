@@ -17,7 +17,11 @@
     <% } %>
     <% (projects || []).forEach((p, i) => { %>
       <article class="card" data-aos="fade-up" data-aos-delay="<%= i * 40 %>">
-        <img src="<%= p.imageUrl || '/images/placeholder.svg' %>" alt="Screenshot of <%= p.title %>" loading="lazy" decoding="async" />
+        <img src="<%= p.imageUrl || '/images/placeholder.svg' %>" alt="Screenshot of <%= p.title %>" loading="lazy" decoding="async"
+             <% if (p.imageUrl && clSrcset(p.imageUrl)) { %>
+               srcset="<%= clSrcset(p.imageUrl) %>" sizes="<%= clSizesDefault %>"
+             <% } %>
+        />
         <div class="card-body">
           <h3><a href="/projects/<%= p.slug %>"><%= p.title %></a></h3>
           <p><%= p.description %></p>

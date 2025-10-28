@@ -111,6 +111,27 @@ app.use(async (req, res, next) => {
   res.locals.meta = res.locals.meta || { description: `Portfolio of ${siteName}: projects, skills, and contact.` };
   res.locals.analyticsId = process.env.GOOGLE_ANALYTICS_ID || '';
   res.locals.recaptchaSiteKey = process.env.RECAPTCHA_SITE_KEY || '';
+  // Cloudinary helpers for responsive images
+  function isCloudinaryUrl(url) {
+    return typeof url === 'string' && /https?:\/\/res\.cloudinary\.com\//.test(url);
+  }
+  function addTransform(url, transform) {
+    // insert transform after /upload/
+    return url.replace(/\/upload\//, `/upload/${transform ? transform + ',' : ''}`);
+  }
+  function clSrcset(url, widths = [360, 640, 960, 1280]) {
+    if (!isCloudinaryUrl(url)) return '';
+    const cleaned = widths
+      .filter((w, i, arr) => Number.isFinite(w) && w > 0 && arr.indexOf(w) === i)
+      .sort((a, b) => a - b);
+    const parts = cleaned.map(w => {
+      const t = `f_auto,q_auto,c_scale,w_${w},dpr_auto`;
+      return `${addTransform(url, t)} ${w}w`;
+    });
+    return parts.join(', ');
+  }
+  res.locals.clSrcset = clSrcset;
+  res.locals.clSizesDefault = "(max-width: 600px) 100vw, (max-width: 1024px) 50vw, 33vw";
   next();
 });
 

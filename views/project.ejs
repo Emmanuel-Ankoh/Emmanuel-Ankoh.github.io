@@ -2,7 +2,11 @@
 <main id="main" class="container">
   <article class="project-detail">
     <h1><%= project.title %></h1>
-  <img src="<%= project.imageUrl || '/images/placeholder.svg' %>" alt="Screenshot of <%= project.title %>" style="width:100%;max-height:360px;object-fit:cover;border:1px solid var(--border);border-radius:.5rem" loading="lazy" decoding="async"/>
+    <img src="<%= project.imageUrl || '/images/placeholder.svg' %>" alt="Screenshot of <%= project.title %>" style="width:100%;max-height:360px;object-fit:cover;border:1px solid var(--border);border-radius:.5rem" loading="lazy" decoding="async"
+         <% if (project.imageUrl && clSrcset(project.imageUrl)) { %>
+           srcset="<%= clSrcset(project.imageUrl, [640, 960, 1280, 1600]) %>" sizes="100vw"
+         <% } %>
+    />
     <p style="margin-top:1rem"><%= project.description %></p>
     <div class="tags" style="margin:.75rem 0 1.25rem">
       <% (project.tech || []).forEach(t => { %><span class="tag"><%= t %></span><% }) %>
