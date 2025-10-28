@@ -4,6 +4,24 @@
   <% if (error) { %><div class="alert error"><%= error %></div><% } %>
   <% if (success) { %><div class="alert success"><%= success %></div><% } %>
   <form method="POST" action="/admin/profile" class="contact-form" style="max-width:720px">
+    <div class="grid" style="grid-template-columns:1fr 1fr;gap:1rem">
+      <div>
+        <label>Primary CTA Text</label>
+        <input name="homeCtaPrimaryText" value="<%= settings && settings.homeCta && settings.homeCta.primaryText || '' %>" />
+      </div>
+      <div>
+        <label>Primary CTA URL</label>
+        <input name="homeCtaPrimaryUrl" value="<%= settings && settings.homeCta && settings.homeCta.primaryUrl || '' %>" />
+      </div>
+      <div>
+        <label>Secondary CTA Text</label>
+        <input name="homeCtaSecondaryText" value="<%= settings && settings.homeCta && settings.homeCta.secondaryText || '' %>" />
+      </div>
+      <div>
+        <label>Secondary CTA URL</label>
+        <input name="homeCtaSecondaryUrl" value="<%= settings && settings.homeCta && settings.homeCta.secondaryUrl || '' %>" />
+      </div>
+    </div>
     <input type="hidden" name="_csrf" value="<%= csrfToken %>">
     <label>Name</label>
     <input name="name" value="<%= settings && settings.name || '' %>" required />
@@ -17,12 +35,59 @@
     <input name="resumeUrl" value="<%= settings && settings.resumeUrl || '' %>" />
     <label>Contact Intro</label>
     <input name="contactIntro" value="<%= settings && settings.contactIntro || '' %>" />
-    
+    <fieldset style="border:1px solid var(--border);padding:1rem;border-radius:.5rem">
+      <legend>Social Links</legend>
+      <div class="grid" style="grid-template-columns:1fr 1fr;gap:1rem">
+        <div>
+          <label>GitHub</label>
+          <input name="socials.github" value="<%= settings && settings.socials && settings.socials.github || '' %>" />
+        </div>
+        <div>
+          <label>LinkedIn</label>
+          <input name="socials.linkedin" value="<%= settings && settings.socials && settings.socials.linkedin || '' %>" />
+        </div>
+        <div>
+          <label>Twitter</label>
+          <input name="socials.twitter" value="<%= settings && settings.socials && settings.socials.twitter || '' %>" />
+        </div>
+        <div>
+          <label>Email</label>
+          <input name="socials.email" value="<%= settings && settings.socials && settings.socials.email || '' %>" />
+        </div>
+      </div>
+    </fieldset>
 
   <label>About Body</label>
-  <textarea name="aboutBody" rows="6"><%= settings && settings.aboutBody || '' %></textarea>
+  <div id="about-editor" style="min-height:180px;background:var(--card);border:1px solid var(--border);border-radius:.5rem"></div>
+  <textarea name="aboutBody" rows="6" style="display:none"><%= settings && settings.aboutBody || '' %></textarea>
+    <fieldset style="border:1px solid var(--border);padding:1rem;border-radius:.5rem;margin-top:1rem">
+      <legend>Timeline (JSON)</legend>
+      <small>Example: [{"year":"2024","title":"Role","subtitle":"Org","description":"..."}]</small>
+      <textarea name="timeline" rows="6"><%- JSON.stringify((settings && settings.timeline) || [], null, 2) %></textarea>
+    </fieldset>
 
-    
+    <fieldset style="border:1px solid var(--border);padding:1rem;border-radius:.5rem;margin-top:1rem">
+      <legend>Skills (JSON)</legend>
+      <small>Example: [{"name":"JavaScript","level":90}]</small>
+      <textarea name="skills" rows="6"><%- JSON.stringify((settings && settings.skills) || [], null, 2) %></textarea>
+    </fieldset>
+    <link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
+    <script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
+    <script>
+      (function(){
+        const form = document.currentScript.closest('form');
+        const aboutEditor = document.getElementById('about-editor');
+        const aboutTextarea = form.querySelector('textarea[name="aboutBody"]');
+        if (aboutEditor && window.Quill) {
+          const quill = new Quill(aboutEditor, {
+            theme: 'snow',
+            modules: { toolbar: [['bold','italic','underline','strike'],[{header:[1,2,3,false]}],[{list:'ordered'},{list:'bullet'}],['blockquote','code-block'],['link'],['clean']] }
+          });
+          quill.root.innerHTML = aboutTextarea.value || '';
+          form.addEventListener('submit', ()=>{ aboutTextarea.value = quill.root.innerHTML; });
+        }
+      })();
+    </script>
 
     
     <div class="toolbar">
