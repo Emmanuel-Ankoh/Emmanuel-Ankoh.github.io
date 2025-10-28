@@ -31,11 +31,14 @@
     <textarea name="summary" rows="5" required><%= settings && settings.summary || '' %></textarea>
     <div class="grid" style="grid-template-columns:120px 1fr;gap:1rem;align-items:center">
       <div>
-        <img src="<%= (settings && settings.avatarUrl) || '/images/placeholder.svg' %>" alt="Current avatar" style="width:100px;height:100px;border-radius:50%;object-fit:cover;border:1px solid var(--border)" />
+        <img id="avatar-preview" src="<%= (settings && settings.avatarUrl) || '/images/placeholder.svg' %>" alt="Current avatar" style="width:100px;height:100px;border-radius:50%;object-fit:cover;border:1px solid var(--border)" />
       </div>
       <div>
         <label>Avatar</label>
-        <input type="file" name="avatar" accept="image/*" />
+        <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap">
+          <input type="file" name="avatar" accept="image/*" />
+          <button type="submit" class="btn" name="do" value="uploadAvatar">Upload Avatar</button>
+        </div>
         <small>Max 5MB. JPG/PNG/WebP recommended.</small>
         <div style="margin-top:.5rem">
           <label>Or paste image URL</label>
@@ -117,6 +120,18 @@
     <script>
       (function(){
         const form = document.currentScript.closest('form');
+        // Avatar live preview
+        const avatarInput = form.querySelector('input[name="avatar"]');
+        const avatarImg = form.querySelector('#avatar-preview');
+        if (avatarInput && avatarImg) {
+          avatarInput.addEventListener('change', function(){
+            const f = this.files && this.files[0];
+            if (!f) return;
+            const reader = new FileReader();
+            reader.onload = e => { avatarImg.src = e.target.result; };
+            reader.readAsDataURL(f); // data: URL works with current CSP
+          });
+        }
         // Timeline repeater
         const timelineList = form.querySelector('#timeline-list');
         const timelineHidden = form.querySelector('textarea[name="timelineText"]');
