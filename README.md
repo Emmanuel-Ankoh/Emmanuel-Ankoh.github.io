@@ -19,17 +19,22 @@ A modern, responsive developer portfolio with dynamic projects, contact form wit
 This app includes a simple CMS powered by a singleton Settings document. From the Admin panel, go to Profile to edit site-wide content:
 
 - Identity: Name, Headline, Summary
-- Avatar: Upload via Cloudinary or paste an image URL (previous Cloudinary image is cleaned up on replace)
+- Avatar: Paste an image URL (Cloudinary upload optional for projects, not required here)
 - Home CTAs: Primary/Secondary text + URLs for hero buttons
-- Resume URL: Link used for the Resume button in the nav
+- Resume URL: Link used for the Resume button
 - Contact Intro: Short text shown at the top of the Contact page
-- Socials: GitHub, LinkedIn, Twitter, Email – used across the footer/nav
+- Socials: GitHub, LinkedIn, Twitter, Email – used across the footer/home
 - About Body: Rich text editor (Quill) for the About page body
 	- Server-side sanitization is applied (sanitize-html with a safe whitelist)
-- Timeline: Add/remove items via repeater UI (year, title, subtitle, description)
-- Skills: Add/remove skills via repeater UI with level 0–100 (animated bars on the Skills page)
+- Timeline: Simple text input. One item per line. Format is flexible:
+	- year | title | subtitle | description (pipe-separated), or
+	- title | description, or
+	- just a description
+- Skills: Simple text input. One per line using either of these:
+	- Name:Level (0–100), e.g., JavaScript:90
+	- Name (Level%), e.g., CSS (70%)
 
-Changes are saved securely with CSRF protection and reflected across pages immediately. Settings are lightly cached to reduce DB reads.
+Changes are saved securely with CSRF protection and reflected across pages immediately. Settings are lightly cached to reduce DB reads, and the cache is auto-busted after each save.
 
 ## Tech
 - Frontend: HTML5, CSS3, Vanilla JS

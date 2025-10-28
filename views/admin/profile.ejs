@@ -61,15 +61,21 @@
   <div id="about-editor" style="min-height:180px;background:var(--card);border:1px solid var(--border);border-radius:.5rem"></div>
   <textarea name="aboutBody" rows="6" style="display:none"><%= settings && settings.aboutBody || '' %></textarea>
     <fieldset style="border:1px solid var(--border);padding:1rem;border-radius:.5rem;margin-top:1rem">
-      <legend>Timeline (JSON)</legend>
-      <small>Example: [{"year":"2024","title":"Role","subtitle":"Org","description":"..."}]</small>
-      <textarea name="timeline" rows="6"><%- JSON.stringify((settings && settings.timeline) || [], null, 2) %></textarea>
+      <legend>Timeline</legend>
+      <small>One item per line. Format: year | title | subtitle | description. You can also just write a description per line.</small>
+      <textarea name="timelineText" rows="6"><%=(Array.isArray(settings && settings.timeline) ? (settings.timeline.map(function(it){
+        var parts=[]; if (it.year) parts.push(it.year); if (it.title) parts.push(it.title); if (it.subtitle) parts.push(it.subtitle); if (it.description) parts.push(it.description);
+        return parts.join(' | ');
+      }).join('\n')) : '') %></textarea>
     </fieldset>
 
     <fieldset style="border:1px solid var(--border);padding:1rem;border-radius:.5rem;margin-top:1rem">
-      <legend>Skills (JSON)</legend>
-      <small>Example: [{"name":"JavaScript","level":90}]</small>
-      <textarea name="skills" rows="6"><%- JSON.stringify((settings && settings.skills) || [], null, 2) %></textarea>
+      <legend>Skills</legend>
+      <small>One skill per line. Format: Name:Level (0-100). Example: JavaScript:90</small>
+      <textarea name="skillsText" rows="6"><%=(Array.isArray(settings && settings.skills) ? (settings.skills.map(function(s){
+        var lvl = (typeof s.level === 'number' ? s.level : '');
+        return (s.name || '') + (lvl!=='' ? (':' + lvl) : '');
+      }).join('\n')) : '') %></textarea>
     </fieldset>
     <link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
     <script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>

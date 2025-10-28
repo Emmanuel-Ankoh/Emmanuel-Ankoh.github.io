@@ -288,24 +288,54 @@ router.post('/profile', ensureAuth,
         });
         settings.aboutBody = clean;
       }
-      // Parse timeline & skills JSON (optional)
-      try {
-        if (req.body.timeline) {
-          const t = JSON.parse(req.body.timeline);
-          if (!Array.isArray(t)) throw new Error('Timeline must be an array');
+      // Parse simple timeline text (one item per line; parts separated by |). Empty input clears timeline.
+      if ('timelineText' in req.body) {
+        const timelineText = (req.body.timelineText || '').trim();
+        if (timelineText) {
+          const lines = timelineText.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+          const t = lines.map(line => {
+            const parts = line.split('|').map(p => p.trim()).filter(p => p.length);
+            let year, title, subtitle, description;
+            if (parts.length >= 4) { [year, title, subtitle, description] = parts; }
+            else if (parts.length === 3) { [year, title, description] = parts; }
+            else if (parts.length === 2) { [title, description] = parts; }
+            else { description = parts[0]; }
+            return { year, title, subtitle, description };
+          });
           settings.timeline = t;
+        } else {
+          settings.timeline = [];
         }
-      } catch (e) {
-        return res.status(400).render('admin/profile', { title: 'Profile', settings, error: 'Invalid Timeline JSON. Please provide an array of items.', success: null });
       }
-      try {
-        if (req.body.skills) {
-          const s = JSON.parse(req.body.skills);
-          if (!Array.isArray(s)) throw new Error('Skills must be an array');
+
+      // Parse simple skills text (one per line: Name:Level). Empty input clears skills.
+      if ('skillsText' in req.body) {
+        const skillsText = (req.body.skillsText || '').trim();
+        if (skillsText) {
+          const lines = skillsText.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+          const s = lines.map(line => {
+            // Allow "Name:90" or "Name (90%)" or just "Name"
+            let name = line; let level;
+            const m = line.match(/^([^:]+):\s*([0-9]{1,3})\s*%?$/);
+            if (m) {
+              name = m[1].trim();
+              level = Math.max(0, Math.min(100, parseInt(m[2], 10)));
+            } else {
+              const m2 = line.match(/^(.+?)\s*\((\d{1,3})%?\)$/);
+              if (m2) {
+                name = m2[1].trim();
+                level = Math.max(0, Math.min(100, parseInt(m2[2], 10)));
+              } else {
+                name = line.trim();
+                level = undefined;
+              }
+            }
+            return { name, level };
+          });
           settings.skills = s;
+        } else {
+          settings.skills = [];
         }
-      } catch (e) {
-        return res.status(400).render('admin/profile', { title: 'Profile', settings, error: 'Invalid Skills JSON. Please provide an array of items.', success: null });
       }
       try {
         await settings.save();
