@@ -64,10 +64,132 @@
 
     <label>About Body (plain text or HTML)</label>
     <textarea name="aboutBody" rows="6"><%= settings && settings.aboutBody || '' %></textarea>
-    <label>Timeline (JSON array)</label>
-    <textarea name="timeline" rows="8" placeholder='[{"year":"2024","title":"Role","subtitle":"Company","description":"..."}]'><%= JSON.stringify((settings && settings.timeline) || [], null, 2) %></textarea>
-    <label>Skills (JSON array)</label>
-    <textarea name="skills" rows="8" placeholder='[{"name":"JavaScript","level":90}]'><%= JSON.stringify((settings && settings.skills) || [], null, 2) %></textarea>
+
+    <fieldset style="border:1px solid var(--border);padding:1rem;border-radius:.5rem;margin-top:1rem">
+      <legend>Timeline</legend>
+      <div id="timeline-list" class="repeater"></div>
+      <input type="hidden" name="timeline" id="timeline-json" />
+      <div class="toolbar">
+        <div></div>
+        <button type="button" class="btn" id="add-timeline">+ Add Timeline Item</button>
+      </div>
+    </fieldset>
+
+    <fieldset style="border:1px solid var(--border);padding:1rem;border-radius:.5rem;margin-top:1rem">
+      <legend>Skills</legend>
+      <div id="skills-list" class="repeater"></div>
+      <input type="hidden" name="skills" id="skills-json" />
+      <div class="toolbar">
+        <div></div>
+        <button type="button" class="btn" id="add-skill">+ Add Skill</button>
+      </div>
+    </fieldset>
+
+    <script id="initial-timeline" type="application/json"><%- JSON.stringify((settings && settings.timeline) || []) %></script>
+    <script id="initial-skills" type="application/json"><%- JSON.stringify((settings && settings.skills) || []) %></script>
+    <script>
+      (function(){
+        const initialTimeline = JSON.parse((document.getElementById('initial-timeline')?.textContent)||'[]');
+        const initialSkills = JSON.parse((document.getElementById('initial-skills')?.textContent)||'[]');
+
+        const tList = document.getElementById('timeline-list');
+        const sList = document.getElementById('skills-list');
+        const tJson = document.getElementById('timeline-json');
+        const sJson = document.getElementById('skills-json');
+        const addT = document.getElementById('add-timeline');
+        const addS = document.getElementById('add-skill');
+        const form = document.currentScript.closest('form');
+
+        function timelineItem(data={}){
+          const wrap = document.createElement('div');
+          wrap.className = 'item timeline-item';
+          wrap.innerHTML = `
+            <div>
+              <label>Year</label>
+              <input type="text" class="t-year" value="${data.year||''}">
+            </div>
+            <div>
+              <label>Title</label>
+              <input type="text" class="t-title" value="${data.title||''}">
+            </div>
+            <div>
+              <label>Subtitle</label>
+              <input type="text" class="t-subtitle" value="${data.subtitle||''}">
+            </div>
+            <div>
+              <label>Description</label>
+              <textarea rows="3" class="t-description">${data.description||''}</textarea>
+            </div>
+            <div style="grid-column:1 / -1;text-align:right">
+              <button type="button" class="btn danger t-remove">Remove</button>
+            </div>
+          `;
+          wrap.querySelector('.t-remove').addEventListener('click', ()=>{
+            wrap.remove();
+            serialize();
+          });
+          return wrap;
+        }
+
+        function skillItem(data={}){
+          const wrap = document.createElement('div');
+          wrap.className = 'item skill-item';
+          wrap.innerHTML = `
+            <div>
+              <label>Name</label>
+              <input type="text" class="s-name" value="${data.name||''}">
+            </div>
+            <div>
+              <label>Level (0-100)</label>
+              <input type="number" min="0" max="100" class="s-level" value="${typeof data.level==='number'?data.level:''}">
+            </div>
+            <div style="grid-column:1 / -1;text-align:right">
+              <button type="button" class="btn danger s-remove">Remove</button>
+            </div>
+          `;
+          wrap.querySelector('.s-remove').addEventListener('click', ()=>{
+            wrap.remove();
+            serialize();
+          });
+          return wrap;
+        }
+
+        function serialize(){
+          const t = Array.from(tList.querySelectorAll('.timeline-item')).map(el=>({
+            year: el.querySelector('.t-year').value.trim(),
+            title: el.querySelector('.t-title').value.trim(),
+            subtitle: el.querySelector('.t-subtitle').value.trim(),
+            description: el.querySelector('.t-description').value.trim()
+          })).filter(x=>x.year || x.title || x.subtitle || x.description);
+          const s = Array.from(sList.querySelectorAll('.skill-item')).map(el=>({
+            name: el.querySelector('.s-name').value.trim(),
+            level: Number(el.querySelector('.s-level').value || 0)
+          })).filter(x=>x.name);
+          tJson.value = JSON.stringify(t);
+          sJson.value = JSON.stringify(s);
+        }
+
+        addT.addEventListener('click', ()=>{
+          tList.appendChild(timelineItem());
+          serialize();
+        });
+        addS.addEventListener('click', ()=>{
+          sList.appendChild(skillItem());
+          serialize();
+        });
+
+        // init from existing
+        (initialTimeline.length?initialTimeline:[{}]).forEach(item=>tList.appendChild(timelineItem(item)));
+        (initialSkills.length?initialSkills:[{}]).forEach(item=>sList.appendChild(skillItem(item)));
+        serialize();
+
+        // update JSON on any input change
+        form.addEventListener('input', (e)=>{
+          if (form.contains(e.target)) serialize();
+        });
+        form.addEventListener('submit', ()=>{ serialize(); });
+      })();
+    </script>
     <div class="toolbar">
       <div></div>
       <button class="btn btn-primary" type="submit">Save</button>
