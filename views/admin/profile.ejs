@@ -1,0 +1,27 @@
+<%- include('../partials/head', { title }) %>
+<main id="main" class="container">
+  <h1>Profile</h1>
+  <% if (error) { %><div class="alert error"><%= error %></div><% } %>
+  <% if (success) { %><div class="alert success"><%= success %></div><% } %>
+  <form method="POST" action="/admin/profile" enctype="multipart/form-data" class="contact-form" style="max-width:720px">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+    <label>Name</label>
+    <input name="name" value="<%= settings && settings.name || '' %>" required />
+    <label>Headline</label>
+    <input name="headline" value="<%= settings && settings.headline || '' %>" required />
+    <label>Summary</label>
+    <textarea name="summary" rows="5" required><%= settings && settings.summary || '' %></textarea>
+    <label>Avatar</label>
+    <% if (settings && settings.avatarUrl) { %>
+      <img src="<%= settings.avatarUrl %>" alt="Avatar" style="width:160px;height:160px;border-radius:50%;border:1px solid var(--border);margin-bottom:.5rem" />
+    <% } %>
+    <input type="file" name="avatar" accept="image/*" />
+    <small>Or paste avatar URL:</small>
+    <input name="avatarUrl" value="<%= settings && settings.avatarUrl || '' %>" />
+    <div class="toolbar">
+      <div></div>
+      <button class="btn btn-primary" type="submit">Save</button>
+    </div>
+  </form>
+</main>
+<%- include('../partials/footer') %>

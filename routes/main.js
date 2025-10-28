@@ -5,6 +5,7 @@ const Admin = require('../models/admin');
 const rateLimit = require('express-rate-limit');
 const { body, validationResult } = require('express-validator');
 const { sendMail } = require('../utils/mailer');
+const Settings = require('../models/settings');
 
 const router = express.Router();
 
@@ -12,7 +13,8 @@ const router = express.Router();
 router.get('/', async (req, res, next) => {
   try {
     const featured = await Project.find({ featured: true }).sort({ createdAt: -1 }).limit(6).lean();
-    res.render('index', { title: 'Home', featured });
+    const settings = await Settings.getSingleton();
+    res.render('index', { title: 'Home', featured, settings });
   } catch (err) {
     next(err);
   }

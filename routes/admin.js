@@ -5,6 +5,7 @@ const Message = require('../models/message');
 const multer = require('multer');
 const { cloudinary } = require('../utils/cloudinary');
 const { body, validationResult } = require('express-validator');
+const Settings = require('../models/settings');
 
 const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 * 1024 * 1024 } });
@@ -211,6 +212,47 @@ router.post('/projects/:id/delete', ensureAuth, async (req, res, next) => {
     next(err);
   }
 });
+// Profile/Settings management
+router.get('/profile', ensureAuth, async (req, res, next) => {
+  try {
+    const settings = await Settings.getSingleton();
+    res.render('admin/profile', { title: 'Profile', settings, error: null, success: null });
+  } catch (e) { next(e); }
+});
+
+router.post('/profile', ensureAuth, upload.single('avatar'),
+  body('name').trim().isLength({ min: 2 }),
+  body('headline').trim().isLength({ min: 2 }),
+  body('summary').trim().isLength({ min: 10 }),
+  async (req, res, next) => {
+    try {
+      const settings = await Settings.getSingleton();
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.render('admin/profile', { title: 'Profile', settings, error: errors.array().map(e=>e.msg).join(', '), success: null });
+      }
+      const { name, headline, summary, avatarUrl } = req.body;
+      let uploadResult = null;
+      if (cloudinary && req.file) {
+        uploadResult = await new Promise((resolve, reject) => {
+          const stream = cloudinary.uploader.upload_stream({ folder: 'portfolio' }, (err, resu) => err ? reject(err) : resolve(resu));
+          stream.end(req.file.buffer);
+        });
+      }
+      if (uploadResult && settings.avatarPublicId && cloudinary) {
+        try { await cloudinary.uploader.destroy(settings.avatarPublicId); } catch (e) { /* ignore */ }
+      }
+      settings.name = name;
+      settings.headline = headline;
+      settings.summary = summary;
+      settings.avatarUrl = uploadResult ? uploadResult.secure_url : (avatarUrl || settings.avatarUrl);
+      settings.avatarPublicId = uploadResult ? uploadResult.public_id : settings.avatarPublicId;
+      await settings.save();
+      req.session.flash = { type: 'success', message: 'Profile updated' };
+      res.redirect('/admin/profile');
+    } catch (e) { next(e); }
+  }
+);
 
 router.post('/projects/:id/toggle', ensureAuth, async (req, res, next) => {
   try {

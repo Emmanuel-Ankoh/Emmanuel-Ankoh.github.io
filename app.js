@@ -67,11 +67,30 @@ app.use((req, res, next) => {
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Locals
-app.use((req, res, next) => {
+// Lightweight cached settings to avoid DB hit on every request
+const Settings = require('./models/settings');
+let __settingsCache = { data: null, ts: 0 };
+async function loadSettingsCached() {
+  const now = Date.now();
+  if (!__settingsCache.data || now - __settingsCache.ts > 60_000) {
+    try {
+      __settingsCache.data = await Settings.getSingleton();
+      __settingsCache.ts = now;
+    } catch (e) {
+      // ignore settings load errors
+    }
+  }
+  return __settingsCache.data;
+}
+
+app.use(async (req, res, next) => {
   const baseUrl = process.env.BASE_URL || '';
   res.locals.isAuthenticated = !!req.session.userId;
-  res.locals.site = { name: 'Emmanuel Ankoh', baseUrl };
-  res.locals.meta = res.locals.meta || { description: 'Portfolio of Emmanuel Ankoh: projects, skills, and contact.' };
+  const settings = await loadSettingsCached();
+  const siteName = settings?.name || 'Emmanuel Ankoh';
+  res.locals.profile = settings || {};
+  res.locals.site = { name: siteName, baseUrl };
+  res.locals.meta = res.locals.meta || { description: `Portfolio of ${siteName}: projects, skills, and contact.` };
   res.locals.analyticsId = process.env.GOOGLE_ANALYTICS_ID || '';
   next();
 });

@@ -1,13 +1,18 @@
 <%- include('partials/head', { title }) %>
 <main id="main">
   <section class="hero" aria-label="Intro">
-    <div class="container">
-      <h1 data-aos="fade-up">Hi, I'm <span class="accent">Emmanuel Ankoh</span></h1>
-      <p class="subtitle" data-aos="fade-up" data-aos-delay="100">Full-Stack Developer · Problem Solver · Lifelong Learner</p>
-      <p data-aos="fade-up" data-aos-delay="200">I build fast, accessible, and delightful web apps with clean code and solid engineering practices.</p>
-      <div class="hero-ctas" data-aos="fade-up" data-aos-delay="300">
-        <a href="/projects" class="btn btn-primary">View Projects</a>
-        <a href="/contact" class="btn">Get in Touch</a>
+    <div class="container hero-grid">
+      <div>
+        <h1 data-aos="fade-up">Hi, I'm <span class="accent"><%= (settings && settings.name) || (profile && profile.name) || 'Your Name' %></span></h1>
+        <p class="subtitle" data-aos="fade-up" data-aos-delay="100"><%= (settings && settings.headline) || (profile && profile.headline) || 'Full-Stack Developer' %></p>
+        <p data-aos="fade-up" data-aos-delay="200"><%= (settings && settings.summary) || (profile && profile.summary) || 'I build fast, accessible, and delightful web apps with clean code and solid engineering practices.' %></p>
+        <div class="hero-ctas" data-aos="fade-up" data-aos-delay="300">
+          <a href="/projects" class="btn btn-primary">View Projects</a>
+          <a href="/contact" class="btn">Get in Touch</a>
+        </div>
+      </div>
+      <div data-aos="fade-left" data-aos-delay="150" style="text-align:right">
+        <img src="<%= (settings && settings.avatarUrl) || (profile && profile.avatarUrl) || '/images/placeholder.svg' %>" alt="Avatar" style="width:280px;max-width:100%;height:280px;object-fit:cover;border-radius:50%;border:2px solid var(--border)" />
       </div>
     </div>
   </section>

@@ -19,6 +19,7 @@ a:hover{text-decoration:underline}
 .hero .accent{color:var(--accent)}
 .subtitle{color:var(--muted);font-size:1.125rem}
 .hero-ctas{margin-top:1rem;display:flex;gap:.75rem}
+.hero-grid{display:grid;grid-template-columns:1fr 320px;gap:2rem;align-items:center}
 
 .btn{display:inline-block;padding:.6rem 1rem;border:1px solid var(--border);border-radius:.4rem;color:var(--text);background:transparent}
 .btn:hover{background:#1b2030}
@@ -93,4 +94,5 @@ a:hover{text-decoration:underline}
   .about-grid{grid-template-columns:1fr}
   .skills-grid{grid-template-columns:1fr}
   .cards-2{grid-template-columns:1fr}
+  .hero-grid{grid-template-columns:1fr}
 }
