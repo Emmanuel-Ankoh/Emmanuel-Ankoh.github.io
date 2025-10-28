@@ -13,7 +13,7 @@ services:
       - key: PORT
         value: 3000
       - key: MONGO_URI
-        sync: false   # set in Render dashboard after creating service
+        sync: false   # set in Render dashboard after creating service (do NOT commit secrets)
       - key: SESSION_SECRET
         generateValue: true
       - key: ADMIN_USERNAME
