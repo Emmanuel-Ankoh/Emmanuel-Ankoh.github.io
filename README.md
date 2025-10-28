@@ -15,6 +15,22 @@ A modern, responsive developer portfolio with dynamic projects, contact form wit
  - Security: Helmet, rate limiting, CSRF protection
  - SEO: OG/Twitter tags, sitemap.xml, robots.txt
 
+## Manage site content (Admin → Profile)
+This app includes a simple CMS powered by a singleton Settings document. From the Admin panel, go to Profile to edit site-wide content:
+
+- Identity: Name, Headline, Summary
+- Avatar: Upload via Cloudinary or paste an image URL (previous Cloudinary image is cleaned up on replace)
+- Home CTAs: Primary/Secondary text + URLs for hero buttons
+- Resume URL: Link used for the Resume button in the nav
+- Contact Intro: Short text shown at the top of the Contact page
+- Socials: GitHub, LinkedIn, Twitter, Email – used across the footer/nav
+- About Body: Rich text editor (Quill) for the About page body
+	- Server-side sanitization is applied (sanitize-html with a safe whitelist)
+- Timeline: Add/remove items via repeater UI (year, title, subtitle, description)
+- Skills: Add/remove skills via repeater UI with level 0–100 (animated bars on the Skills page)
+
+Changes are saved securely with CSRF protection and reflected across pages immediately. Settings are lightly cached to reduce DB reads.
+
 ## Tech
 - Frontend: HTML5, CSS3, Vanilla JS
 - Backend: Node.js, Express.js, EJS
@@ -87,6 +103,22 @@ You can deploy in two ways:
 
 Finally, edit `index.html` in the repo and set the "Open Portfolio" link to your Render URL. Optionally, enable the redirect script (already enabled) to auto-send users to the live app. Also set `BASE_URL` in your environment for accurate `og:url` and sitemap links.
 
+## Admin usage cheatsheet
+
+- Login: `/admin/login` using `ADMIN_USERNAME` and `ADMIN_PASSWORD` from your environment
+- Dashboard: `/admin`
+- Projects:
+	- Add with optional image upload (to Cloudinary) or via image URL
+	- Edit/Update, Delete, Toggle Featured, Search
+- Messages:
+	- Search, pagination, mark read/unread, bulk delete
+- Admins:
+	- Add/delete admins; cannot delete the last remaining admin
+- Security:
+	- Change password for the currently logged-in admin
+- Profile (Site Settings):
+	- Manage Home/About/Skills/Contact/socials/resume/CTAs/avatar via a single screen
+
 ## API/Routes
 - `/` Home (featured projects)
 - `/about`, `/projects`, `/skills`, `/contact`
@@ -108,6 +140,12 @@ Finally, edit `index.html` in the repo and set the "Open Portfolio" link to your
 
 ## Notes
 - Replace placeholder images under `public/images`.
-- Update social links in `views/partials/footer.ejs`.
+- Social links and resume URL are managed in Admin → Profile (no code edits required).
 - For a custom domain on Render, configure a CNAME and enable HTTPS.
  - GitHub Pages (this repo) includes a button on `index.html` that links to your deployed app; update it after deployment.
+
+## Troubleshooting
+- CSRF errors: Ensure you submit forms from the same origin/tab and that cookies are enabled. Refresh and resubmit if a form sat open too long.
+- Mongo Atlas connection: Add your server’s IP (or 0.0.0.0/0 for testing) to Atlas Network Access.
+- Cloudinary: Provide `CLOUDINARY_URL` (or individual creds) for uploads; otherwise paste image URLs instead of uploading.
+- Emails: Configure SMTP env vars for contact notifications; the app safely no-ops if SMTP is missing.
