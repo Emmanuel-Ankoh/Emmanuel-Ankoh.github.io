@@ -3,7 +3,7 @@
   <h1>Profile</h1>
   <% if (error) { %><div class="alert error"><%= error %></div><% } %>
   <% if (success) { %><div class="alert success"><%= success %></div><% } %>
-  <form method="POST" action="/admin/profile" class="contact-form" style="max-width:720px">
+  <form method="POST" action="/admin/profile" enctype="multipart/form-data" class="contact-form" style="max-width:720px">
     <div class="grid" style="grid-template-columns:1fr 1fr;gap:1rem">
       <div>
         <label>Primary CTA Text</label>
@@ -29,8 +29,20 @@
     <input name="headline" value="<%= settings && settings.headline || '' %>" required />
     <label>Summary</label>
     <textarea name="summary" rows="5" required><%= settings && settings.summary || '' %></textarea>
-    <label>Avatar URL</label>
-    <input name="avatarUrl" value="<%= settings && settings.avatarUrl || '' %>" placeholder="https://..." />
+    <div class="grid" style="grid-template-columns:120px 1fr;gap:1rem;align-items:center">
+      <div>
+        <img src="<%= (settings && settings.avatarUrl) || '/images/placeholder.svg' %>" alt="Current avatar" style="width:100px;height:100px;border-radius:50%;object-fit:cover;border:1px solid var(--border)" />
+      </div>
+      <div>
+        <label>Avatar</label>
+        <input type="file" name="avatar" accept="image/*" />
+        <small>Max 5MB. JPG/PNG/WebP recommended.</small>
+        <div style="margin-top:.5rem">
+          <label>Or paste image URL</label>
+          <input name="avatarUrl" value="<%= settings && settings.avatarUrl || '' %>" placeholder="https://..." />
+        </div>
+      </div>
+    </div>
     <label>Resume URL</label>
     <input name="resumeUrl" value="<%= settings && settings.resumeUrl || '' %>" />
     <label>Contact Intro</label>
@@ -62,8 +74,12 @@
   <textarea name="aboutBody" rows="6" style="display:none"><%= settings && settings.aboutBody || '' %></textarea>
     <fieldset style="border:1px solid var(--border);padding:1rem;border-radius:.5rem;margin-top:1rem">
       <legend>Timeline</legend>
-      <small>One item per line. Format: year | title | subtitle | description. You can also just write a description per line.</small>
-      <textarea name="timelineText" rows="6"><%=(Array.isArray(settings && settings.timeline) ? (settings.timeline.map(function(it){
+      <small>One item per row. Format: year | title | subtitle | description (or just description).</small>
+      <div id="timeline-list" class="repeater" style="display:flex;flex-direction:column;gap:.5rem;margin-top:.5rem"></div>
+      <div>
+        <button type="button" class="btn" id="add-timeline-item">Add timeline item</button>
+      </div>
+      <textarea name="timelineText" style="display:none"><%=(Array.isArray(settings && settings.timeline) ? (settings.timeline.map(function(it){
         var parts=[]; if (it.year) parts.push(it.year); if (it.title) parts.push(it.title); if (it.subtitle) parts.push(it.subtitle); if (it.description) parts.push(it.description);
         return parts.join(' | ');
       }).join('\n')) : '') %></textarea>
@@ -71,8 +87,12 @@
 
     <fieldset style="border:1px solid var(--border);padding:1rem;border-radius:.5rem;margin-top:1rem">
       <legend>Skills</legend>
-      <small>One skill per line. Format: Name:Level (0-100). Example: JavaScript:90</small>
-      <textarea name="skillsText" rows="6"><%=(Array.isArray(settings && settings.skills) ? (settings.skills.map(function(s){
+      <small>One skill per row. Format: Name:Level (0-100) or Name (Level%).</small>
+      <div id="skills-list" class="repeater" style="display:flex;flex-direction:column;gap:.5rem;margin-top:.5rem"></div>
+      <div>
+        <button type="button" class="btn" id="add-skill-item">Add skill</button>
+      </div>
+      <textarea name="skillsText" style="display:none"><%=(Array.isArray(settings && settings.skills) ? (settings.skills.map(function(s){
         var lvl = (typeof s.level === 'number' ? s.level : '');
         return (s.name || '') + (lvl!=='' ? (':' + lvl) : '');
       }).join('\n')) : '') %></textarea>
@@ -92,6 +112,64 @@
           quill.root.innerHTML = aboutTextarea.value || '';
           form.addEventListener('submit', ()=>{ aboutTextarea.value = quill.root.innerHTML; });
         }
+      })();
+    </script>
+    <script>
+      (function(){
+        const form = document.currentScript.closest('form');
+        // Timeline repeater
+        const timelineList = form.querySelector('#timeline-list');
+        const timelineHidden = form.querySelector('textarea[name="timelineText"]');
+        const addTimelineBtn = form.querySelector('#add-timeline-item');
+        function makeRow(value){
+          const row = document.createElement('div');
+          row.style.display='flex'; row.style.gap='.5rem';
+          const input = document.createElement('input');
+          input.type='text'; input.placeholder='year | title | subtitle | description'; input.style.flex='1';
+          if (value) input.value = value;
+          const remove = document.createElement('button'); remove.type='button'; remove.textContent='Remove'; remove.className='btn';
+          remove.addEventListener('click', ()=>{ row.remove(); });
+          row.appendChild(input); row.appendChild(remove);
+          return row;
+        }
+        function loadFromHidden(){
+          timelineList.innerHTML='';
+          const lines = (timelineHidden.value || '').split(/\r?\n/).map(l=>l.trim()).filter(Boolean);
+          if (!lines.length) { timelineList.appendChild(makeRow('')); }
+          else { lines.forEach(l=> timelineList.appendChild(makeRow(l))); }
+        }
+        addTimelineBtn.addEventListener('click', ()=> timelineList.appendChild(makeRow('')));
+        // Skills repeater
+        const skillsList = form.querySelector('#skills-list');
+        const skillsHidden = form.querySelector('textarea[name="skillsText"]');
+        const addSkillBtn = form.querySelector('#add-skill-item');
+        function makeSkillRow(value){
+          const row = document.createElement('div');
+          row.style.display='flex'; row.style.gap='.5rem';
+          const input = document.createElement('input');
+          input.type='text'; input.placeholder='Name:Level or Name (Level%)'; input.style.flex='1';
+          if (value) input.value = value;
+          const remove = document.createElement('button'); remove.type='button'; remove.textContent='Remove'; remove.className='btn';
+          remove.addEventListener('click', ()=>{ row.remove(); });
+          row.appendChild(input); row.appendChild(remove);
+          return row;
+        }
+        function loadSkillsFromHidden(){
+          skillsList.innerHTML='';
+          const lines = (skillsHidden.value || '').split(/\r?\n/).map(l=>l.trim()).filter(Boolean);
+          if (!lines.length) { skillsList.appendChild(makeSkillRow('')); }
+          else { lines.forEach(l=> skillsList.appendChild(makeSkillRow(l))); }
+        }
+        // Serialize on submit
+        form.addEventListener('submit', ()=>{
+          const tlValues = Array.from(timelineList.querySelectorAll('input[type="text"]')).map(i=>i.value.trim()).filter(Boolean);
+          timelineHidden.value = tlValues.join('\n');
+          const skValues = Array.from(skillsList.querySelectorAll('input[type="text"]')).map(i=>i.value.trim()).filter(Boolean);
+          skillsHidden.value = skValues.join('\n');
+        });
+        // Init
+        loadFromHidden();
+        loadSkillsFromHidden();
       })();
     </script>
 

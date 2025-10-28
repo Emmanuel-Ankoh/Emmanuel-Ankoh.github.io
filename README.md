@@ -19,7 +19,7 @@ A modern, responsive developer portfolio with dynamic projects, contact form wit
 This app includes a simple CMS powered by a singleton Settings document. From the Admin panel, go to Profile to edit site-wide content:
 
 - Identity: Name, Headline, Summary
-- Avatar: Paste an image URL (Cloudinary upload optional for projects, not required here)
+- Avatar: Upload an image file (JPG/PNG/WebP up to 5MB) or paste an image URL. Uploaded files are stored on Cloudinary and replace the previous avatar.
 - Home CTAs: Primary/Secondary text + URLs for hero buttons
 - Resume URL: Link used for the Resume button
 - Contact Intro: Short text shown at the top of the Contact page

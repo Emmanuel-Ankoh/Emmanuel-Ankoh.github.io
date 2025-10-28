@@ -29,6 +29,57 @@
     </div>
   </section>
 
+  <section class="timeline-preview" aria-labelledby="timeline-preview-heading">
+    <div class="container">
+      <h2 id="timeline-preview-heading">Recent Experience</h2>
+      <% if (profile && Array.isArray(profile.timeline) && profile.timeline.length) { %>
+        <ol class="timeline">
+          <% profile.timeline.slice(0,3).forEach((item, idx) => { %>
+            <li data-aos="fade-up" <%= idx ? ('data-aos-delay="' + (idx*80) + '"') : '' %>>
+              <h3><%= item.title || (item.year || 'Entry') %></h3>
+              <p>
+                <%= item.subtitle || '' %>
+                <%= (item.subtitle && item.year) ? ' · ' : '' %>
+                <%= item.year || '' %>
+              </p>
+              <% if (item.description) { %><p><%= item.description %></p><% } %>
+            </li>
+          <% }) %>
+        </ol>
+        <p style="margin-top:.5rem"><a class="btn" href="/about">See full timeline</a></p>
+      <% } else { %>
+        <p>Add timeline items in Admin → Profile to showcase your experience here.</p>
+      <% } %>
+    </div>
+  </section>
+
+  <section class="about-preview" aria-labelledby="about-preview-heading">
+    <div class="container about-grid" style="display:grid;grid-template-columns:1.2fr .8fr;gap:2rem;align-items:start">
+      <div data-aos="fade-up">
+        <h2 id="about-preview-heading">About Me</h2>
+        <% if (profile && profile.aboutBody) { %>
+          <div class="about-snippet"><%- profile.aboutBody %></div>
+        <% } else { %>
+          <p><%= (profile && profile.summary) || 'I’m a developer focused on building fast, accessible products with clean code.' %></p>
+        <% } %>
+        <p style="margin-top:.75rem"><a class="btn" href="/about">Read more</a></p>
+      </div>
+      <div data-aos="fade-left">
+        <h2>Skills</h2>
+        <% if (profile && Array.isArray(profile.skills) && profile.skills.length) { %>
+          <ul class="skills">
+            <% profile.skills.slice(0,6).forEach((s) => { %>
+              <li><span><%= s.name %></span><div class="bar"><span class="bar-fill" data-level="<%= Math.max(0, Math.min(100, s.level||0)) %>"></span></div></li>
+            <% }) %>
+          </ul>
+          <p style="margin-top:.5rem"><a class="btn" href="/skills">See all skills</a></p>
+        <% } else { %>
+          <p>Skills will appear here after you add them in Admin → Profile.</p>
+        <% } %>
+      </div>
+    </div>
+  </section>
+
   <section class="featured" aria-labelledby="featured-heading">
     <div class="container">
       <h2 id="featured-heading">Featured Projects</h2>

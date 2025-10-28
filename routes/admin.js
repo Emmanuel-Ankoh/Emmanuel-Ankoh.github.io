@@ -233,7 +233,7 @@ router.get('/profile', ensureAuth, async (req, res, next) => {
   } catch (e) { next(e); }
 });
 
-router.post('/profile', ensureAuth,
+router.post('/profile', ensureAuth, upload.single('avatar'),
   body('name').trim().isLength({ min: 2 }),
   body('headline').trim().isLength({ min: 2 }),
   body('summary').trim().isLength({ min: 10 }),
@@ -248,7 +248,30 @@ router.post('/profile', ensureAuth,
       settings.name = name;
       settings.headline = headline;
       settings.summary = summary;
-      settings.avatarUrl = avatarUrl || settings.avatarUrl;
+      // Avatar upload (optional)
+      if (req.file && req.file.buffer) {
+        const allowed = ['image/jpeg','image/png','image/webp','image/gif'];
+        if (!allowed.includes(req.file.mimetype)) {
+          return res.status(400).render('admin/profile', { title: 'Profile', settings, error: 'Unsupported avatar format. Please use JPG, PNG, WEBP, or GIF.', success: null });
+        }
+        try {
+          const prevPublicId = settings.avatarPublicId;
+          const uploadResult = await new Promise((resolve, reject) => {
+            const stream = cloudinary.uploader.upload_stream({ folder: 'portfolio/avatar' }, (err, resu) => err ? reject(err) : resolve(resu));
+            stream.end(req.file.buffer);
+          });
+          settings.avatarUrl = uploadResult.secure_url;
+          settings.avatarPublicId = uploadResult.public_id;
+          if (prevPublicId && prevPublicId !== uploadResult.public_id) {
+            try { await cloudinary.uploader.destroy(prevPublicId); } catch (e) { /* ignore */ }
+          }
+        } catch (e) {
+          console.error('Avatar upload failed:', e);
+          return res.status(400).render('admin/profile', { title: 'Profile', settings, error: 'Failed to upload avatar. Please try a smaller image or different format.', success: null });
+        }
+      } else if (avatarUrl) {
+        settings.avatarUrl = avatarUrl;
+      }
       // Extra fields
       settings.resumeUrl = req.body.resumeUrl || settings.resumeUrl;
       settings.contactIntro = req.body.contactIntro || settings.contactIntro;
