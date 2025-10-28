@@ -7,6 +7,8 @@ const mongoose = require('mongoose');
 
 const mainRoutes = require('./routes/main');
 const adminRoutes = require('./routes/admin');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 
 const app = express();
 app.set('trust proxy', 1); // for proxies like Render
@@ -27,6 +29,9 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
 // Middleware
+app.use(helmet());
+const limiter = rateLimit({ windowMs: 60 * 1000, max: 100 });
+app.use(limiter);
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 // Sessions: use Mongo store when MONGO_URI looks valid; otherwise fallback to MemoryStore
@@ -55,7 +60,10 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Locals
 app.use((req, res, next) => {
+  const baseUrl = process.env.BASE_URL || '';
   res.locals.isAuthenticated = !!req.session.userId;
+  res.locals.site = { name: 'Emmanuel Ankoh', baseUrl };
+  res.locals.meta = res.locals.meta || { description: 'Portfolio of Emmanuel Ankoh: projects, skills, and contact.' };
   next();
 });
 
@@ -69,7 +77,7 @@ app.get('/healthz', (req, res) => res.type('text').send('ok'));
 // 404 handler
 app.use((req, res) => {
   res.status(404);
-  res.render('404', { title: 'Page Not Found' });
+  res.render('404', { title: 'Page Not Found', meta: { description: 'The page you requested was not found.' } });
 });
 
 // Error handler

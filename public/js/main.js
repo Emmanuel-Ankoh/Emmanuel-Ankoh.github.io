@@ -21,3 +21,27 @@ if (contactForm) {
     }
   });
 }
+
+// Theme toggle (light/dark)
+const THEME_KEY = 'theme-preference';
+const themeToggle = document.createElement('button');
+themeToggle.className = 'btn';
+themeToggle.style.marginLeft = '0.5rem';
+themeToggle.textContent = 'Toggle Theme';
+const nav = document.querySelector('.nav');
+if (nav) {
+  nav.appendChild(themeToggle);
+}
+
+function applyTheme(theme){
+  document.documentElement.setAttribute('data-theme', theme);
+  themeToggle.textContent = theme === 'light' ? 'Dark Mode' : 'Light Mode';
+}
+const savedTheme = localStorage.getItem(THEME_KEY) || 'dark';
+applyTheme(savedTheme);
+themeToggle.addEventListener('click', () => {
+  const current = document.documentElement.getAttribute('data-theme') || 'dark';
+  const next = current === 'dark' ? 'light' : 'dark';
+  localStorage.setItem(THEME_KEY, next);
+  applyTheme(next);
+});

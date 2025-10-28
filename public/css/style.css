@@ -63,6 +63,11 @@ a:hover{text-decoration:underline}
 .skip-link{position:absolute;left:-999px;top:auto;width:1px;height:1px;overflow:hidden}
 .skip-link:focus{left:0;top:0;width:auto;height:auto;background:var(--card);color:var(--text);padding:.5rem;z-index:1000}
 
+/* Light theme overrides */
+[data-theme="light"]{--bg:#f8fafc;--card:#ffffff;--text:#0f172a;--muted:#334155;--accent:#7c3aed;--accent-2:#0ea5e9;--border:#e2e8f0}
+[data-theme="light"] .btn:hover{background:#f1f5f9}
+[data-theme="light"] .tag{background:#f1f5f9;color:#334155;border-color:#e2e8f0}
+
 @media (max-width: 900px){
   .grid{grid-template-columns:repeat(2,1fr)}
   .admin-grid{grid-template-columns:1fr}

@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://emmanuel-ankoh-github-io.onrender.com/sitemap.xml
