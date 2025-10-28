@@ -217,13 +217,7 @@
           if (quill) {
             aboutTextarea.value = quill.root.innerHTML;
           }
-          // Require non-empty About Body
-          const aboutPlain = (aboutTextarea.value || '').replace(/<[^>]+>/g,'').trim();
-          if (!aboutPlain) {
-            e.preventDefault();
-            alert('About Body cannot be empty.');
-            return false;
-          }
+          // Allow empty About Body (server will sanitize)
           // Enforce CTA pairs
           const pText = form.querySelector('input[name="homeCtaPrimaryText"]').value.trim();
           const pUrl = form.querySelector('input[name="homeCtaPrimaryUrl"]').value.trim();

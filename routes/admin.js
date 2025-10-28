@@ -327,10 +327,6 @@ router.post('/profile', ensureAuth, avatarUpload,
           allowProtocolRelative: false
         });
         settings.aboutBody = clean;
-        // Make About Body mandatory (non-empty) to avoid empty content saves if requested
-        if (!settings.aboutBody || !settings.aboutBody.trim()) {
-          return res.status(400).render('admin/profile', { title: 'Profile', settings, error: 'About Body cannot be empty.', success: null });
-        }
       }
       try {
         await settings.save();
@@ -338,6 +334,8 @@ router.post('/profile', ensureAuth, avatarUpload,
         console.error('Failed to save settings:', e);
         return res.status(400).render('admin/profile', { title: 'Profile', settings, error: 'Failed to save settings. Please check your inputs and try again.', success: null });
       }
+      // Bust settings cache on next request
+      if (req.session) req.session.forceSettingsReload = true;
       req.session.flash = { type: 'success', message: 'Profile updated' };
       res.redirect('/admin/profile');
     } catch (e) { next(e); }

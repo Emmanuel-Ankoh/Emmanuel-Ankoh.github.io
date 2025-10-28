@@ -102,6 +102,12 @@ async function loadSettingsCached() {
 }
 
 app.use(async (req, res, next) => {
+  // If a recent Settings update occurred, bust cache once
+  if (req.session && req.session.forceSettingsReload) {
+    __settingsCache.ts = 0;
+    __settingsCache.data = null;
+    delete req.session.forceSettingsReload;
+  }
   const baseUrl = process.env.BASE_URL || '';
   res.locals.isAuthenticated = !!req.session.userId;
   const settings = await loadSettingsCached();
