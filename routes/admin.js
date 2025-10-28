@@ -7,6 +7,7 @@ const { cloudinary } = require('../utils/cloudinary');
 const { body, validationResult } = require('express-validator');
 const Settings = require('../models/settings');
 const sanitizeHtml = require('sanitize-html');
+const rateLimit = require('express-rate-limit');
 
 const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 * 1024 * 1024 } });
@@ -22,8 +23,9 @@ router.get('/login', (req, res) => {
   res.render('admin/login', { title: 'Admin Login', error: null });
 });
 
-// Login submit
-router.post('/login', async (req, res, next) => {
+// Login submit (with per-route rate limit)
+const loginLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 10, standardHeaders: true, legacyHeaders: false });
+router.post('/login', loginLimiter, async (req, res, next) => {
   try {
     const { username, password } = req.body;
     if (!username || !password) return res.status(400).render('admin/login', { title: 'Admin Login', error: 'Missing credentials' });

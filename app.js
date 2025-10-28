@@ -92,6 +92,7 @@ app.use(async (req, res, next) => {
   res.locals.site = { name: siteName, baseUrl };
   res.locals.meta = res.locals.meta || { description: `Portfolio of ${siteName}: projects, skills, and contact.` };
   res.locals.analyticsId = process.env.GOOGLE_ANALYTICS_ID || '';
+  res.locals.recaptchaSiteKey = process.env.RECAPTCHA_SITE_KEY || '';
   next();
 });
 

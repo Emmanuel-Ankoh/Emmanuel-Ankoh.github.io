@@ -76,6 +76,38 @@ router.post(
   body('message').trim().isLength({ min: 10 }).withMessage('Message is too short'),
   async (req, res, next) => {
     try {
+      // Honeypot: silently accept but drop if filled
+      const honeypot = (req.body.company || '').trim();
+      if (honeypot) {
+        return res.render('contact', { title: 'Contact', success: 'Thanks! Your message has been received.', error: null });
+      }
+
+      // reCAPTCHA verification (optional, only if secret is set)
+      if (process.env.RECAPTCHA_SECRET) {
+        try {
+          const token = req.body['g-recaptcha-response'] || '';
+          if (!token) {
+            return res.status(400).render('contact', { title: 'Contact', success: null, error: 'Please complete the reCAPTCHA.' });
+          }
+          const params = new URLSearchParams({
+            secret: process.env.RECAPTCHA_SECRET,
+            response: token,
+            remoteip: req.ip || ''
+          });
+          const resp = await fetch('https://www.google.com/recaptcha/api/siteverify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: params.toString()
+          });
+          const data = await resp.json();
+          if (!data.success) {
+            return res.status(400).render('contact', { title: 'Contact', success: null, error: 'reCAPTCHA verification failed. Please try again.' });
+          }
+        } catch (e) {
+          return res.status(400).render('contact', { title: 'Contact', success: null, error: 'Could not verify reCAPTCHA. Please try again.' });
+        }
+      }
+
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
         const msg = errors.array().map(e => e.msg).join(', ');

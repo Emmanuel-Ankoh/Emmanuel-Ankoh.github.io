@@ -12,12 +12,21 @@
   <% } %>
   <form class="contact-form" method="POST" action="/contact" novalidate>
     <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+    <!-- Honeypot field (hidden for humans, visible to bots) -->
+    <div style="position:absolute;left:-9999px;opacity:0" aria-hidden="true">
+      <label for="company">Company</label>
+      <input id="company" name="company" type="text" tabindex="-1" autocomplete="off" />
+    </div>
     <label for="name">Name</label>
     <input id="name" name="name" type="text" required />
     <label for="email">Email</label>
     <input id="email" name="email" type="email" required />
     <label for="message">Message</label>
     <textarea id="message" name="message" rows="6" required></textarea>
+    <% if (recaptchaSiteKey) { %>
+      <div class="g-recaptcha" data-sitekey="<%= recaptchaSiteKey %>"></div>
+      <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <% } %>
     <button class="btn btn-primary" type="submit">Send</button>
   </form>
 </main>
