@@ -233,21 +233,7 @@ router.get('/profile', ensureAuth, async (req, res, next) => {
   } catch (e) { next(e); }
 });
 
-// Custom multer wrapper to surface friendly errors on large files
-function avatarUpload(req, res, next) {
-  upload.single('avatar')(req, res, async (err) => {
-    if (!err) return next();
-    try {
-      const settings = await Settings.getSingleton();
-      if (err.code === 'LIMIT_FILE_SIZE') {
-        return res.status(400).render('admin/profile', { title: 'Profile', settings, error: 'Avatar image is too large (max 5MB).', success: null });
-      }
-      return res.status(400).render('admin/profile', { title: 'Profile', settings, error: 'Failed to process avatar upload. Please try again.', success: null });
-    } catch (e) { return next(err); }
-  });
-}
-
-router.post('/profile', ensureAuth, avatarUpload,
+router.post('/profile', ensureAuth,
   body('name').trim().isLength({ min: 2 }),
   body('headline').trim().isLength({ min: 2 }),
   body('summary').trim().isLength({ min: 10 }),
@@ -259,60 +245,14 @@ router.post('/profile', ensureAuth, avatarUpload,
         return res.render('admin/profile', { title: 'Profile', settings, error: errors.array().map(e=>e.msg).join(', '), success: null });
       }
       const { name, headline, summary, avatarUrl } = req.body;
-      let uploadResult = null;
-      if (cloudinary && req.file) {
-        try {
-          uploadResult = await new Promise((resolve, reject) => {
-            const stream = cloudinary.uploader.upload_stream({ folder: 'portfolio' }, (err, resu) => err ? reject(err) : resolve(resu));
-            stream.end(req.file.buffer);
-          });
-        } catch (e) {
-          return res.status(400).render('admin/profile', { title: 'Profile', settings, error: 'Uploading avatar to Cloudinary failed. Please verify your Cloudinary configuration.', success: null });
-        }
-      }
-      if (uploadResult && settings.avatarPublicId && cloudinary) {
-        try { await cloudinary.uploader.destroy(settings.avatarPublicId); } catch (e) { /* ignore */ }
-      }
       settings.name = name;
       settings.headline = headline;
       settings.summary = summary;
-      settings.avatarUrl = uploadResult ? uploadResult.secure_url : (avatarUrl || settings.avatarUrl);
-      settings.avatarPublicId = uploadResult ? uploadResult.public_id : settings.avatarPublicId;
+      settings.avatarUrl = avatarUrl || settings.avatarUrl;
       // Extra fields
       settings.resumeUrl = req.body.resumeUrl || settings.resumeUrl;
       settings.contactIntro = req.body.contactIntro || settings.contactIntro;
-      settings.socials = {
-        github: req.body['socials.github'] || settings.socials?.github || '',
-        linkedin: req.body['socials.linkedin'] || settings.socials?.linkedin || '',
-        twitter: req.body['socials.twitter'] || settings.socials?.twitter || '',
-        email: req.body['socials.email'] || settings.socials?.email || ''
-      };
-      settings.homeCta = {
-        primaryText: req.body.homeCtaPrimaryText || settings.homeCta?.primaryText,
-        primaryUrl: req.body.homeCtaPrimaryUrl || settings.homeCta?.primaryUrl,
-        secondaryText: req.body.homeCtaSecondaryText || settings.homeCta?.secondaryText,
-        secondaryUrl: req.body.homeCtaSecondaryUrl || settings.homeCta?.secondaryUrl
-      };
-      // Validate CTA pairs: if one is provided, require the other
-      if ((settings.homeCta.primaryText && !settings.homeCta.primaryUrl) || (!settings.homeCta.primaryText && settings.homeCta.primaryUrl)) {
-        return res.status(400).render('admin/profile', { title: 'Profile', settings, error: 'Primary CTA text and URL must both be provided.', success: null });
-      }
-      if ((settings.homeCta.secondaryText && !settings.homeCta.secondaryUrl) || (!settings.homeCta.secondaryText && settings.homeCta.secondaryUrl)) {
-        return res.status(400).render('admin/profile', { title: 'Profile', settings, error: 'Secondary CTA text and URL must both be provided.', success: null });
-      }
-      // Parse timeline and skills JSON safely
-      try {
-        if (req.body.timeline) {
-          const t = JSON.parse(req.body.timeline);
-          if (Array.isArray(t)) settings.timeline = t;
-        }
-      } catch (e) { /* ignore bad json */ }
-      try {
-        if (req.body.skills) {
-          const s = JSON.parse(req.body.skills);
-          if (Array.isArray(s)) settings.skills = s;
-        }
-      } catch (e) { /* ignore bad json */ }
+      // Do not change socials, homeCta, timeline, skills in simplified mode
       if (typeof req.body.aboutBody === 'string') {
         const clean = sanitizeHtml(req.body.aboutBody, {
           allowedTags: [
