@@ -6,6 +6,7 @@ const multer = require('multer');
 const { cloudinary } = require('../utils/cloudinary');
 const { body, validationResult } = require('express-validator');
 const Settings = require('../models/settings');
+const sanitizeHtml = require('sanitize-html');
 
 const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 * 1024 * 1024 } });
@@ -275,7 +276,21 @@ router.post('/profile', ensureAuth, upload.single('avatar'),
           if (Array.isArray(s)) settings.skills = s;
         }
       } catch (e) { /* ignore bad json */ }
-      settings.aboutBody = req.body.aboutBody || settings.aboutBody;
+      if (typeof req.body.aboutBody === 'string') {
+        const clean = sanitizeHtml(req.body.aboutBody, {
+          allowedTags: [
+            'p','br','strong','em','u','s','a','ul','ol','li','blockquote','code','pre',
+            'h1','h2','h3','h4','h5','h6','span'
+          ],
+          allowedAttributes: {
+            a: ['href','name','target','rel'],
+            span: ['class']
+          },
+          allowedSchemes: ['http','https','mailto'],
+          allowProtocolRelative: false
+        });
+        settings.aboutBody = clean;
+      }
       await settings.save();
       req.session.flash = { type: 'success', message: 'Profile updated' };
       res.redirect('/admin/profile');

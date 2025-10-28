@@ -62,8 +62,9 @@
       </div>
     </fieldset>
 
-    <label>About Body (plain text or HTML)</label>
-    <textarea name="aboutBody" rows="6"><%= settings && settings.aboutBody || '' %></textarea>
+  <label>About Body</label>
+  <div id="about-editor" style="min-height:180px;background:var(--card);border:1px solid var(--border);border-radius:.5rem"></div>
+  <textarea name="aboutBody" rows="6" style="display:none"><%= settings && settings.aboutBody || '' %></textarea>
 
     <fieldset style="border:1px solid var(--border);padding:1rem;border-radius:.5rem;margin-top:1rem">
       <legend>Timeline</legend>
@@ -85,10 +86,35 @@
       </div>
     </fieldset>
 
+    <link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
+    <script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
     <script id="initial-timeline" type="application/json"><%- JSON.stringify((settings && settings.timeline) || []) %></script>
     <script id="initial-skills" type="application/json"><%- JSON.stringify((settings && settings.skills) || []) %></script>
     <script>
       (function(){
+        // Quill editor setup for About Body
+        const form = document.currentScript.closest('form');
+        const aboutEditor = document.getElementById('about-editor');
+        const aboutTextarea = form.querySelector('textarea[name="aboutBody"]');
+        if (aboutEditor && window.Quill) {
+          const quill = new Quill(aboutEditor, {
+            theme: 'snow',
+            modules: {
+              toolbar: [
+                ['bold','italic','underline','strike'],
+                [{ header: [1,2,3,false] }],
+                [{ list: 'ordered' }, { list: 'bullet' }],
+                ['blockquote','code-block'],
+                ['link'],
+                ['clean']
+              ]
+            }
+          });
+          quill.root.innerHTML = aboutTextarea.value || '';
+          form.addEventListener('submit', () => {
+            aboutTextarea.value = quill.root.innerHTML;
+          });
+        }
         const initialTimeline = JSON.parse((document.getElementById('initial-timeline')?.textContent)||'[]');
         const initialSkills = JSON.parse((document.getElementById('initial-skills')?.textContent)||'[]');
 
@@ -98,7 +124,7 @@
         const sJson = document.getElementById('skills-json');
         const addT = document.getElementById('add-timeline');
         const addS = document.getElementById('add-skill');
-        const form = document.currentScript.closest('form');
+  // form defined above
 
         function timelineItem(data={}){
           const wrap = document.createElement('div');
