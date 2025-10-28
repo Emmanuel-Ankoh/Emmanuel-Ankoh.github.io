@@ -5,6 +5,18 @@
     <div class="about-grid">
       <img class="avatar" src="<%= (profile && profile.avatarUrl) || '/images/placeholder.svg' %>" alt="Portrait of <%= (site && site.name) || 'Your Name' %>" />
       <div>
+        <h2 style="margin:.2rem 0 0 0"><%= (profile && profile.name) || (site && site.name) || 'Your Name' %></h2>
+        <p class="subtitle" style="margin:.25rem 0 0 0"><%= (profile && profile.headline) || 'Full-Stack Developer' %></p>
+        <% const loc = (profile && profile.location); const phone = (profile && profile.phone); const socials = (profile && profile.socials) || {}; const avail = profile && (typeof profile.availability === 'boolean') ? profile.availability : undefined; %>
+        <% if (loc || socials.email || phone || typeof avail === 'boolean') { %>
+          <ul class="meta" style="margin:.5rem 0 1rem 0;display:flex;gap:1rem;flex-wrap:wrap;color:var(--muted)">
+            <% if (loc) { %><li>📍 <%= loc %></li><% } %>
+            <% if (socials.email) { %><li>✉️ <a href="mailto:<%= socials.email %>"><%= socials.email %></a></li><% } %>
+            <% if (phone) { %><li>☎️ <a href="tel:<%= phone %>"><%= phone %></a></li><% } %>
+            <% if (typeof avail === 'boolean') { %><li><span class="badge"><%= avail ? 'Open to work' : 'Not available' %></span></li><% } %>
+          </ul>
+        <% } %>
+
         <% if (profile && profile.aboutBody) { %>
           <div><%- profile.aboutBody %></div>
         <% } else { %>
@@ -14,6 +26,23 @@
           <p>
             When I'm not coding, I read about distributed systems and contribute to open-source projects.
           </p>
+        <% } %>
+
+        <div class="toolbar" style="margin-top:1rem">
+          <div></div>
+          <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+            <a class="btn btn-primary" href="<%= (profile && profile.resumeUrl) || '/resume.pdf' %>" target="_blank" rel="noopener">Download Resume</a>
+            <a class="btn" href="/contact">Contact</a>
+            <% if (socials.email) { %><a class="btn" href="mailto:<%= socials.email %>">Email</a><% } %>
+          </div>
+        </div>
+        <% if (socials.github || socials.linkedin || socials.twitter || socials.email) { %>
+          <ul class="socials" style="margin-top:.75rem;display:flex;gap:.75rem;flex-wrap:wrap">
+            <% if (socials.github) { %><li><a href="<%= socials.github %>" target="_blank" rel="noopener">GitHub</a></li><% } %>
+            <% if (socials.linkedin) { %><li><a href="<%= socials.linkedin %>" target="_blank" rel="noopener">LinkedIn</a></li><% } %>
+            <% if (socials.twitter) { %><li><a href="<%= socials.twitter %>" target="_blank" rel="noopener">Twitter</a></li><% } %>
+            <% if (socials.email) { %><li><a href="mailto:<%= socials.email %>">Email</a></li><% } %>
+          </ul>
         <% } %>
       </div>
     </div>
