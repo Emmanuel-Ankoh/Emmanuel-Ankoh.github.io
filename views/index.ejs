@@ -9,7 +9,19 @@
         <div class="hero-ctas" data-aos="fade-up" data-aos-delay="300">
           <a href="<%= (settings && settings.homeCta && settings.homeCta.primaryUrl) || '/projects' %>" class="btn btn-primary"><%= (settings && settings.homeCta && settings.homeCta.primaryText) || 'View Projects' %></a>
           <a href="<%= (settings && settings.homeCta && settings.homeCta.secondaryUrl) || '/contact' %>" class="btn"><%= (settings && settings.homeCta && settings.homeCta.secondaryText) || 'Get in Touch' %></a>
+          <% if ((settings && settings.resumeUrl) || (profile && profile.resumeUrl)) { %>
+            <a href="<%= (settings && settings.resumeUrl) || (profile && profile.resumeUrl) %>" class="btn" target="_blank" rel="noopener">Resume</a>
+          <% } %>
         </div>
+        <% if (settings && settings.socials || (profile && profile.socials)) { %>
+          <ul class="socials" style="margin-top:.75rem;display:flex;gap:.75rem;flex-wrap:wrap" data-aos="fade-up" data-aos-delay="350">
+            <% const socials = (settings && settings.socials) || (profile && profile.socials) || {}; %>
+            <% if (socials.github) { %><li><a href="<%= socials.github %>" target="_blank" rel="noopener">GitHub</a></li><% } %>
+            <% if (socials.linkedin) { %><li><a href="<%= socials.linkedin %>" target="_blank" rel="noopener">LinkedIn</a></li><% } %>
+            <% if (socials.twitter) { %><li><a href="<%= socials.twitter %>" target="_blank" rel="noopener">Twitter</a></li><% } %>
+            <% if (socials.email) { %><li><a href="mailto:<%= socials.email %>">Email</a></li><% } %>
+          </ul>
+        <% } %>
       </div>
       <div data-aos="fade-left" data-aos-delay="150" style="text-align:right">
   <img src="<%= (settings && settings.avatarUrl) || (profile && profile.avatarUrl) || '/images/placeholder.svg' %>" alt="Avatar" style="width:280px;max-width:100%;height:280px;object-fit:cover;border-radius:50%;border:2px solid var(--border)" loading="lazy" decoding="async" />
@@ -47,6 +59,11 @@
           </article>
         <% }) %>
       </div>
+      <% if ((featured || []).length) { %>
+        <div style="margin-top:1rem;text-align:center">
+          <a class="btn" href="/projects">See all projects</a>
+        </div>
+      <% } %>
     </div>
   </section>
 </main>

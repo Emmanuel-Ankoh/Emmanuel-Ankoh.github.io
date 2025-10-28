@@ -149,3 +149,21 @@ Finally, edit `index.html` in the repo and set the "Open Portfolio" link to your
 - Mongo Atlas connection: Add your server’s IP (or 0.0.0.0/0 for testing) to Atlas Network Access.
 - Cloudinary: Provide `CLOUDINARY_URL` (or individual creds) for uploads; otherwise paste image URLs instead of uploading.
 - Emails: Configure SMTP env vars for contact notifications; the app safely no-ops if SMTP is missing.
+
+## Develop locally (auto-reload)
+
+For a smoother workflow during UI/template changes, use nodemon to auto-restart the server when files change:
+
+```powershell
+npm run dev
+```
+
+This repo includes a `nodemon.json` that watches `views/**/*.ejs`, routes, models, and CSS so your Admin pages (like Profile) reflect changes automatically.
+
+### If you don’t see changes in Admin → Profile
+- Ensure the server picked up your template edits. In production mode, view templates can be cached; restart the server or run `npm run dev` to reload EJS changes.
+- After pressing Save, you should see a green “Profile updated” flash message at the top. If not, check for validation errors on the page.
+- If values still don’t persist after Save:
+	- Confirm MongoDB connection (`MONGO_URI`) is valid.
+	- Check server logs for “Failed to save settings” or validation messages.
+	- Try minimal inputs (e.g., only Name/Headline/Summary) to rule out invalid JSON in Timeline/Skills.
