@@ -126,5 +126,21 @@
       <% } %>
     </div>
   </section>
+
+  <section class="contact-cta" aria-labelledby="contact-cta-heading">
+    <div class="container" data-aos="fade-up">
+      <h2 id="contact-cta-heading">Get in touch</h2>
+      <p>
+        <%= (settings && settings.contactIntro) || (profile && profile.contactIntro) || 'Feel free to reach out for collaborations or just a friendly hello.' %>
+      </p>
+      <div class="toolbar" style="margin-top:.5rem">
+        <a class="btn btn-primary" href="/contact">Contact me</a>
+        <% const email2 = ((settings && settings.socials && settings.socials.email) || (profile && profile.socials && profile.socials.email)); %>
+        <% if (email2) { %>
+          <a class="btn" href="mailto:<%= email2 %>">Email</a>
+        <% } %>
+      </div>
+    </div>
+  </section>
 </main>
 <%- include('partials/footer') %>
