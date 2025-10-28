@@ -36,14 +36,12 @@
       <div>
         <label>Avatar</label>
         <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap">
-          <input type="file" name="avatar" accept="image/*" />
+          <input id="avatar-input" type="file" name="avatar" accept="image/*" style="display:none" />
+          <button type="button" class="btn" id="choose-avatar">Choose Image</button>
+          <span id="avatar-filename" style="color:var(--muted)">No file chosen</span>
           <button type="submit" class="btn" name="do" value="uploadAvatar">Upload Avatar</button>
         </div>
         <small>Max 5MB. JPG/PNG/WebP recommended.</small>
-        <div style="margin-top:.5rem">
-          <label>Or paste image URL</label>
-          <input name="avatarUrl" value="<%= settings && settings.avatarUrl || '' %>" placeholder="https://..." />
-        </div>
       </div>
     </div>
     <label>Resume URL</label>
@@ -121,12 +119,18 @@
       (function(){
         const form = document.currentScript.closest('form');
         // Avatar live preview
-        const avatarInput = form.querySelector('input[name="avatar"]');
+        const avatarInput = form.querySelector('#avatar-input');
         const avatarImg = form.querySelector('#avatar-preview');
+        const chooseBtn = form.querySelector('#choose-avatar');
+        const fileName = form.querySelector('#avatar-filename');
+        if (chooseBtn && avatarInput) {
+          chooseBtn.addEventListener('click', ()=> avatarInput.click());
+        }
         if (avatarInput && avatarImg) {
           avatarInput.addEventListener('change', function(){
             const f = this.files && this.files[0];
             if (!f) return;
+            if (fileName) fileName.textContent = f.name;
             const reader = new FileReader();
             reader.onload = e => { avatarImg.src = e.target.result; };
             reader.readAsDataURL(f); // data: URL works with current CSP
