@@ -1,0 +1,31 @@
+<%- include('partials/head', { title }) %>
+<main id="main" class="container">
+  <section>
+    <h1>About Me</h1>
+    <div class="about-grid">
+      <img class="avatar" src="/images/profile.jpg" alt="Portrait of Emmanuel Ankoh" />
+      <div>
+        <p>
+          I'm a full-stack developer passionate about building user-centric products. I enjoy working across the stack, from clean UIs to resilient APIs.
+        </p>
+        <p>
+          When I'm not coding, I read about distributed systems and contribute to open-source projects.
+        </p>
+      </div>
+    </div>
+  </section>
+  <section>
+    <h2>Education & Experience</h2>
+    <ol class="timeline">
+      <li data-aos="fade-up">
+        <h3>Software Engineer</h3>
+        <p>Company · 2023 – Present</p>
+      </li>
+      <li data-aos="fade-up" data-aos-delay="100">
+        <h3>B.Sc. Computer Science</h3>
+        <p>University · 2019 – 2023</p>
+      </li>
+    </ol>
+  </section>
+</main>
+<%- include('partials/footer') %>

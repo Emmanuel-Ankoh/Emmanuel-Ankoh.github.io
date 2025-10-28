@@ -1,0 +1,20 @@
+<%- include('../partials/head', { title }) %>
+<main id="main" class="container">
+  <h1>Admin Dashboard</h1>
+  <form method="POST" action="/admin/logout" style="text-align:right">
+    <button class="btn" type="submit">Logout</button>
+  </form>
+  <div class="cards-2">
+    <div class="stat-card">
+      <h2>Projects</h2>
+      <p><%= projectCount %></p>
+      <a class="btn" href="/admin/projects">Manage</a>
+    </div>
+    <div class="stat-card">
+      <h2>Unread Messages</h2>
+      <p><%= unreadMessages %></p>
+      <a class="btn" href="/admin/messages">View</a>
+    </div>
+  </div>
+</main>
+<%- include('../partials/footer') %>

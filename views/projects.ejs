@@ -1,0 +1,28 @@
+<%- include('partials/head', { title }) %>
+<main id="main" class="container">
+  <h1>Projects</h1>
+  <div class="grid">
+    <% if ((projects || []).length === 0) { %>
+      <p>No projects yet. Admin can add some!</p>
+    <% } %>
+    <% (projects || []).forEach((p, i) => { %>
+      <article class="card" data-aos="fade-up" data-aos-delay="<%= i * 40 %>">
+        <img src="<%= p.imageUrl || '/images/placeholder.svg' %>" alt="Screenshot of <%= p.title %>" />
+        <div class="card-body">
+          <h3><%= p.title %></h3>
+          <p><%= p.description %></p>
+          <div class="tags">
+            <% (p.tech || []).forEach(t => { %>
+              <span class="tag"><%= t %></span>
+            <% }) %>
+          </div>
+          <div class="actions">
+            <% if (p.githubUrl) { %><a class="btn" href="<%= p.githubUrl %>" target="_blank" rel="noopener">Code</a><% } %>
+            <% if (p.demoUrl) { %><a class="btn btn-primary" href="<%= p.demoUrl %>" target="_blank" rel="noopener">Live</a><% } %>
+          </div>
+        </div>
+      </article>
+    <% }) %>
+  </div>
+</main>
+<%- include('partials/footer') %>

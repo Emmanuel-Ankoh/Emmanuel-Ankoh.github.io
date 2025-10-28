@@ -1,0 +1,17 @@
+<header class="site-header" role="banner">
+  <nav class="nav" aria-label="Primary">
+    <div class="brand"><a href="/">EA</a></div>
+    <button class="nav-toggle" aria-expanded="false" aria-controls="nav-menu" aria-label="Toggle navigation">☰</button>
+    <ul id="nav-menu" class="nav-menu">
+      <li><a href="/about">About</a></li>
+      <li><a href="/projects">Projects</a></li>
+      <li><a href="/skills">Skills</a></li>
+      <li><a href="/contact">Contact</a></li>
+      <% if (isAuthenticated) { %>
+        <li><a href="/admin">Admin</a></li>
+      <% } else { %>
+        <li><a href="/admin/login">Admin</a></li>
+      <% } %>
+    </ul>
+  </nav>
+</header>
