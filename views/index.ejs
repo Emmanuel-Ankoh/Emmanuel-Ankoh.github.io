@@ -22,6 +22,15 @@
             <% if (socials.email) { %><li><a href="mailto:<%= socials.email %>">Email</a></li><% } %>
           </ul>
         <% } %>
+        <% const loc = (settings && settings.location) || (profile && profile.location); const phone = (settings && settings.phone) || (profile && profile.phone); const avail = (settings && settings.availability) ?? (profile && profile.availability); const s2 = (settings && settings.socials) || (profile && profile.socials) || {}; %>
+        <% if (loc || phone || s2.email || typeof avail === 'boolean') { %>
+          <ul class="meta" style="margin-top:.5rem;display:flex;gap:1rem;flex-wrap:wrap;color:var(--muted)">
+            <% if (loc) { %><li>📍 <%= loc %></li><% } %>
+            <% if (s2.email) { %><li>✉️ <a href="mailto:<%= s2.email %>"><%= s2.email %></a></li><% } %>
+            <% if (phone) { %><li>☎️ <a href="tel:<%= phone %>"><%= phone %></a></li><% } %>
+            <% if (typeof avail === 'boolean') { %><li><span class="badge" style="border:1px solid var(--border);padding:.15rem .5rem;border-radius:999px"><%= avail ? 'Open to work' : 'Not available' %></span></li><% } %>
+          </ul>
+        <% } %>
       </div>
       <div data-aos="fade-left" data-aos-delay="150" style="text-align:right">
   <img src="<%= (settings && settings.avatarUrl) || (profile && profile.avatarUrl) || '/images/placeholder.svg' %>" alt="Avatar" style="width:280px;max-width:100%;height:280px;object-fit:cover;border-radius:50%;border:2px solid var(--border)" loading="lazy" decoding="async" />

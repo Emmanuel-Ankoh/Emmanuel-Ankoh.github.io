@@ -24,6 +24,8 @@ This app includes a simple CMS powered by a singleton Settings document. From th
 - Resume URL: Link used for the Resume button
 - Contact Intro: Short text shown at the top of the Contact page
 - Socials: GitHub, LinkedIn, Twitter, Email – used across the footer/home
+- Location & Phone: Standard profile details shown on the Home page
+- Availability: Toggle to show an "Open to work" badge on the Home page
 - About Body: Rich text editor (Quill) for the About page body
 	- Server-side sanitization is applied (sanitize-html with a safe whitelist)
 - Timeline: Simple text input. One item per line. Format is flexible:

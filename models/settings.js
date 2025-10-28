@@ -9,6 +9,9 @@ const settingsSchema = new mongoose.Schema(
     avatarPublicId: { type: String },
     resumeUrl: { type: String, default: '/resume.pdf' },
     contactIntro: { type: String, default: 'Feel free to reach out for collaborations or just a friendly hello.' },
+  location: { type: String, default: '' },
+  phone: { type: String, default: '' },
+  availability: { type: Boolean, default: true },
     socials: {
       github: { type: String, default: '' },
       linkedin: { type: String, default: '' },

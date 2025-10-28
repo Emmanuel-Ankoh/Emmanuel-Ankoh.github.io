@@ -244,7 +244,7 @@ router.post('/profile', ensureAuth, upload.single('avatar'),
       if (!errors.isEmpty()) {
         return res.render('admin/profile', { title: 'Profile', settings, error: errors.array().map(e=>e.msg).join(', '), success: null });
       }
-      const { name, headline, summary, avatarUrl } = req.body;
+  const { name, headline, summary, avatarUrl } = req.body;
       settings.name = name;
       settings.headline = headline;
       settings.summary = summary;
@@ -275,6 +275,9 @@ router.post('/profile', ensureAuth, upload.single('avatar'),
       // Extra fields
       settings.resumeUrl = req.body.resumeUrl || settings.resumeUrl;
       settings.contactIntro = req.body.contactIntro || settings.contactIntro;
+  settings.location = (req.body.location || '').trim();
+  settings.phone = (req.body.phone || '').trim();
+  settings.availability = req.body.availability === 'on';
       // Social links (optional)
       settings.socials = {
         github: req.body['socials.github'] || settings.socials?.github || '',

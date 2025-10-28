@@ -29,6 +29,20 @@
     <input name="headline" value="<%= settings && settings.headline || '' %>" required />
     <label>Summary</label>
     <textarea name="summary" rows="5" required><%= settings && settings.summary || '' %></textarea>
+    <div class="grid" style="grid-template-columns:1fr 1fr;gap:1rem">
+      <div>
+        <label>Location</label>
+        <input name="location" value="<%= settings && settings.location || '' %>" placeholder="City, Country" />
+      </div>
+      <div>
+        <label>Phone</label>
+        <input name="phone" value="<%= settings && settings.phone || '' %>" placeholder="+233..." />
+      </div>
+    </div>
+    <label style="display:flex;align-items:center;gap:.5rem;margin:.25rem 0 1rem 0">
+      <input type="checkbox" name="availability" <%= (settings && settings.availability) ? 'checked' : '' %> />
+      Open to work
+    </label>
     <div class="grid" style="grid-template-columns:120px 1fr;gap:1rem;align-items:center">
       <div>
         <img id="avatar-preview" src="<%= (settings && settings.avatarUrl) || '/images/placeholder.svg' %>" alt="Current avatar" style="width:100px;height:100px;border-radius:50%;object-fit:cover;border:1px solid var(--border)" />
