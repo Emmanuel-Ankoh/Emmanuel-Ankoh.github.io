@@ -7,10 +7,13 @@ A modern, responsive developer portfolio with dynamic projects, contact form wit
 - About with profile and timeline
 - Projects grid (from MongoDB)
 - Skills with progress bars
-- Contact form (saves to MongoDB, server-side validation)
+- Contact form (saves to MongoDB, server-side validation, optional email notifications)
 - Admin panel (login, manage projects, view messages)
+- Admin enhancements: change password, manage admins, bulk message delete, mark unread, project image upload (Cloudinary), toggle featured, search & pagination
 - EJS templating, CSS Grid/Flexbox, AOS animations
 - 404/500 error pages
+ - Security: Helmet, rate limiting, CSRF protection
+ - SEO: OG/Twitter tags, sitemap.xml, robots.txt
 
 ## Tech
 - Frontend: HTML5, CSS3, Vanilla JS
@@ -27,6 +30,24 @@ SESSION_SECRET=change_me
 ADMIN_USERNAME=admin
 ADMIN_PASSWORD=your_secure_password
 BASE_URL=https://your-app-url.example.com
+
+# Email (optional)
+SMTP_HOST=smtp.yourprovider.com
+SMTP_PORT=587
+SMTP_USER=your_smtp_username
+SMTP_PASS=your_smtp_password
+SMTP_FROM="Portfolio <no-reply@yourdomain.com>"
+SMTP_TO=you@yourdomain.com
+
+# Cloudinary (optional for image uploads)
+# Either provide the single URL or the three creds below
+CLOUDINARY_URL=cloudinary://api_key:api_secret@cloud_name
+# CLOUDINARY_CLOUD_NAME=your_cloud
+# CLOUDINARY_API_KEY=your_key
+# CLOUDINARY_API_SECRET=your_secret
+
+# Analytics (optional)
+GOOGLE_ANALYTICS_ID=G-XXXXXXXXXX
 
 3. Install deps and run
 
@@ -61,6 +82,7 @@ You can deploy in two ways:
 - Build Command: `npm install`
 - Start Command: `npm start`
 - Add env vars: `PORT`, `MONGO_URI`, `SESSION_SECRET`, `ADMIN_USERNAME`, `ADMIN_PASSWORD`
+ - Optional: `BASE_URL`, `SMTP_*` vars, `CLOUDINARY_*` vars, `GOOGLE_ANALYTICS_ID`
 - Deploy and note the live URL
 
 Finally, edit `index.html` in the repo and set the "Open Portfolio" link to your Render URL. Optionally, enable the redirect script (already enabled) to auto-send users to the live app. Also set `BASE_URL` in your environment for accurate `og:url` and sitemap links.
@@ -72,7 +94,9 @@ Finally, edit `index.html` in the repo and set the "Open Portfolio" link to your
 - `/admin/login` (POST for login)
 - `/admin` dashboard
 - `/admin/projects` CRUD
-- `/admin/messages` list + mark read/delete
+- `/admin/messages` list + search + pagination + mark read/unread + bulk delete
+- `/admin/admins` manage admins (add/delete)
+- `/admin/change-password` change current admin password
 
 ## Access & Security
 - Sessions stored in MongoDB via `connect-mongo`

@@ -2,9 +2,16 @@
 <main id="main" class="container">
   <h1>Messages</h1>
   <p><a class="btn" href="/admin">← Back to Dashboard</a></p>
+  <form method="GET" class="contact-form" action="/admin/messages" style="max-width:100%">
+    <input type="text" name="q" value="<%= typeof q !== 'undefined' ? q : '' %>" placeholder="Search name, email or message..." />
+    <button class="btn" type="submit">Search</button>
+  </form>
+  <form method="POST" action="/admin/messages/bulk-delete" onsubmit="return confirm('Delete selected messages?')">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
   <table class="table">
     <thead>
       <tr>
+        <th><input type="checkbox" onclick="document.querySelectorAll('.msg-check').forEach(cb=>cb.checked=this.checked)"></th>
         <th>Date</th>
         <th>Name</th>
         <th>Email</th>
@@ -16,6 +23,7 @@
     <tbody>
       <% (messages || []).forEach(m => { %>
         <tr>
+          <td><input class="msg-check" type="checkbox" name="ids" value="<%= m._id %>"></td>
           <td><%= new Date(m.createdAt).toLocaleString() %></td>
           <td><%= m.name %></td>
           <td><a href="mailto:<%= m.email %>"><%= m.email %></a></td>
@@ -24,10 +32,17 @@
           <td>
             <% if (!m.read) { %>
               <form method="POST" action="/admin/messages/<%= m._id %>/read" style="display:inline">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                 <button class="btn" type="submit">Mark Read</button>
+              </form>
+            <% } else { %>
+              <form method="POST" action="/admin/messages/<%= m._id %>/unread" style="display:inline">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <button class="btn" type="submit">Mark Unread</button>
               </form>
             <% } %>
             <form method="POST" action="/admin/messages/<%= m._id %>/delete" style="display:inline">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
               <button class="btn danger" onclick="return confirm('Delete this message?')" type="submit">Delete</button>
             </form>
           </td>
@@ -35,5 +50,16 @@
       <% }) %>
     </tbody>
   </table>
+  <% if (typeof page !== 'undefined' && typeof pages !== 'undefined' && pages > 1) { %>
+    <div style="margin-top:.75rem;display:flex;gap:.5rem">
+      <% for (let i=1;i<=pages;i++){ %>
+        <a class="btn" href="/admin/messages?<%= 'page=' + i + (q ? ('&q=' + encodeURIComponent(q)) : '') %>"><%= i === page ? ('['+i+']') : i %></a>
+      <% } %>
+    </div>
+  <% } %>
+  <div style="margin-top:.5rem">
+    <button class="btn danger" type="submit">Delete Selected</button>
+  </div>
+  </form>
 </main>
 <%- include('../partials/footer') %>

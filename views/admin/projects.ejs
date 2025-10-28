@@ -2,15 +2,26 @@
 <main id="main" class="container">
   <h1>Manage Projects</h1>
 
+  <form method="GET" action="/admin/projects" class="contact-form" style="max-width:100%">
+    <input type="text" name="q" value="<%= typeof q !== 'undefined' ? q : '' %>" placeholder="Search title..." />
+    <button class="btn" type="submit">Search</button>
+  </form>
+
   <section class="admin-grid">
     <div>
       <h2><%= project ? 'Edit Project' : 'Add Project' %></h2>
-      <form method="POST" action="<%= project ? ('/admin/projects/' + project._id) : '/admin/projects' %>">
+      <form method="POST" action="<%= project ? ('/admin/projects/' + project._id) : '/admin/projects' %>" enctype="multipart/form-data">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
         <label>Title</label>
         <input name="title" required value="<%= project ? project.title : '' %>" />
         <label>Description</label>
         <textarea name="description" rows="5" required><%= project ? project.description : '' %></textarea>
-        <label>Image URL</label>
+        <label>Image</label>
+        <% if (project && project.imageUrl) { %>
+          <img src="<%= project.imageUrl %>" alt="" style="max-width:100%;height:auto;margin-bottom:.5rem;border:1px solid var(--border);border-radius:.3rem" />
+        <% } %>
+        <input type="file" name="image" accept="image/*" />
+        <small>Or paste image URL:</small>
         <input name="imageUrl" value="<%= project ? project.imageUrl : '' %>" />
         <label>GitHub URL</label>
         <input name="githubUrl" value="<%= project ? project.githubUrl : '' %>" />
@@ -42,7 +53,12 @@
               <td><%= p.featured ? 'Yes' : 'No' %></td>
               <td>
                 <a class="btn" href="/admin/projects/<%= p._id %>/edit">Edit</a>
+                <form method="POST" action="/admin/projects/<%= p._id %>/toggle" style="display:inline">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                  <button class="btn" type="submit"><%= p.featured ? 'Unfeature' : 'Feature' %></button>
+                </form>
                 <form method="POST" action="/admin/projects/<%= p._id %>/delete" style="display:inline">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                   <button class="btn danger" onclick="return confirm('Delete this project?')" type="submit">Delete</button>
                 </form>
               </td>

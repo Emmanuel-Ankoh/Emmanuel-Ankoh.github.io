@@ -1,0 +1,40 @@
+<%- include('../partials/head', { title }) %>
+<main id="main" class="container">
+  <h1>Admins</h1>
+  <% if (flash) { %>
+    <div class="alert <%= flash.type === 'error' ? 'error' : 'success' %>"><%= flash.message %></div>
+  <% } %>
+  <section class="admin-grid">
+    <div>
+      <h2>Add Admin</h2>
+      <form method="POST" action="/admin/admins">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <label>Username</label>
+        <input name="username" required />
+        <label>Password</label>
+        <input name="password" type="password" required />
+        <button class="btn btn-primary" type="submit">Create</button>
+      </form>
+    </div>
+    <div>
+      <h2>Existing Admins</h2>
+      <table class="table">
+        <thead><tr><th>Username</th><th>Actions</th></tr></thead>
+        <tbody>
+          <% (admins||[]).forEach(a => { %>
+            <tr>
+              <td><%= a.username %></td>
+              <td>
+                <form method="POST" action="/admin/admins/<%= a._id %>/delete" style="display:inline">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                  <button class="btn danger" onclick="return confirm('Delete this admin?')" type="submit">Delete</button>
+                </form>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</main>
+<%- include('../partials/footer') %>

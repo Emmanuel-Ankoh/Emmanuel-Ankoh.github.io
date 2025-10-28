@@ -9,6 +9,7 @@ const mainRoutes = require('./routes/main');
 const adminRoutes = require('./routes/admin');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
+const csrf = require('csurf');
 
 const app = express();
 app.set('trust proxy', 1); // for proxies like Render
@@ -55,6 +56,13 @@ try {
 
 app.use(session(sessionOptions));
 
+// Flash messages (simple session-based)
+app.use((req, res, next) => {
+  res.locals.flash = req.session.flash || null;
+  delete req.session.flash;
+  next();
+});
+
 // Static
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -64,6 +72,20 @@ app.use((req, res, next) => {
   res.locals.isAuthenticated = !!req.session.userId;
   res.locals.site = { name: 'Emmanuel Ankoh', baseUrl };
   res.locals.meta = res.locals.meta || { description: 'Portfolio of Emmanuel Ankoh: projects, skills, and contact.' };
+  res.locals.analyticsId = process.env.GOOGLE_ANALYTICS_ID || '';
+  next();
+});
+
+// CSRF protection (skip certain paths like /api and /healthz)
+const csrfProtection = csrf();
+app.use((req, res, next) => {
+  if (req.path.startsWith('/api') || req.path === '/healthz') return next();
+  return csrfProtection(req, res, next);
+});
+app.use((req, res, next) => {
+  if (typeof req.csrfToken === 'function') {
+    res.locals.csrfToken = req.csrfToken();
+  }
   next();
 });
 
@@ -83,6 +105,11 @@ app.use((req, res) => {
 // Error handler
 // eslint-disable-next-line no-unused-vars
 app.use((err, req, res, next) => {
+  if (err.code === 'EBADCSRFTOKEN') {
+    console.warn('Invalid CSRF token');
+    res.status(403);
+    return res.render('500', { title: 'Form expired or invalid' });
+  }
   console.error(err.stack);
   res.status(500);
   res.render('500', { title: 'Server Error' });

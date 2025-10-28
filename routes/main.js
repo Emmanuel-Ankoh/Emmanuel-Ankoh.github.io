@@ -3,6 +3,8 @@ const Project = require('../models/project');
 const Message = require('../models/message');
 const Admin = require('../models/admin');
 const rateLimit = require('express-rate-limit');
+const { body, validationResult } = require('express-validator');
+const { sendMail } = require('../utils/mailer');
 
 const router = express.Router();
 
@@ -64,18 +66,34 @@ router.get('/contact', (req, res) => {
 
 // Contact (POST)
 const contactLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 5 });
-router.post('/contact', contactLimiter, async (req, res, next) => {
-  try {
-    const { name, email, message } = req.body;
-    if (!name || !email || !message) {
-      return res.status(400).render('contact', { title: 'Contact', success: null, error: 'All fields are required.' });
+router.post(
+  '/contact',
+  contactLimiter,
+  body('name').trim().isLength({ min: 2 }).withMessage('Name is required'),
+  body('email').isEmail().withMessage('Valid email required').normalizeEmail(),
+  body('message').trim().isLength({ min: 10 }).withMessage('Message is too short'),
+  async (req, res, next) => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        const msg = errors.array().map(e => e.msg).join(', ');
+        return res.status(400).render('contact', { title: 'Contact', success: null, error: msg });
+      }
+      const { name, email, message } = req.body;
+      await Message.create({ name, email, message });
+      // Send notification email if configured
+      const owner = process.env.SMTP_TO || process.env.CONTACT_TO || process.env.SMTP_FROM || process.env.SMTP_USER;
+      if (owner) {
+        const subject = `New contact from ${name}`;
+        const text = `From: ${name} <${email}>\n\n${message}`;
+        sendMail({ to: owner, subject, text }).catch(err => console.warn('Email send failed:', err.message));
+      }
+      return res.render('contact', { title: 'Contact', success: 'Thanks! Your message has been received.', error: null });
+    } catch (err) {
+      next(err);
     }
-    await Message.create({ name, email, message });
-    return res.render('contact', { title: 'Contact', success: 'Thanks! Your message has been received.', error: null });
-  } catch (err) {
-    next(err);
   }
-});
+);
 
 // Bootstrap admin on demand (optional route)
 router.get('/bootstrap-admin', async (req, res, next) => {

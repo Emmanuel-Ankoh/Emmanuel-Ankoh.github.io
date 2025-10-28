@@ -21,7 +21,20 @@
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <link rel="stylesheet" href="/css/style.css" />
     <title><%= title %> · Emmanuel Ankoh</title>
+    <% if (analyticsId) { %>
+      <!-- Google Analytics -->
+      <script async src="https://www.googletagmanager.com/gtag/js?id=<%= analyticsId %>"></script>
+      <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', '<%= analyticsId %>');
+      </script>
+    <% } %>
   </head>
   <body>
   <a class="skip-link" href="#main">Skip to content</a>
   <%- include('nav') %>
+  <% if (flash) { %>
+    <div class="container">
+      <div class="alert <%= flash.type === 'error' ? 'error' : 'success' %>"><%= flash.message %></div>
+    </div>
+  <% } %>

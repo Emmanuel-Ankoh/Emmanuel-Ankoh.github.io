@@ -8,6 +8,7 @@
     <div class="alert error"><%= error %></div>
   <% } %>
   <form class="contact-form" method="POST" action="/contact" novalidate>
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
     <label for="name">Name</label>
     <input id="name" name="name" type="text" required />
     <label for="email">Email</label>
