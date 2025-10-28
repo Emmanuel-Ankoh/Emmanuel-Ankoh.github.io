@@ -64,3 +64,14 @@ document.addEventListener('submit', (e) => {
   const buttons = form.querySelectorAll('button[type="submit"], input[type="submit"]');
   buttons.forEach(btn => { btn.disabled = true; });
 });
+
+// Header scroll effect (adds shadow/opacity change)
+(function(){
+  const header = document.querySelector('.site-header');
+  if (!header) return;
+  const onScroll = () => {
+    if (window.scrollY > 8) header.classList.add('scrolled'); else header.classList.remove('scrolled');
+  };
+  onScroll();
+  window.addEventListener('scroll', onScroll, { passive: true });
+})();

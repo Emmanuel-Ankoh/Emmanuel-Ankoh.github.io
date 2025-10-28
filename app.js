@@ -110,6 +110,7 @@ app.use(async (req, res, next) => {
   }
   const baseUrl = process.env.BASE_URL || '';
   res.locals.isAuthenticated = !!req.session.userId;
+  res.locals.urlPath = req.path;
   const settings = await loadSettingsCached();
   const siteName = settings?.name || 'Emmanuel Ankoh';
   res.locals.profile = settings || {};

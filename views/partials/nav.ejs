@@ -1,18 +1,18 @@
 <header class="site-header" role="banner">
   <nav class="nav" aria-label="Primary">
-    <div class="brand"><a href="/">EA</a></div>
+    <div class="brand"><a href="/" aria-label="Home"><span class="logo">EA</span></a></div>
     <button class="nav-toggle" aria-expanded="false" aria-controls="nav-menu" aria-label="Toggle navigation">☰</button>
     <ul id="nav-menu" class="nav-menu">
-      <li><a href="/">Home</a></li>
-      <li><a href="/about">About</a></li>
-      <li><a href="/projects">Projects</a></li>
-      <li><a href="/skills">Skills</a></li>
-      <li><a href="<%= (profile && profile.resumeUrl) || '/resume.pdf' %>" target="_blank" rel="noopener">Resume</a></li>
-      <li><a href="/contact">Contact</a></li>
+      <li><a href="/" class="<%= urlPath === '/' ? 'active' : '' %>">Home</a></li>
+      <li><a href="/about" class="<%= urlPath.startsWith('/about') ? 'active' : '' %>">About</a></li>
+      <li><a href="/projects" class="<%= urlPath.startsWith('/projects') ? 'active' : '' %>">Projects</a></li>
+      <li><a href="/skills" class="<%= urlPath.startsWith('/skills') ? 'active' : '' %>">Skills</a></li>
+      <li><a href="/contact" class="<%= urlPath.startsWith('/contact') ? 'active' : '' %>">Contact</a></li>
+      <li><a class="btn btn-primary" href="<%= (profile && profile.resumeUrl) || '/resume.pdf' %>" target="_blank" rel="noopener">Resume</a></li>
       <% if (isAuthenticated) { %>
-        <li><a href="/admin">Admin</a></li>
+        <li><a href="/admin" class="<%= urlPath.startsWith('/admin') && !urlPath.startsWith('/admin/login') ? 'active' : '' %>">Admin</a></li>
       <% } else { %>
-        <li><a href="/admin/login">Admin</a></li>
+        <li><a href="/admin/login" class="<%= urlPath.startsWith('/admin/login') ? 'active' : '' %>">Admin</a></li>
       <% } %>
     </ul>
   </nav>
