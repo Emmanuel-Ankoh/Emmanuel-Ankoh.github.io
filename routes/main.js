@@ -2,6 +2,7 @@ const express = require('express');
 const Project = require('../models/project');
 const Message = require('../models/message');
 const Admin = require('../models/admin');
+const rateLimit = require('express-rate-limit');
 
 const router = express.Router();
 
@@ -62,7 +63,8 @@ router.get('/contact', (req, res) => {
 });
 
 // Contact (POST)
-router.post('/contact', async (req, res, next) => {
+const contactLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 5 });
+router.post('/contact', contactLimiter, async (req, res, next) => {
   try {
     const { name, email, message } = req.body;
     if (!name || !email || !message) {

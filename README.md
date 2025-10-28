@@ -15,7 +15,7 @@ A modern, responsive developer portfolio with dynamic projects, contact form wit
 ## Tech
 - Frontend: HTML5, CSS3, Vanilla JS
 - Backend: Node.js, Express.js, EJS
-- Database: MongoDB Atlas
+ - Database: MongoDB Atlas
 
 ## Setup
 1. Clone the repo
@@ -26,6 +26,7 @@ MONGO_URI=your_mongodb_connection_string
 SESSION_SECRET=change_me
 ADMIN_USERNAME=admin
 ADMIN_PASSWORD=your_secure_password
+BASE_URL=https://your-app-url.example.com
 
 3. Install deps and run
 
@@ -52,6 +53,7 @@ You can deploy in two ways:
 	- Build Command: `npm install`
 	- Start Command: `npm start`
 	- PORT: 3000 (provided by env)
+	- Optional: `BASE_URL` for absolute links/SEO (set to your Render URL)
 - Deploy and note the live URL (e.g., `https://portfolio-xxxx.onrender.com`).
 
 2) Manual (through dashboard)
@@ -61,7 +63,7 @@ You can deploy in two ways:
 - Add env vars: `PORT`, `MONGO_URI`, `SESSION_SECRET`, `ADMIN_USERNAME`, `ADMIN_PASSWORD`
 - Deploy and note the live URL
 
-Finally, edit `index.html` in the repo and set the "Open Portfolio" link to your Render URL. Optionally, enable the commented redirect script to auto-send users to the live app.
+Finally, edit `index.html` in the repo and set the "Open Portfolio" link to your Render URL. Optionally, enable the redirect script (already enabled) to auto-send users to the live app. Also set `BASE_URL` in your environment for accurate `og:url` and sitemap links.
 
 ## API/Routes
 - `/` Home (featured projects)
