@@ -233,7 +233,21 @@ router.get('/profile', ensureAuth, async (req, res, next) => {
   } catch (e) { next(e); }
 });
 
-router.post('/profile', ensureAuth, upload.single('avatar'),
+// Custom multer wrapper to surface friendly errors on large files
+function avatarUpload(req, res, next) {
+  upload.single('avatar')(req, res, async (err) => {
+    if (!err) return next();
+    try {
+      const settings = await Settings.getSingleton();
+      if (err.code === 'LIMIT_FILE_SIZE') {
+        return res.status(400).render('admin/profile', { title: 'Profile', settings, error: 'Avatar image is too large (max 5MB).', success: null });
+      }
+      return res.status(400).render('admin/profile', { title: 'Profile', settings, error: 'Failed to process avatar upload. Please try again.', success: null });
+    } catch (e) { return next(err); }
+  });
+}
+
+router.post('/profile', ensureAuth, avatarUpload,
   body('name').trim().isLength({ min: 2 }),
   body('headline').trim().isLength({ min: 2 }),
   body('summary').trim().isLength({ min: 10 }),
@@ -247,10 +261,14 @@ router.post('/profile', ensureAuth, upload.single('avatar'),
       const { name, headline, summary, avatarUrl } = req.body;
       let uploadResult = null;
       if (cloudinary && req.file) {
-        uploadResult = await new Promise((resolve, reject) => {
-          const stream = cloudinary.uploader.upload_stream({ folder: 'portfolio' }, (err, resu) => err ? reject(err) : resolve(resu));
-          stream.end(req.file.buffer);
-        });
+        try {
+          uploadResult = await new Promise((resolve, reject) => {
+            const stream = cloudinary.uploader.upload_stream({ folder: 'portfolio' }, (err, resu) => err ? reject(err) : resolve(resu));
+            stream.end(req.file.buffer);
+          });
+        } catch (e) {
+          return res.status(400).render('admin/profile', { title: 'Profile', settings, error: 'Uploading avatar to Cloudinary failed. Please verify your Cloudinary configuration.', success: null });
+        }
       }
       if (uploadResult && settings.avatarPublicId && cloudinary) {
         try { await cloudinary.uploader.destroy(settings.avatarPublicId); } catch (e) { /* ignore */ }
