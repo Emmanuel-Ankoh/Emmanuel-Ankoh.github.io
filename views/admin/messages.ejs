@@ -6,8 +6,6 @@
     <input type="text" name="q" value="<%= typeof q !== 'undefined' ? q : '' %>" placeholder="Search name, email or message..." />
     <button class="btn" type="submit">Search</button>
   </form>
-  <form method="POST" action="/admin/messages/bulk-delete" onsubmit="return confirm('Delete selected messages?')">
-    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
   <table class="table">
     <thead>
       <tr>
@@ -23,7 +21,7 @@
     <tbody>
       <% (messages || []).forEach(m => { %>
         <tr>
-          <td><input class="msg-check" type="checkbox" name="ids" value="<%= m._id %>"></td>
+          <td><input class="msg-check" type="checkbox" name="ids" value="<%= m._id %>" form="bulk-delete-form"></td>
           <td><%= new Date(m.createdAt).toLocaleString() %></td>
           <td><%= m.name %></td>
           <td><a href="mailto:<%= m.email %>"><%= m.email %></a></td>
@@ -57,9 +55,11 @@
       <% } %>
     </div>
   <% } %>
-  <div style="margin-top:.5rem">
-    <button class="btn danger" type="submit">Delete Selected</button>
-  </div>
+  <form id="bulk-delete-form" method="POST" action="/admin/messages/bulk-delete" onsubmit="return confirm('Delete selected messages?')">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+    <div style="margin-top:.5rem">
+      <button class="btn danger" type="submit">Delete Selected</button>
+    </div>
   </form>
 </main>
 <%- include('../partials/footer') %>
