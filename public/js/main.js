@@ -56,3 +56,11 @@ window.addEventListener('DOMContentLoaded', () => {
       });
     });
 });
+
+// Prevent double form submissions by disabling submit buttons on submit
+document.addEventListener('submit', (e) => {
+  const form = e.target;
+  if (!(form instanceof HTMLFormElement)) return;
+  const buttons = form.querySelectorAll('button[type="submit"], input[type="submit"]');
+  buttons.forEach(btn => { btn.disabled = true; });
+});
