@@ -45,3 +45,14 @@ themeToggle.addEventListener('click', () => {
   localStorage.setItem(THEME_KEY, next);
   applyTheme(next);
 });
+
+// Animate skill bars based on data-level attributes
+window.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.bar .bar-fill[data-level]')
+    .forEach(el => {
+      const level = Math.max(0, Math.min(100, Number(el.getAttribute('data-level')) || 0));
+      requestAnimationFrame(() => {
+        el.style.width = level + '%';
+      });
+    });
+});

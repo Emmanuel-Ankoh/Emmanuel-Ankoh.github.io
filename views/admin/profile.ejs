@@ -11,6 +11,24 @@
     <input name="headline" value="<%= settings && settings.headline || '' %>" required />
     <label>Summary</label>
     <textarea name="summary" rows="5" required><%= settings && settings.summary || '' %></textarea>
+    <div class="grid" style="grid-template-columns:1fr 1fr;gap:1rem">
+      <div>
+        <label>Primary CTA Text</label>
+        <input name="homeCtaPrimaryText" value="<%= settings && settings.homeCta && settings.homeCta.primaryText || '' %>" />
+      </div>
+      <div>
+        <label>Primary CTA URL</label>
+        <input name="homeCtaPrimaryUrl" value="<%= settings && settings.homeCta && settings.homeCta.primaryUrl || '' %>" />
+      </div>
+      <div>
+        <label>Secondary CTA Text</label>
+        <input name="homeCtaSecondaryText" value="<%= settings && settings.homeCta && settings.homeCta.secondaryText || '' %>" />
+      </div>
+      <div>
+        <label>Secondary CTA URL</label>
+        <input name="homeCtaSecondaryUrl" value="<%= settings && settings.homeCta && settings.homeCta.secondaryUrl || '' %>" />
+      </div>
+    </div>
     <label>Avatar</label>
     <% if (settings && settings.avatarUrl) { %>
       <img src="<%= settings.avatarUrl %>" alt="Avatar" style="width:160px;height:160px;border-radius:50%;border:1px solid var(--border);margin-bottom:.5rem" />
@@ -18,6 +36,38 @@
     <input type="file" name="avatar" accept="image/*" />
     <small>Or paste avatar URL:</small>
     <input name="avatarUrl" value="<%= settings && settings.avatarUrl || '' %>" />
+    <label>Resume URL</label>
+    <input name="resumeUrl" value="<%= settings && settings.resumeUrl || '' %>" />
+    <label>Contact Intro</label>
+    <input name="contactIntro" value="<%= settings && settings.contactIntro || '' %>" />
+    <fieldset style="border:1px solid var(--border);padding:1rem;border-radius:.5rem">
+      <legend>Social Links</legend>
+      <div class="grid" style="grid-template-columns:1fr 1fr;gap:1rem">
+        <div>
+          <label>GitHub</label>
+          <input name="socials.github" value="<%= settings && settings.socials && settings.socials.github || '' %>" />
+        </div>
+        <div>
+          <label>LinkedIn</label>
+          <input name="socials.linkedin" value="<%= settings && settings.socials && settings.socials.linkedin || '' %>" />
+        </div>
+        <div>
+          <label>Twitter</label>
+          <input name="socials.twitter" value="<%= settings && settings.socials && settings.socials.twitter || '' %>" />
+        </div>
+        <div>
+          <label>Email</label>
+          <input name="socials.email" value="<%= settings && settings.socials && settings.socials.email || '' %>" />
+        </div>
+      </div>
+    </fieldset>
+
+    <label>About Body (plain text or HTML)</label>
+    <textarea name="aboutBody" rows="6"><%= settings && settings.aboutBody || '' %></textarea>
+    <label>Timeline (JSON array)</label>
+    <textarea name="timeline" rows="8" placeholder='[{"year":"2024","title":"Role","subtitle":"Company","description":"..."}]'><%= JSON.stringify((settings && settings.timeline) || [], null, 2) %></textarea>
+    <label>Skills (JSON array)</label>
+    <textarea name="skills" rows="8" placeholder='[{"name":"JavaScript","level":90}]'><%= JSON.stringify((settings && settings.skills) || [], null, 2) %></textarea>
     <div class="toolbar">
       <div></div>
       <button class="btn btn-primary" type="submit">Save</button>

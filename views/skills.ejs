@@ -5,21 +5,24 @@
     <div>
       <h2>Technical</h2>
       <ul class="skills">
-        <li><span>JavaScript</span><div class="bar"><span style="width: 90%"></span></div></li>
-        <li><span>Node.js</span><div class="bar"><span style="width: 85%"></span></div></li>
-        <li><span>Express.js</span><div class="bar"><span style="width: 85%"></span></div></li>
-        <li><span>MongoDB</span><div class="bar"><span style="width: 80%"></span></div></li>
-        <li><span>HTML/CSS</span><div class="bar"><span style="width: 90%"></span></div></li>
+        <% if (profile && Array.isArray(profile.skills) && profile.skills.length) { %>
+          <% profile.skills.forEach((s) => { %>
+            <li><span><%= s.name %></span><div class="bar"><span class="bar-fill" data-level="<%= Math.max(0, Math.min(100, s.level||0)) %>"></span></div></li>
+          <% }) %>
+        <% } else { %>
+          <li><span>JavaScript</span><div class="bar"><span style="width: 90%"></span></div></li>
+          <li><span>Node.js</span><div class="bar"><span style="width: 85%"></span></div></li>
+          <li><span>Express.js</span><div class="bar"><span style="width: 85%"></span></div></li>
+          <li><span>MongoDB</span><div class="bar"><span style="width: 80%"></span></div></li>
+          <li><span>HTML/CSS</span><div class="bar"><span style="width: 90%"></span></div></li>
+        <% } %>
       </ul>
     </div>
     <div>
-      <h2>Soft Skills</h2>
-      <ul class="skills">
-        <li><span>Communication</span><div class="bar"><span style="width: 85%"></span></div></li>
-        <li><span>Teamwork</span><div class="bar"><span style="width: 90%"></span></div></li>
-        <li><span>Problem-Solving</span><div class="bar"><span style="width: 90%"></span></div></li>
-        <li><span>Leadership</span><div class="bar"><span style="width: 75%"></span></div></li>
-      </ul>
+      <h2>Summary</h2>
+      <p>
+        <%= (profile && profile.summary) || 'These are my core skills. I learn quickly and enjoy picking up new technologies when the problem calls for it.' %>
+      </p>
     </div>
   </section>
 </main>

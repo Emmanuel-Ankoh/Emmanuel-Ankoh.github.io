@@ -3,28 +3,42 @@
   <section>
     <h1>About Me</h1>
     <div class="about-grid">
-      <img class="avatar" src="/images/profile.jpg" alt="Portrait of Emmanuel Ankoh" />
+      <img class="avatar" src="<%= (profile && profile.avatarUrl) || '/images/placeholder.svg' %>" alt="Portrait of <%= (site && site.name) || 'Your Name' %>" />
       <div>
-        <p>
-          I'm a full-stack developer passionate about building user-centric products. I enjoy working across the stack, from clean UIs to resilient APIs.
-        </p>
-        <p>
-          When I'm not coding, I read about distributed systems and contribute to open-source projects.
-        </p>
+        <% if (profile && profile.aboutBody) { %>
+          <div><%- profile.aboutBody %></div>
+        <% } else { %>
+          <p>
+            I'm a full-stack developer passionate about building user-centric products. I enjoy working across the stack, from clean UIs to resilient APIs.
+          </p>
+          <p>
+            When I'm not coding, I read about distributed systems and contribute to open-source projects.
+          </p>
+        <% } %>
       </div>
     </div>
   </section>
   <section>
     <h2>Education & Experience</h2>
     <ol class="timeline">
-      <li data-aos="fade-up">
-        <h3>Software Engineer</h3>
-        <p>Company · 2023 – Present</p>
-      </li>
-      <li data-aos="fade-up" data-aos-delay="100">
-        <h3>B.Sc. Computer Science</h3>
-        <p>University · 2019 – 2023</p>
-      </li>
+      <% if (profile && Array.isArray(profile.timeline) && profile.timeline.length) { %>
+        <% profile.timeline.forEach((item, idx) => { %>
+          <li data-aos="fade-up" <%= idx ? ('data-aos-delay="' + (idx*80) + '"') : '' %>>
+            <h3><%= item.title %></h3>
+            <p><%= item.subtitle || '' %> · <%= item.year || '' %></p>
+            <% if (item.description) { %><p><%= item.description %></p><% } %>
+          </li>
+        <% }) %>
+      <% } else { %>
+        <li data-aos="fade-up">
+          <h3>Software Engineer</h3>
+          <p>Company · 2023 – Present</p>
+        </li>
+        <li data-aos="fade-up" data-aos-delay="100">
+          <h3>B.Sc. Computer Science</h3>
+          <p>University · 2019 – 2023</p>
+        </li>
+      <% } %>
     </ol>
   </section>
 </main>

@@ -1,6 +1,11 @@
 <footer class="site-footer">
   <div class="container">
-    <p>© <%= new Date().getFullYear() %> Emmanuel Ankoh · <a href="https://github.com/Emmanuel-Ankoh" target="_blank" rel="noopener">GitHub</a> · <a href="https://www.linkedin.com/in/emmanuel-ankoh" target="_blank" rel="noopener">LinkedIn</a> · <a href="mailto:emmanuel@example.com">Email</a></p>
+    <p>© <%= new Date().getFullYear() %> <%= (site && site.name) || 'Your Name' %>
+      <% if (profile && profile.socials && profile.socials.github) { %> · <a href="<%= profile.socials.github %>" target="_blank" rel="noopener">GitHub</a><% } %>
+      <% if (profile && profile.socials && profile.socials.linkedin) { %> · <a href="<%= profile.socials.linkedin %>" target="_blank" rel="noopener">LinkedIn</a><% } %>
+      <% if (profile && profile.socials && profile.socials.twitter) { %> · <a href="<%= profile.socials.twitter %>" target="_blank" rel="noopener">Twitter</a><% } %>
+      <% if (profile && profile.socials && profile.socials.email) { %> · <a href="mailto:<%= profile.socials.email %>">Email</a><% } %>
+    </p>
   </div>
 </footer>
 <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>

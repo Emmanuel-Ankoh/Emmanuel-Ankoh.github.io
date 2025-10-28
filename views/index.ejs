@@ -7,8 +7,8 @@
         <p class="subtitle" data-aos="fade-up" data-aos-delay="100"><%= (settings && settings.headline) || (profile && profile.headline) || 'Full-Stack Developer' %></p>
         <p data-aos="fade-up" data-aos-delay="200"><%= (settings && settings.summary) || (profile && profile.summary) || 'I build fast, accessible, and delightful web apps with clean code and solid engineering practices.' %></p>
         <div class="hero-ctas" data-aos="fade-up" data-aos-delay="300">
-          <a href="/projects" class="btn btn-primary">View Projects</a>
-          <a href="/contact" class="btn">Get in Touch</a>
+          <a href="<%= (settings && settings.homeCta && settings.homeCta.primaryUrl) || '/projects' %>" class="btn btn-primary"><%= (settings && settings.homeCta && settings.homeCta.primaryText) || 'View Projects' %></a>
+          <a href="<%= (settings && settings.homeCta && settings.homeCta.secondaryUrl) || '/contact' %>" class="btn"><%= (settings && settings.homeCta && settings.homeCta.secondaryText) || 'Get in Touch' %></a>
         </div>
       </div>
       <div data-aos="fade-left" data-aos-delay="150" style="text-align:right">

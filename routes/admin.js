@@ -247,6 +247,35 @@ router.post('/profile', ensureAuth, upload.single('avatar'),
       settings.summary = summary;
       settings.avatarUrl = uploadResult ? uploadResult.secure_url : (avatarUrl || settings.avatarUrl);
       settings.avatarPublicId = uploadResult ? uploadResult.public_id : settings.avatarPublicId;
+      // Extra fields
+      settings.resumeUrl = req.body.resumeUrl || settings.resumeUrl;
+      settings.contactIntro = req.body.contactIntro || settings.contactIntro;
+      settings.socials = {
+        github: req.body['socials.github'] || settings.socials?.github || '',
+        linkedin: req.body['socials.linkedin'] || settings.socials?.linkedin || '',
+        twitter: req.body['socials.twitter'] || settings.socials?.twitter || '',
+        email: req.body['socials.email'] || settings.socials?.email || ''
+      };
+      settings.homeCta = {
+        primaryText: req.body.homeCtaPrimaryText || settings.homeCta?.primaryText,
+        primaryUrl: req.body.homeCtaPrimaryUrl || settings.homeCta?.primaryUrl,
+        secondaryText: req.body.homeCtaSecondaryText || settings.homeCta?.secondaryText,
+        secondaryUrl: req.body.homeCtaSecondaryUrl || settings.homeCta?.secondaryUrl
+      };
+      // Parse timeline and skills JSON safely
+      try {
+        if (req.body.timeline) {
+          const t = JSON.parse(req.body.timeline);
+          if (Array.isArray(t)) settings.timeline = t;
+        }
+      } catch (e) { /* ignore bad json */ }
+      try {
+        if (req.body.skills) {
+          const s = JSON.parse(req.body.skills);
+          if (Array.isArray(s)) settings.skills = s;
+        }
+      } catch (e) { /* ignore bad json */ }
+      settings.aboutBody = req.body.aboutBody || settings.aboutBody;
       await settings.save();
       req.session.flash = { type: 'success', message: 'Profile updated' };
       res.redirect('/admin/profile');

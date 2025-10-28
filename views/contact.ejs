@@ -1,6 +1,9 @@
 <%- include('partials/head', { title }) %>
 <main id="main" class="container">
   <h1>Contact</h1>
+  <% if (profile && profile.contactIntro) { %>
+    <p class="subtitle"><%= profile.contactIntro %></p>
+  <% } %>
   <% if (success) { %>
     <div class="alert success"><%= success %></div>
   <% } %>
