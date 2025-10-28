@@ -39,11 +39,29 @@ npm start
 The first login attempt can use the env admin credentials. A bootstrap route also exists at `/bootstrap-admin` to ensure admin creation.
 
 ## Deployment (Render)
-- Create a new Web Service
+You can deploy in two ways:
+
+1) Render Blueprint (recommended)
+- This repo includes `render.yaml`.
+- Go to https://dashboard.render.com/iac and choose "New from Blueprint".
+- Point to this GitHub repo (main branch) and Render will read `render.yaml`.
+- After the service is created, set these env vars in Render (if not already set by the blueprint):
+	- `MONGO_URI` = your MongoDB Atlas connection string
+	- `ADMIN_PASSWORD` = your secure admin password
+- The blueprint already configures:
+	- Build Command: `npm install`
+	- Start Command: `npm start`
+	- PORT: 3000 (provided by env)
+- Deploy and note the live URL (e.g., `https://portfolio-xxxx.onrender.com`).
+
+2) Manual (through dashboard)
+- New → Web Service → Connect this repo
 - Build Command: `npm install`
 - Start Command: `npm start`
-- Add the environment variables above
-- Enable a MongoDB Atlas cluster and allow Render IPs
+- Add env vars: `PORT`, `MONGO_URI`, `SESSION_SECRET`, `ADMIN_USERNAME`, `ADMIN_PASSWORD`
+- Deploy and note the live URL
+
+Finally, edit `index.html` in the repo and set the "Open Portfolio" link to your Render URL. Optionally, enable the commented redirect script to auto-send users to the live app.
 
 ## API/Routes
 - `/` Home (featured projects)
@@ -66,3 +84,4 @@ The first login attempt can use the env admin credentials. A bootstrap route als
 - Replace placeholder images under `public/images`.
 - Update social links in `views/partials/footer.ejs`.
 - For a custom domain on Render, configure a CNAME and enable HTTPS.
+ - GitHub Pages (this repo) includes a button on `index.html` that links to your deployed app; update it after deployment.
