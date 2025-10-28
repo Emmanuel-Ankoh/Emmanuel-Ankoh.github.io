@@ -1,9 +1,11 @@
 <%- include('../partials/head', { title }) %>
 <main id="main" class="container">
   <h1>Messages</h1>
+  <p><a class="btn" href="/admin">← Back to Dashboard</a></p>
   <table class="table">
     <thead>
       <tr>
+        <th>Date</th>
         <th>Name</th>
         <th>Email</th>
         <th>Message</th>
@@ -14,9 +16,10 @@
     <tbody>
       <% (messages || []).forEach(m => { %>
         <tr>
+          <td><%= new Date(m.createdAt).toLocaleString() %></td>
           <td><%= m.name %></td>
           <td><a href="mailto:<%= m.email %>"><%= m.email %></a></td>
-          <td style="max-width: 400px"><%= m.message %></td>
+          <td style="max-width:420px;white-space:pre-wrap"><%= m.message %></td>
           <td><%= m.read ? 'Read' : 'Unread' %></td>
           <td>
             <% if (!m.read) { %>
@@ -25,7 +28,7 @@
               </form>
             <% } %>
             <form method="POST" action="/admin/messages/<%= m._id %>/delete" style="display:inline">
-              <button class="btn danger" type="submit" onclick="return confirm('Delete this message?')">Delete</button>
+              <button class="btn danger" onclick="return confirm('Delete this message?')" type="submit">Delete</button>
             </form>
           </td>
         </tr>
