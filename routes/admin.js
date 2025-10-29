@@ -244,6 +244,12 @@ router.post('/profile', ensureAuth, upload.single('avatar'),
       if (!errors.isEmpty()) {
         return res.render('admin/profile', { title: 'Profile', settings, error: errors.array().map(e=>e.msg).join(', '), success: null });
       }
+      const toStringField = (val) => {
+        if (Array.isArray(val)) {
+          return typeof val[0] === 'string' ? val[0] : '';
+        }
+        return typeof val === 'string' ? val : '';
+      };
   const { name, headline, summary, mission, avatarUrl } = req.body;
       settings.name = name;
       settings.headline = headline;
@@ -274,27 +280,27 @@ router.post('/profile', ensureAuth, upload.single('avatar'),
         settings.avatarUrl = avatarUrl;
       }
       // Extra fields
-      settings.resumeUrl = req.body.resumeUrl || settings.resumeUrl;
-      settings.contactIntro = req.body.contactIntro || settings.contactIntro;
-  settings.location = (req.body.location || '').trim();
-  settings.phone = (req.body.phone || '').trim();
+  settings.resumeUrl = toStringField(req.body.resumeUrl) || settings.resumeUrl;
+  settings.contactIntro = toStringField(req.body.contactIntro) || settings.contactIntro;
+  settings.location = toStringField(req.body.location).trim();
+  settings.phone = toStringField(req.body.phone).trim();
   settings.availability = req.body.availability === 'on';
       // Social links (optional)
       settings.socials = {
-        github: req.body['socials.github'] || settings.socials?.github || '',
-        linkedin: req.body['socials.linkedin'] || settings.socials?.linkedin || '',
-        twitter: req.body['socials.twitter'] || settings.socials?.twitter || '',
-        instagram: req.body['socials.instagram'] || settings.socials?.instagram || '',
-        youtube: req.body['socials.youtube'] || settings.socials?.youtube || '',
-        stackoverflow: req.body['socials.stackoverflow'] || settings.socials?.stackoverflow || '',
-        email: req.body['socials.email'] || settings.socials?.email || ''
+        github: toStringField(req.body['socials.github']) || settings.socials?.github || '',
+        linkedin: toStringField(req.body['socials.linkedin']) || settings.socials?.linkedin || '',
+        twitter: toStringField(req.body['socials.twitter']) || settings.socials?.twitter || '',
+        instagram: toStringField(req.body['socials.instagram']) || settings.socials?.instagram || '',
+        youtube: toStringField(req.body['socials.youtube']) || settings.socials?.youtube || '',
+        stackoverflow: toStringField(req.body['socials.stackoverflow']) || settings.socials?.stackoverflow || '',
+        email: toStringField(req.body['socials.email']) || settings.socials?.email || ''
       };
       // Home CTAs (optional, must be in pairs if provided)
       settings.homeCta = {
-        primaryText: req.body.homeCtaPrimaryText || settings.homeCta?.primaryText,
-        primaryUrl: req.body.homeCtaPrimaryUrl || settings.homeCta?.primaryUrl,
-        secondaryText: req.body.homeCtaSecondaryText || settings.homeCta?.secondaryText,
-        secondaryUrl: req.body.homeCtaSecondaryUrl || settings.homeCta?.secondaryUrl
+        primaryText: toStringField(req.body.homeCtaPrimaryText) || settings.homeCta?.primaryText,
+        primaryUrl: toStringField(req.body.homeCtaPrimaryUrl) || settings.homeCta?.primaryUrl,
+        secondaryText: toStringField(req.body.homeCtaSecondaryText) || settings.homeCta?.secondaryText,
+        secondaryUrl: toStringField(req.body.homeCtaSecondaryUrl) || settings.homeCta?.secondaryUrl
       };
       if ((settings.homeCta?.primaryText && !settings.homeCta?.primaryUrl) || (!settings.homeCta?.primaryText && settings.homeCta?.primaryUrl)) {
         return res.status(400).render('admin/profile', { title: 'Profile', settings, error: 'Primary CTA text and URL must both be provided.', success: null });
@@ -320,7 +326,7 @@ router.post('/profile', ensureAuth, upload.single('avatar'),
       }
       // Parse simple timeline text (one item per line; parts separated by |). Empty input clears timeline.
       if ('timelineText' in req.body) {
-        const timelineText = (req.body.timelineText || '').trim();
+        const timelineText = toStringField(req.body.timelineText).trim();
         if (timelineText) {
           const lines = timelineText.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
           const t = lines.map(line => {
@@ -340,7 +346,7 @@ router.post('/profile', ensureAuth, upload.single('avatar'),
 
       // Parse simple skills text (one per line: Name:Level). Empty input clears skills.
       if ('skillsText' in req.body) {
-        const skillsText = (req.body.skillsText || '').trim();
+        const skillsText = toStringField(req.body.skillsText).trim();
         if (skillsText) {
           const lines = skillsText.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
           const s = lines.map(line => {
@@ -368,7 +374,7 @@ router.post('/profile', ensureAuth, upload.single('avatar'),
         }
       }
       if ('skillGroupsJson' in req.body) {
-        const raw = (req.body.skillGroupsJson || '').trim();
+        const raw = toStringField(req.body.skillGroupsJson).trim();
         if (raw) {
           try {
             const parsed = JSON.parse(raw);
@@ -397,7 +403,7 @@ router.post('/profile', ensureAuth, upload.single('avatar'),
         }
       }
       if ('testimonialsText' in req.body) {
-        const testimonialsText = (req.body.testimonialsText || '').trim();
+        const testimonialsText = toStringField(req.body.testimonialsText).trim();
         if (testimonialsText) {
           const lines = testimonialsText.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
           const testimonials = lines.map(line => {
@@ -411,7 +417,7 @@ router.post('/profile', ensureAuth, upload.single('avatar'),
         }
       }
       if ('notesText' in req.body) {
-        const notesText = (req.body.notesText || '').trim();
+        const notesText = toStringField(req.body.notesText).trim();
         if (notesText) {
           const lines = notesText.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
           const notes = lines.map(line => {
