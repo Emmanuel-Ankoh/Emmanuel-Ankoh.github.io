@@ -8,92 +8,146 @@
 <% const testimonialCount = Array.isArray(settingsData.testimonials) ? settingsData.testimonials.length : 0; %>
 <% const skillGroupCount = Array.isArray(settingsData.skillGroups) ? settingsData.skillGroups.length : 0; %>
 <% const notesTotal = typeof notesCount === 'number' ? notesCount : 0; %>
+<% const heroName = settingsData.name || (profile && profile.name) || (site && site.name) || 'Admin'; %>
+<% const heroFirstName = String(heroName).split(' ')[0]; %>
+<% const heroHeadline = settingsData.headline || 'Portfolio admin'; %>
+<% const heroLocation = settingsData.location || null; %>
+<% const lastUpdated = settingsData.updatedAt ? new Date(settingsData.updatedAt).toLocaleDateString() : null; %>
 
 <main class="container-fluid py-4">
   <section class="d-flex flex-column gap-4">
-    <header class="d-flex flex-wrap justify-content-between align-items-start gap-3">
-      <div>
-        <h1 class="h3 mb-1">Welcome back</h1>
-        <p class="text-muted mb-0">Monitor portfolio performance and keep your content up to date.</p>
-      </div>
-      <div class="d-flex gap-2 flex-wrap">
-        <a class="btn btn-primary" href="/admin/projects">Add new project</a>
-        <a class="btn btn-outline-light" href="/" target="_blank" rel="noopener">View site</a>
-      </div>
-    </header>
-
-    <div class="row g-3">
-      <div class="col-12 col-md-3">
-        <div class="stat-tile">
-          <span>Total projects</span>
-          <strong class="display-6"><%= projectCount %></strong>
-          <a class="btn btn-sm btn-outline-light mt-2" href="/admin/projects">Manage projects</a>
+    <div class="dashboard-hero">
+      <div class="d-flex flex-column flex-xl-row justify-content-between align-items-start gap-4">
+        <div class="hero-intro">
+          <span class="hero-pill">Admin Control Center</span>
+          <h1 class="hero-title">Welcome back, <%= heroFirstName %></h1>
+          <p class="hero-subtitle">Keep your portfolio polished with focused updates and a clear view of what needs attention.</p>
         </div>
-      </div>
-      <div class="col-12 col-md-3">
-        <div class="stat-tile">
-          <span>Featured projects</span>
-          <strong class="display-6"><%= featuredCount %></strong>
-          <a class="btn btn-sm btn-outline-light mt-2" href="/admin/projects?q=&limit=10">Adjust highlights</a>
-        </div>
-      </div>
-      <div class="col-12 col-md-3">
-        <div class="stat-tile">
-          <span>Unread messages</span>
-          <strong class="display-6"><%= unreadMessages %></strong>
-          <a class="btn btn-sm btn-outline-light mt-2" href="/admin/messages">Review inbox</a>
-        </div>
-      </div>
-      <div class="col-12 col-md-3">
-        <div class="stat-tile">
-          <span>Profile completeness</span>
-          <strong class="display-6"><%= completion %>%</strong>
-          <div class="progress mt-2" role="progressbar" aria-label="Profile completion" aria-valuenow="<%= completion %>" aria-valuemin="0" aria-valuemax="100">
-            <div class="progress-bar" style="--progress:<%= completion %>;"></div>
+        <div class="hero-meta">
+          <div class="hero-meta-card">
+            <span>Primary focus</span>
+            <strong><%= heroHeadline %></strong>
           </div>
-          <a class="btn btn-sm btn-outline-light mt-2" href="/admin/profile">Complete profile</a>
+          <div class="hero-meta-card">
+            <span>Status</span>
+            <strong><%= availability === null ? 'Set availability' : (availability ? 'Accepting work' : 'Booked out') %></strong>
+          </div>
+          <div class="hero-meta-card">
+            <span>Last update</span>
+            <strong><%= lastUpdated || '—' %></strong>
+          </div>
+          <% if (heroLocation) { %>
+            <div class="hero-meta-card">
+              <span>Location</span>
+              <strong><%= heroLocation %></strong>
+            </div>
+          <% } %>
+        </div>
+      </div>
+      <div class="hero-actions">
+        <div class="d-flex gap-2 flex-wrap">
+          <a class="btn btn-primary" href="/admin/projects"><i class="bi bi-plus-lg me-1"></i>Add project</a>
+          <a class="btn btn-outline-light" href="/" target="_blank" rel="noopener"><i class="bi bi-box-arrow-up-right me-1"></i>View site</a>
+        </div>
+        <div class="hero-health">
+          <span>Profile completeness</span>
+          <div class="hero-progress" role="progressbar" aria-label="Profile completion" aria-valuenow="<%= completion %>" aria-valuemin="0" aria-valuemax="100">
+            <div class="hero-progress-bar" style="--progress:<%= completion %>;"></div>
+          </div>
+          <p><strong><%= completion %>%</strong> complete · <a class="hero-link" href="/admin/profile">Review profile</a></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-3 stat-row">
+      <div class="col-12 col-sm-6 col-xl-3">
+        <div class="stat-card">
+          <div class="stat-icon bg-indigo">
+            <i class="bi bi-kanban"></i>
+          </div>
+          <div class="stat-body">
+            <span>Total projects</span>
+            <strong><%= projectCount %></strong>
+          </div>
+          <a class="stat-link" href="/admin/projects">Manage projects</a>
+        </div>
+      </div>
+      <div class="col-12 col-sm-6 col-xl-3">
+        <div class="stat-card">
+          <div class="stat-icon bg-sky">
+            <i class="bi bi-stars"></i>
+          </div>
+          <div class="stat-body">
+            <span>Featured projects</span>
+            <strong><%= featuredCount %></strong>
+          </div>
+          <a class="stat-link" href="/admin/projects?q=&limit=10">Adjust highlights</a>
+        </div>
+      </div>
+      <div class="col-12 col-sm-6 col-xl-3">
+        <div class="stat-card">
+          <div class="stat-icon bg-amber">
+            <i class="bi bi-envelope-open"></i>
+          </div>
+          <div class="stat-body">
+            <span>Unread messages</span>
+            <strong><%= unreadMessages %></strong>
+          </div>
+          <a class="stat-link" href="/admin/messages">Review inbox</a>
+        </div>
+      </div>
+      <div class="col-12 col-sm-6 col-xl-3">
+        <div class="stat-card">
+          <div class="stat-icon bg-emerald">
+            <i class="bi bi-person-check"></i>
+          </div>
+          <div class="stat-body">
+            <span>Profile completeness</span>
+            <strong><%= completion %>%</strong>
+          </div>
+          <a class="stat-link" href="/admin/profile">Complete profile</a>
         </div>
       </div>
     </div>
 
     <div class="row g-4">
-      <div class="col-xl-8 d-flex flex-column gap-4">
+      <div class="col-xxl-8 d-flex flex-column gap-4">
         <div class="card p-4">
           <div class="d-flex justify-content-between align-items-center mb-3">
             <div>
               <h2 class="h5 mb-0">Quick actions</h2>
-              <small class="text-muted">Jump straight to common workflows.</small>
+              <small class="text-muted">Start with the tasks that keep your portfolio production-ready.</small>
             </div>
           </div>
-          <div class="row g-3">
-            <div class="col-sm-6">
-              <div class="quick-card">
+          <div class="quick-actions-grid">
+            <a class="action-tile" href="/admin/projects">
+              <div class="action-icon bg-indigo"><i class="bi bi-kanban"></i></div>
+              <div>
                 <h3>Projects</h3>
-                <p>Create new portfolio entries or update existing case studies.</p>
-                <a class="btn btn-outline-light" href="/admin/projects">Manage projects</a>
+                <p>Create, update, and curate case studies across your site.</p>
               </div>
-            </div>
-            <div class="col-sm-6">
-              <div class="quick-card">
-                <h3>Profile &amp; settings</h3>
-                <p>Edit hero content, mission, skills, and social links.</p>
-                <a class="btn btn-outline-light" href="/admin/profile">Edit profile</a>
+            </a>
+            <a class="action-tile" href="/admin/profile">
+              <div class="action-icon bg-emerald"><i class="bi bi-person-lines-fill"></i></div>
+              <div>
+                <h3>Profile</h3>
+                <p>Polish your hero content, mission, and social presence.</p>
               </div>
-            </div>
-            <div class="col-sm-6">
-              <div class="quick-card">
+            </a>
+            <a class="action-tile" href="/admin/profile#advanced">
+              <div class="action-icon bg-sky"><i class="bi bi-journal-text"></i></div>
+              <div>
                 <h3>Content library</h3>
-                <p>Update notes, testimonials, and highlights showcased on the site.</p>
-                <a class="btn btn-outline-light" href="/admin/profile#advanced">Open advanced settings</a>
+                <p>Manage testimonials, timeline entries, and featured notes.</p>
               </div>
-            </div>
-            <div class="col-sm-6">
-              <div class="quick-card">
+            </a>
+            <a class="action-tile" href="/admin/change-password">
+              <div class="action-icon bg-amber"><i class="bi bi-shield-lock"></i></div>
+              <div>
                 <h3>Security</h3>
-                <p>Rotate admin credentials and review login activity.</p>
-                <a class="btn btn-outline-light" href="/admin/change-password">Update password</a>
+                <p>Rotate credentials and reinforce the safety of your admin panel.</p>
               </div>
-            </div>
+            </a>
           </div>
         </div>
 
@@ -131,12 +185,54 @@
             </ul>
           <% } %>
         </div>
+
+        <div class="card p-4">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+              <h2 class="h5 mb-0">Portfolio health</h2>
+              <small class="text-muted">Stay ahead of tasks that keep your brand consistent.</small>
+            </div>
+          </div>
+          <ul class="activity-timeline list-unstyled mb-0">
+            <li>
+              <span class="badge-dot bg-emerald"></span>
+              <div>
+                <p class="mb-1">Profile completeness is at <strong><%= completion %>%</strong>.</p>
+                <small class="text-muted">Refresh your hero copy, timeline, and skills to reach 100%.</small>
+              </div>
+            </li>
+            <li>
+              <span class="badge-dot bg-sky"></span>
+              <div>
+                <p class="mb-1">You have <strong><%= testimonialCount %></strong> testimonials and <strong><%= skillGroupCount %></strong> skill groups live.</p>
+                <small class="text-muted">Keep social proof current and showcase the tech you want to be hired for.</small>
+              </div>
+            </li>
+            <li>
+              <span class="badge-dot bg-indigo"></span>
+              <div>
+                <p class="mb-1">Notes library contains <strong><%= notesTotal %></strong> entries.</p>
+                <small class="text-muted">Use notes to surface articles, talks, or resources alongside your projects.</small>
+              </div>
+            </li>
+            <li>
+              <span class="badge-dot <%= availability ? 'bg-primary' : 'bg-amber' %>"></span>
+              <div>
+                <p class="mb-1">Availability is currently <strong><%= availability === null ? 'undisclosed' : (availability ? 'open for opportunities' : 'booked') %></strong>.</p>
+                <small class="text-muted">Let visitors know when you are ready for new collaborations.</small>
+              </div>
+            </li>
+          </ul>
+        </div>
       </div>
 
       <div class="col-xl-4 d-flex flex-column gap-4">
         <div class="card p-4">
           <div class="d-flex justify-content-between align-items-center mb-3">
-            <h2 class="h5 mb-0">Inbox snapshot</h2>
+            <div>
+              <h2 class="h5 mb-0">Inbox</h2>
+              <small class="text-muted">Stay responsive to incoming leads.</small>
+            </div>
             <span class="badge-soft"><%= unreadMessages %> unread</span>
           </div>
           <% if (!inbox.length) { %>
