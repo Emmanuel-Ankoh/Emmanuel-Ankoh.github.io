@@ -244,10 +244,11 @@ router.post('/profile', ensureAuth, upload.single('avatar'),
       if (!errors.isEmpty()) {
         return res.render('admin/profile', { title: 'Profile', settings, error: errors.array().map(e=>e.msg).join(', '), success: null });
       }
-  const { name, headline, summary, avatarUrl } = req.body;
+  const { name, headline, summary, mission, avatarUrl } = req.body;
       settings.name = name;
       settings.headline = headline;
       settings.summary = summary;
+    settings.mission = mission || '';
       // Avatar upload (optional)
       if (req.file && req.file.buffer) {
         const allowed = ['image/jpeg','image/png','image/webp','image/gif'];
@@ -283,6 +284,9 @@ router.post('/profile', ensureAuth, upload.single('avatar'),
         github: req.body['socials.github'] || settings.socials?.github || '',
         linkedin: req.body['socials.linkedin'] || settings.socials?.linkedin || '',
         twitter: req.body['socials.twitter'] || settings.socials?.twitter || '',
+        instagram: req.body['socials.instagram'] || settings.socials?.instagram || '',
+        youtube: req.body['socials.youtube'] || settings.socials?.youtube || '',
+        stackoverflow: req.body['socials.stackoverflow'] || settings.socials?.stackoverflow || '',
         email: req.body['socials.email'] || settings.socials?.email || ''
       };
       // Home CTAs (optional, must be in pairs if provided)
@@ -361,6 +365,35 @@ router.post('/profile', ensureAuth, upload.single('avatar'),
           settings.skills = s;
         } else {
           settings.skills = [];
+        }
+      }
+      if ('skillGroupsJson' in req.body) {
+        const raw = (req.body.skillGroupsJson || '').trim();
+        if (raw) {
+          try {
+            const parsed = JSON.parse(raw);
+            if (Array.isArray(parsed)) {
+              const groups = parsed.map(group => {
+                const title = typeof group.title === 'string' ? group.title.trim() : '';
+                const items = Array.isArray(group.skills) ? group.skills.map(skill => {
+                  const name = typeof skill.name === 'string' ? skill.name.trim() : '';
+                  let level = typeof skill.level === 'number' ? skill.level : parseInt(skill.level, 10);
+                  if (!Number.isFinite(level)) level = undefined;
+                  if (typeof level === 'number') {
+                    level = Math.max(0, Math.min(100, level));
+                  }
+                  return name ? { name, level } : null;
+                }).filter(Boolean) : [];
+                if (!title && !items.length) return null;
+                return { title, skills: items };
+              }).filter(Boolean);
+              settings.skillGroups = groups;
+            }
+          } catch (err) {
+            console.warn('Failed to parse skill groups JSON:', err.message);
+          }
+        } else {
+          settings.skillGroups = [];
         }
       }
       if ('testimonialsText' in req.body) {

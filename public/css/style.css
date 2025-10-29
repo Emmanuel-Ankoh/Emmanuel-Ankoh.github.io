@@ -69,6 +69,12 @@ a:hover{text-decoration:underline}
 .skills{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.75rem}
 .skills .bar{height:8px;background:#232838;border-radius:999px;overflow:hidden}
 .skills .bar .bar-fill{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-2));width:0;transition:width .6s ease}
+.skills.mini{gap:.5rem}
+.skill-group-preview{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem}
+.skill-group-preview article{background:var(--card);border:1px solid var(--border);border-radius:.6rem;padding:.75rem;display:flex;flex-direction:column;gap:.5rem}
+.skill-groups{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1.5rem}
+.skill-group{background:var(--card);border:1px solid var(--border);border-radius:.6rem;padding:1rem;display:flex;flex-direction:column;gap:.75rem;box-shadow:0 8px 24px rgba(0,0,0,.15)}
+.skill-group h2,.skill-group h3{margin:0}
 
 .contact-form{display:grid;gap:.6rem;max-width:560px}
 .contact-form input,.contact-form textarea, .auth-form input, .auth-form textarea{background:#0f131d;color:var(--text);border:1px solid var(--border);padding:.6rem;border-radius:.3rem}
@@ -122,6 +128,8 @@ a:hover{text-decoration:underline}
   .grid{grid-template-columns:1fr}
   .about-grid{grid-template-columns:1fr}
   .skills-grid{grid-template-columns:1fr}
+  .skill-group-preview{grid-template-columns:1fr}
+  .skill-groups{grid-template-columns:1fr}
   .cards-2{grid-template-columns:1fr}
   .hero-grid{grid-template-columns:1fr}
   .testimonials-grid,.notes-list{grid-template-columns:1fr}

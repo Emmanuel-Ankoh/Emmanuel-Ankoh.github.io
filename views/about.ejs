@@ -17,6 +17,10 @@
           </ul>
         <% } %>
 
+            <% if (profile && profile.mission) { %>
+              <p class="subtitle" style="margin:.5rem 0 1rem 0"><%= profile.mission %></p>
+            <% } %>
+
         <% if (profile && profile.aboutBody) { %>
           <div><%- profile.aboutBody %></div>
         <% } else { %>
@@ -41,6 +45,9 @@
             <% if (socials.github) { %><li><a href="<%= socials.github %>" target="_blank" rel="noopener">GitHub</a></li><% } %>
             <% if (socials.linkedin) { %><li><a href="<%= socials.linkedin %>" target="_blank" rel="noopener">LinkedIn</a></li><% } %>
             <% if (socials.twitter) { %><li><a href="<%= socials.twitter %>" target="_blank" rel="noopener">Twitter</a></li><% } %>
+            <% if (socials.instagram) { %><li><a href="<%= socials.instagram %>" target="_blank" rel="noopener">Instagram</a></li><% } %>
+            <% if (socials.youtube) { %><li><a href="<%= socials.youtube %>" target="_blank" rel="noopener">YouTube</a></li><% } %>
+            <% if (socials.stackoverflow) { %><li><a href="<%= socials.stackoverflow %>" target="_blank" rel="noopener">Stack Overflow</a></li><% } %>
             <% if (socials.email) { %><li><a href="mailto:<%= socials.email %>">Email</a></li><% } %>
           </ul>
         <% } %>
@@ -49,26 +56,43 @@
   </section>
   <section>
     <h2>Core Skills</h2>
-    <% if (profile && Array.isArray(profile.skills) && profile.skills.length) { %>
-      <div class="skills-grid" style="margin-top:1rem">
-        <div>
-          <p>Here are a few of the technologies I work with regularly. Each bar reflects my current confidence level out of 100.</p>
-        </div>
-        <div>
-          <ul class="skills">
-            <% const sortedSkills = [...profile.skills].sort((a,b)=> (b.level||0)-(a.level||0)); %>
-            <% sortedSkills.slice(0,8).forEach((s) => { %>
-              <li><span><%= s.name %></span><div class="bar"><span class="bar-fill" data-level="<%= Math.max(0, Math.min(100, s.level||0)) %>"></span></div></li>
+        <% const skillGroups = (profile && Array.isArray(profile.skillGroups)) ? profile.skillGroups.filter(g => g && g.skills && g.skills.length) : []; %>
+        <% if (skillGroups.length) { %>
+          <div class="skill-groups" style="margin-top:1rem">
+            <% skillGroups.forEach((group, idx) => { %>
+              <article class="skill-group" data-aos="fade-up" <%= idx ? ('data-aos-delay="' + (idx*60) + '"') : '' %>>
+                <h3><%= group.title || 'Skills' %></h3>
+                <ul class="skills">
+                  <% (group.skills || []).forEach(skill => { %>
+                    <li><span><%= skill.name %></span><div class="bar"><span class="bar-fill" data-level="<%= Math.max(0, Math.min(100, skill.level||0)) %>"></span></div></li>
+                  <% }) %>
+                </ul>
+              </article>
             <% }) %>
-          </ul>
-          <% if (profile.skills.length > 8) { %>
-            <p style="margin-top:.5rem"><a class="btn" href="/skills">See all skills</a></p>
+          </div>
+          <% if (skillGroups.length > 0 || (profile.skills && profile.skills.length)) { %>
+            <p style="margin-top:.75rem"><a class="btn" href="/skills">See full skills matrix</a></p>
           <% } %>
-        </div>
-      </div>
-    <% } else { %>
-      <p>Add skills in Admin → Profile to showcase them here.</p>
-    <% } %>
+        <% } else if (profile && Array.isArray(profile.skills) && profile.skills.length) { %>
+          <div class="skills-grid" style="margin-top:1rem">
+            <div>
+              <p>Here are a few of the technologies I work with regularly. Each bar reflects my current confidence level out of 100.</p>
+            </div>
+            <div>
+              <ul class="skills">
+                <% const sortedSkills = [...profile.skills].sort((a,b)=> (b.level||0)-(a.level||0)); %>
+                <% sortedSkills.slice(0,8).forEach((s) => { %>
+                  <li><span><%= s.name %></span><div class="bar"><span class="bar-fill" data-level="<%= Math.max(0, Math.min(100, s.level||0)) %>"></span></div></li>
+                <% }) %>
+              </ul>
+              <% if (profile.skills.length > 8) { %>
+                <p style="margin-top:.5rem"><a class="btn" href="/skills">See all skills</a></p>
+              <% } %>
+            </div>
+          </div>
+        <% } else { %>
+          <p>Add skills in Admin → Profile to showcase them here.</p>
+        <% } %>
   </section>
   <section>
     <h2>Education & Experience</h2>

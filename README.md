@@ -7,7 +7,7 @@ A modern, responsive developer portfolio with dynamic projects, contact form wit
 - About with profile and timeline
 - Testimonials carousel + writing feed for recent notes/blog posts
 - Projects grid (from MongoDB)
-- Skills with progress bars
+- Skills with progress bars + optional categories (Frontend/Backend/Tools, etc.)
 - Contact form (saves to MongoDB, server-side validation, optional email notifications)
 - Admin panel (login, manage projects, view messages)
 - Admin enhancements: change password, manage admins, bulk message delete, mark unread, project image upload (Cloudinary), toggle featured, search & pagination
@@ -25,10 +25,12 @@ This app includes a simple CMS powered by a singleton Settings document. From th
 - Resume URL: Link used for the Resume button
 - Contact Intro: Short text shown at the top of the Contact page
 - Socials: GitHub, LinkedIn, Twitter, Email – used across the footer/home
+- Extended socials: Instagram, YouTube, Stack Overflow (all optional)
 - Location & Phone: Standard profile details shown on the Home page
 - Availability: Toggle to show an "Open to work" badge on the Home page
 - About Body: Rich text editor (Quill) for the About page body
 	- Server-side sanitization is applied (sanitize-html with a safe whitelist)
+- Mission Statement: Short blurb used on the hero section and skills page
 - Timeline: Simple text input. One item per line. Format is flexible:
 	- year | title | subtitle | description (pipe-separated), or
 	- title | description, or
@@ -36,6 +38,7 @@ This app includes a simple CMS powered by a singleton Settings document. From th
 - Skills: Simple text input. One per line using either of these:
 	- Name:Level (0–100), e.g., JavaScript:90
 	- Name (Level%), e.g., CSS (70%)
+- Skill Categories: Group skills by theme. Use the UI to add categories (each with multiline skills); data is stored in structured JSON for flexible rendering.
 - Testimonials: One per line (`Name | Role | Quote | Avatar URL | Link`). Avatar/Link are optional.
 - Notes/Blog feed: One per line (`Title | URL | Summary | Date`). URL/Date optional; summary is used for the card copy.
 

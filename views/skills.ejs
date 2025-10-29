@@ -1,29 +1,52 @@
 <%- include('partials/head', { title }) %>
 <main id="main" class="container">
   <h1>Skills</h1>
-  <section class="skills-grid">
-    <div>
-      <h2>Technical</h2>
-      <ul class="skills">
-        <% if (profile && Array.isArray(profile.skills) && profile.skills.length) { %>
-          <% profile.skills.forEach((s) => { %>
-            <li><span><%= s.name %></span><div class="bar"><span class="bar-fill" data-level="<%= Math.max(0, Math.min(100, s.level||0)) %>"></span></div></li>
-          <% }) %>
-        <% } else { %>
-          <li><span>JavaScript</span><div class="bar"><span style="width: 90%"></span></div></li>
-          <li><span>Node.js</span><div class="bar"><span style="width: 85%"></span></div></li>
-          <li><span>Express.js</span><div class="bar"><span style="width: 85%"></span></div></li>
-          <li><span>MongoDB</span><div class="bar"><span style="width: 80%"></span></div></li>
-          <li><span>HTML/CSS</span><div class="bar"><span style="width: 90%"></span></div></li>
-        <% } %>
-      </ul>
-    </div>
-    <div>
-      <h2>Summary</h2>
-      <p>
-        <%= (profile && profile.summary) || 'These are my core skills. I learn quickly and enjoy picking up new technologies when the problem calls for it.' %>
-      </p>
-    </div>
+  <% const skillGroups = (profile && Array.isArray(profile.skillGroups)) ? profile.skillGroups.filter(g => g && g.skills && g.skills.length) : []; %>
+  <% if (skillGroups.length) { %>
+    <section class="skill-groups">
+      <% skillGroups.forEach(group => { %>
+        <article class="skill-group">
+          <h2><%= group.title || 'Skills' %></h2>
+          <ul class="skills">
+            <% (group.skills || []).forEach(skill => { %>
+              <li><span><%= skill.name %></span><div class="bar"><span class="bar-fill" data-level="<%= Math.max(0, Math.min(100, skill.level||0)) %>"></span></div></li>
+            <% }) %>
+          </ul>
+        </article>
+      <% }) %>
+    </section>
+  <% } else { %>
+    <section class="skills-grid">
+      <div>
+        <h2>Technical</h2>
+        <ul class="skills">
+          <% if (profile && Array.isArray(profile.skills) && profile.skills.length) { %>
+            <% profile.skills.forEach((s) => { %>
+              <li><span><%= s.name %></span><div class="bar"><span class="bar-fill" data-level="<%= Math.max(0, Math.min(100, s.level||0)) %>"></span></div></li>
+            <% }) %>
+          <% } else { %>
+            <li><span>JavaScript</span><div class="bar"><span style="width: 90%"></span></div></li>
+            <li><span>Node.js</span><div class="bar"><span style="width: 85%"></span></div></li>
+            <li><span>Express.js</span><div class="bar"><span style="width: 85%"></span></div></li>
+            <li><span>MongoDB</span><div class="bar"><span style="width: 80%"></span></div></li>
+            <li><span>HTML/CSS</span><div class="bar"><span style="width: 90%"></span></div></li>
+          <% } %>
+        </ul>
+      </div>
+      <div>
+        <h2>Summary</h2>
+        <p>
+          <%= (profile && profile.summary) || 'These are my core skills. I learn quickly and enjoy picking up new technologies when the problem calls for it.' %>
+        </p>
+      </div>
+    </section>
+  <% } %>
+  <section style="margin-top:2rem">
+    <h2>How I work</h2>
+    <p><%= (profile && profile.mission) || (profile && profile.summary) || 'I love crafting reliable platforms with an eye for detail and a focus on user experience.' %></p>
+    <% if (profile && profile.summary && profile.mission && profile.summary !== profile.mission) { %>
+      <p><%= profile.summary %></p>
+    <% } %>
   </section>
 </main>
 <%- include('partials/footer') %>

@@ -5,6 +5,7 @@ const settingsSchema = new mongoose.Schema(
     name: { type: String, default: 'Your Name' },
     headline: { type: String, default: 'Full-Stack Developer' },
     summary: { type: String, default: 'I build fast, accessible, and delightful web apps with clean code and solid engineering practices.' },
+  mission: { type: String, default: '' },
     avatarUrl: { type: String, default: '' },
     avatarPublicId: { type: String },
     resumeUrl: { type: String, default: '/resume.pdf' },
@@ -16,6 +17,9 @@ const settingsSchema = new mongoose.Schema(
       github: { type: String, default: '' },
       linkedin: { type: String, default: '' },
       twitter: { type: String, default: '' },
+      instagram: { type: String, default: '' },
+      youtube: { type: String, default: '' },
+      stackoverflow: { type: String, default: '' },
       email: { type: String, default: '' }
     },
     homeCta: {
@@ -37,6 +41,17 @@ const settingsSchema = new mongoose.Schema(
       {
         name: String,
         level: Number
+      }
+    ],
+    skillGroups: [
+      {
+        title: { type: String, trim: true },
+        skills: [
+          {
+            name: { type: String, trim: true },
+            level: Number
+          }
+        ]
       }
     ],
     testimonials: [

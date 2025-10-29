@@ -4,8 +4,9 @@
     <div class="container hero-grid">
       <div>
         <h1 data-aos="fade-up">Hi, I'm <span class="accent"><%= (settings && settings.name) || (profile && profile.name) || 'Your Name' %></span></h1>
-        <p class="subtitle" data-aos="fade-up" data-aos-delay="100"><%= (settings && settings.headline) || (profile && profile.headline) || 'Full-Stack Developer' %></p>
-        <p data-aos="fade-up" data-aos-delay="200"><%= (settings && settings.summary) || (profile && profile.summary) || 'I build fast, accessible, and delightful web apps with clean code and solid engineering practices.' %></p>
+  <p class="subtitle" data-aos="fade-up" data-aos-delay="100"><%= (settings && settings.headline) || (profile && profile.headline) || 'Full-Stack Developer' %></p>
+  <% const missionCopy = (settings && settings.mission) || (profile && profile.mission); %>
+  <p data-aos="fade-up" data-aos-delay="200"><%= missionCopy || (settings && settings.summary) || (profile && profile.summary) || 'I build fast, accessible, and delightful web apps with clean code and solid engineering practices.' %></p>
         <div class="hero-ctas" data-aos="fade-up" data-aos-delay="300">
           <a href="<%= (settings && settings.homeCta && settings.homeCta.primaryUrl) || '/projects' %>" class="btn btn-primary"><%= (settings && settings.homeCta && settings.homeCta.primaryText) || 'View Projects' %></a>
           <a href="<%= (settings && settings.homeCta && settings.homeCta.secondaryUrl) || '/contact' %>" class="btn"><%= (settings && settings.homeCta && settings.homeCta.secondaryText) || 'Get in Touch' %></a>
@@ -19,6 +20,9 @@
             <% if (socials.github) { %><li><a href="<%= socials.github %>" target="_blank" rel="noopener">GitHub</a></li><% } %>
             <% if (socials.linkedin) { %><li><a href="<%= socials.linkedin %>" target="_blank" rel="noopener">LinkedIn</a></li><% } %>
             <% if (socials.twitter) { %><li><a href="<%= socials.twitter %>" target="_blank" rel="noopener">Twitter</a></li><% } %>
+            <% if (socials.instagram) { %><li><a href="<%= socials.instagram %>" target="_blank" rel="noopener">Instagram</a></li><% } %>
+            <% if (socials.youtube) { %><li><a href="<%= socials.youtube %>" target="_blank" rel="noopener">YouTube</a></li><% } %>
+            <% if (socials.stackoverflow) { %><li><a href="<%= socials.stackoverflow %>" target="_blank" rel="noopener">Stack Overflow</a></li><% } %>
             <% if (socials.email) { %><li><a href="mailto:<%= socials.email %>">Email</a></li><% } %>
           </ul>
         <% } %>
@@ -75,7 +79,22 @@
       </div>
       <div data-aos="fade-left">
         <h2>Skills</h2>
-        <% if (profile && Array.isArray(profile.skills) && profile.skills.length) { %>
+        <% const skillGroups = (profile && Array.isArray(profile.skillGroups)) ? profile.skillGroups.filter(g => g && g.skills && g.skills.length) : []; %>
+        <% if (skillGroups.length) { %>
+          <div class="skill-group-preview">
+            <% skillGroups.slice(0,2).forEach(group => { %>
+              <article>
+                <h3><%= group.title || 'Skills' %></h3>
+                <ul class="skills mini">
+                  <% (group.skills || []).slice(0,4).forEach(s => { %>
+                    <li><span><%= s.name %></span><div class="bar"><span class="bar-fill" data-level="<%= Math.max(0, Math.min(100, s.level||0)) %>"></span></div></li>
+                  <% }) %>
+                </ul>
+              </article>
+            <% }) %>
+          </div>
+          <p style="margin-top:.5rem"><a class="btn" href="/skills">See all skills</a></p>
+        <% } else if (profile && Array.isArray(profile.skills) && profile.skills.length) { %>
           <ul class="skills">
             <% profile.skills.slice(0,6).forEach((s) => { %>
               <li><span><%= s.name %></span><div class="bar"><span class="bar-fill" data-level="<%= Math.max(0, Math.min(100, s.level||0)) %>"></span></div></li>
