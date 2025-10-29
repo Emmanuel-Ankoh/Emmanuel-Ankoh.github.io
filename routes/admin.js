@@ -12,6 +12,104 @@ const rateLimit = require('express-rate-limit');
 const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 * 1024 * 1024 } });
 
+const PROJECT_DESCRIPTION_OPTIONS = {
+  allowedTags: ['p', 'br', 'strong', 'em', 'ul', 'ol', 'li', 'blockquote', 'code', 'pre', 'span', 'a'],
+  allowedAttributes: {
+    a: ['href', 'rel', 'target'],
+    span: ['class']
+  },
+  allowedSchemes: ['http', 'https', 'mailto']
+};
+
+const toTrimmedString = (value) => {
+  if (Array.isArray(value)) {
+    return typeof value[0] === 'string' ? value[0].trim() : '';
+  }
+  return typeof value === 'string' ? value.trim() : '';
+};
+
+const parseTechInput = (value) => {
+  if (typeof value !== 'string') return [];
+  return value
+    .split(/[,\n]/)
+    .map((item) => item.trim())
+    .filter(Boolean);
+};
+
+const sanitizeProjectDescription = (value) => {
+  if (typeof value !== 'string') return '';
+  return sanitizeHtml(value, PROJECT_DESCRIPTION_OPTIONS);
+};
+
+const computeProfileCompletion = (settingsDoc) => {
+  if (!settingsDoc) return 0;
+  const settings = settingsDoc.toObject ? settingsDoc.toObject() : settingsDoc;
+  const checks = [
+    settings.name,
+    settings.headline,
+    settings.mission || settings.summary,
+    settings.aboutBody,
+    settings.resumeUrl,
+    settings.socials && settings.socials.linkedin,
+    settings.socials && settings.socials.email,
+    Array.isArray(settings.skillGroups) && settings.skillGroups.length,
+    Array.isArray(settings.timeline) && settings.timeline.length,
+    Array.isArray(settings.testimonials) && settings.testimonials.length
+  ];
+  const score = checks.reduce((acc, item) => acc + (item ? 1 : 0), 0);
+  const total = checks.length || 1;
+  return Math.round((score / total) * 100);
+};
+
+const buildProjectFormValues = (body = {}) => {
+  const values = { ...body };
+  delete values._csrf;
+  if (Array.isArray(values.tech)) {
+    values.tech = values.tech.join(', ');
+  } else if (typeof values.tech !== 'string') {
+    values.tech = '';
+  }
+  return values;
+};
+
+async function uploadProjectImage(file) {
+  if (!cloudinary || !file) return null;
+  return new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream({ folder: 'portfolio' }, (err, result) => {
+      if (err) return reject(err);
+      resolve(result);
+    });
+    stream.end(file.buffer);
+  });
+}
+
+async function fetchProjectsListing({ q, page, limit }) {
+  const filter = q ? { title: { $regex: q, $options: 'i' } } : {};
+  const [items, total] = await Promise.all([
+    Project.find(filter).sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit).lean(),
+    Project.countDocuments(filter)
+  ]);
+  return { items, total, pages: Math.max(1, Math.ceil(total / limit)) };
+}
+
+async function renderProjectsPage(req, res, { project = null, formValues = null, formErrors = null, status = 200 } = {}) {
+  const q = toTrimmedString(req.query.q || '');
+  const page = Math.max(parseInt(req.query.page || '1', 10), 1);
+  const limit = Math.min(Math.max(parseInt(req.query.limit || '10', 10), 1), 50);
+  const { items, pages, total } = await fetchProjectsListing({ q, page, limit });
+  res.status(status).render('admin/projects', {
+    title: project ? 'Edit Project' : 'Manage Projects',
+    projects: items,
+    project,
+    q,
+    page,
+    pages,
+    projectTotal: total,
+    formValues,
+    formErrors
+  });
+}
+
 // Auth middleware
 function ensureAuth(req, res, next) {
   if (req.session && req.session.userId) return next();
@@ -54,9 +152,31 @@ router.post('/logout', (req, res) => {
 // Admin dashboard
 router.get('/', ensureAuth, async (req, res, next) => {
   try {
-    const projectCount = await Project.countDocuments();
-    const unreadMessages = await Message.countDocuments({ read: false });
-    res.render('admin/dashboard', { title: 'Admin', projectCount, unreadMessages });
+    const [projectCount, featuredCount, unreadMessages, latestProjects, recentMessages, settingsDoc] = await Promise.all([
+      Project.countDocuments(),
+      Project.countDocuments({ featured: true }),
+      Message.countDocuments({ read: false }),
+      Project.find().sort({ updatedAt: -1 }).limit(5).lean(),
+      Message.find().sort({ createdAt: -1 }).limit(5).lean(),
+      Settings.getSingleton()
+    ]);
+
+    const settings = settingsDoc && settingsDoc.toObject ? settingsDoc.toObject() : settingsDoc;
+    const profileCompletion = computeProfileCompletion(settingsDoc);
+    const notesCount = Array.isArray(settings?.notes) ? settings.notes.length : 0;
+
+    res.render('admin/dashboard', {
+      title: 'Dashboard',
+      projectCount,
+      featuredCount,
+      unreadMessages,
+      latestProjects,
+      recentMessages,
+      settings,
+      notesCount,
+      profileCompletion,
+      cloudinaryEnabled: !!cloudinary
+    });
   } catch (err) {
     next(err);
   }
@@ -121,98 +241,186 @@ router.post('/messages/bulk-delete', ensureAuth, async (req, res, next) => {
 // Manage projects (list with simple search)
 router.get('/projects', ensureAuth, async (req, res, next) => {
   try {
-    const q = (req.query.q || '').trim();
-    const page = Math.max(parseInt(req.query.page || '1', 10), 1);
-    const limit = Math.min(Math.max(parseInt(req.query.limit || '10', 10), 1), 50);
-    const filter = q ? { title: { $regex: q, $options: 'i' } } : {};
-    const [items, total] = await Promise.all([
-      Project.find(filter).sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit).lean(),
-      Project.countDocuments(filter)
-    ]);
-    res.render('admin/projects', { title: 'Manage Projects', projects: items, project: null, q, page, pages: Math.ceil(total / limit) });
+    await renderProjectsPage(req, res);
   } catch (err) {
     next(err);
   }
 });
 
 router.post('/projects', ensureAuth, upload.single('image'),
-  body('title').trim().notEmpty(),
-  body('description').trim().isLength({ min: 20 }),
+  body('title').trim().notEmpty().withMessage('Title is required.'),
+  body('description').trim().isLength({ min: 20 }).withMessage('Description must be at least 20 characters.'),
+  body('githubUrl').optional({ checkFalsy: true }).isURL().withMessage('GitHub URL must be a valid URL.'),
+  body('demoUrl').optional({ checkFalsy: true }).isURL().withMessage('Live demo URL must be a valid URL.'),
+  body('year').optional({ checkFalsy: true }).isLength({ max: 32 }).withMessage('Year must be 32 characters or fewer.'),
   async (req, res, next) => {
-  try {
-    const { title, description, imageUrl, githubUrl, demoUrl, tech, featured } = req.body;
-    let uploadResult = null;
-    if (cloudinary && req.file) {
-      uploadResult = await new Promise((resolve, reject) => {
-        const stream = cloudinary.uploader.upload_stream({ folder: 'portfolio' }, (err, resu) => err ? reject(err) : resolve(resu));
-        stream.end(req.file.buffer);
-      });
+    try {
+      const validation = validationResult(req);
+      if (!validation.isEmpty()) {
+        const formValues = buildProjectFormValues(req.body);
+        return renderProjectsPage(req, res, {
+          formValues,
+          formErrors: validation.array().map((e) => e.msg),
+          status: 422
+        });
+      }
+
+      let uploadResult = null;
+      if (req.file) {
+        try {
+          uploadResult = await uploadProjectImage(req.file);
+        } catch (uploadErr) {
+          const formValues = buildProjectFormValues(req.body);
+          return renderProjectsPage(req, res, {
+            formValues,
+            formErrors: ['Image upload failed. Please try again or use an external image URL.'],
+            status: 400
+          });
+        }
+      }
+
+      const payload = {
+        title: toTrimmedString(req.body.title),
+        description: sanitizeProjectDescription(req.body.description),
+        githubUrl: toTrimmedString(req.body.githubUrl),
+        demoUrl: toTrimmedString(req.body.demoUrl),
+        tech: parseTechInput(req.body.tech),
+        featured: req.body.featured === 'on',
+        year: toTrimmedString(req.body.year)
+      };
+      const imageUrl = toTrimmedString(req.body.imageUrl);
+      if (uploadResult) {
+        payload.imageUrl = uploadResult.secure_url;
+        payload.imagePublicId = uploadResult.public_id;
+      } else if (imageUrl) {
+        payload.imageUrl = imageUrl;
+      }
+
+      await Project.create(payload);
+      req.session.flash = { type: 'success', message: 'Project created successfully.' };
+      return res.redirect('/admin/projects');
+    } catch (err) {
+      if (err && err.code === 11000) {
+        const formValues = buildProjectFormValues(req.body);
+        return renderProjectsPage(req, res, {
+          formValues,
+          formErrors: ['A project with that title already exists. Please choose a different title.'],
+          status: 409
+        });
+      }
+      next(err);
     }
-    await Project.create({
-      title,
-      description,
-      imageUrl: uploadResult ? uploadResult.secure_url : (imageUrl || ''),
-      imagePublicId: uploadResult ? uploadResult.public_id : undefined,
-      githubUrl,
-      demoUrl,
-      tech: tech ? tech.split(',').map((t) => t.trim()).filter(Boolean) : [],
-      featured: featured === 'on'
-    });
-    res.redirect('/admin/projects');
-  } catch (err) {
-    next(err);
   }
-});
+);
 
 router.get('/projects/:id/edit', ensureAuth, async (req, res, next) => {
   try {
-    const q = (req.query.q || '').trim();
-    const page = Math.max(parseInt(req.query.page || '1', 10), 1);
-    const limit = Math.min(Math.max(parseInt(req.query.limit || '10', 10), 1), 50);
-    const filter = q ? { title: { $regex: q, $options: 'i' } } : {};
-    const [projects, total] = await Promise.all([
-      Project.find(filter).sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit).lean(),
-      Project.countDocuments(filter)
-    ]);
     const project = await Project.findById(req.params.id).lean();
-    res.render('admin/projects', { title: 'Edit Project', projects, project, q, page, pages: Math.ceil(total / limit) });
+    if (!project) {
+      req.session.flash = { type: 'error', message: 'Project not found.' };
+      return res.redirect('/admin/projects');
+    }
+    await renderProjectsPage(req, res, { project });
   } catch (err) {
     next(err);
   }
 });
 
 router.post('/projects/:id', ensureAuth, upload.single('image'),
-  body('title').trim().notEmpty(),
-  body('description').trim().isLength({ min: 20 }),
+  body('title').trim().notEmpty().withMessage('Title is required.'),
+  body('description').trim().isLength({ min: 20 }).withMessage('Description must be at least 20 characters.'),
+  body('githubUrl').optional({ checkFalsy: true }).isURL().withMessage('GitHub URL must be a valid URL.'),
+  body('demoUrl').optional({ checkFalsy: true }).isURL().withMessage('Live demo URL must be a valid URL.'),
+  body('year').optional({ checkFalsy: true }).isLength({ max: 32 }).withMessage('Year must be 32 characters or fewer.'),
   async (req, res, next) => {
-  try {
-    const { title, description, imageUrl, githubUrl, demoUrl, tech, featured } = req.body;
-    const project = await Project.findById(req.params.id);
-    let uploadResult = null;
-    if (cloudinary && req.file) {
-      uploadResult = await new Promise((resolve, reject) => {
-        const stream = cloudinary.uploader.upload_stream({ folder: 'portfolio' }, (err, resu) => err ? reject(err) : resolve(resu));
-        stream.end(req.file.buffer);
-      });
+    let projectDoc;
+    let projectSnapshot = null;
+    try {
+      projectDoc = await Project.findById(req.params.id);
+      if (!projectDoc) {
+        req.session.flash = { type: 'error', message: 'Project not found.' };
+        return res.redirect('/admin/projects');
+      }
+
+      projectSnapshot = projectDoc.toObject();
+      const validation = validationResult(req);
+      if (!validation.isEmpty()) {
+        return renderProjectsPage(req, res, {
+          project: projectSnapshot,
+          formValues: buildProjectFormValues(req.body),
+          formErrors: validation.array().map((e) => e.msg),
+          status: 422
+        });
+      }
+
+      let uploadResult = null;
+      if (req.file) {
+        try {
+          uploadResult = await uploadProjectImage(req.file);
+        } catch (uploadErr) {
+          return renderProjectsPage(req, res, {
+            project: projectSnapshot,
+            formValues: buildProjectFormValues(req.body),
+            formErrors: ['Image upload failed. Please try again or use an external image URL.'],
+            status: 400
+          });
+        }
+      }
+
+      if (uploadResult && projectDoc.imagePublicId && cloudinary) {
+        try { await cloudinary.uploader.destroy(projectDoc.imagePublicId); } catch (e) { /* ignore */ }
+      }
+
+      const payload = {
+        title: toTrimmedString(req.body.title),
+        description: sanitizeProjectDescription(req.body.description),
+        githubUrl: toTrimmedString(req.body.githubUrl),
+        demoUrl: toTrimmedString(req.body.demoUrl),
+        tech: parseTechInput(req.body.tech),
+        featured: req.body.featured === 'on',
+        year: toTrimmedString(req.body.year)
+      };
+      const imageUrl = toTrimmedString(req.body.imageUrl);
+      if (uploadResult) {
+        payload.imageUrl = uploadResult.secure_url;
+        payload.imagePublicId = uploadResult.public_id;
+      } else if (imageUrl) {
+        payload.imageUrl = imageUrl;
+        payload.imagePublicId = projectDoc.imagePublicId;
+      } else if (typeof req.body.imageUrl === 'string' && !req.body.imageUrl.trim()) {
+        if (projectDoc.imagePublicId && cloudinary) {
+          try { await cloudinary.uploader.destroy(projectDoc.imagePublicId); } catch (e) { /* ignore */ }
+        }
+        projectDoc.imageUrl = '';
+        projectDoc.imagePublicId = undefined;
+      }
+
+      projectDoc.title = payload.title;
+      projectDoc.description = payload.description;
+      projectDoc.githubUrl = payload.githubUrl;
+      projectDoc.demoUrl = payload.demoUrl;
+      projectDoc.tech = payload.tech;
+      projectDoc.featured = payload.featured;
+      projectDoc.year = payload.year;
+      if (payload.imageUrl) projectDoc.imageUrl = payload.imageUrl;
+      if (payload.imagePublicId) projectDoc.imagePublicId = payload.imagePublicId;
+
+      await projectDoc.save();
+      req.session.flash = { type: 'success', message: 'Project updated successfully.' };
+      return res.redirect('/admin/projects');
+    } catch (err) {
+      if (err && err.code === 11000) {
+        return renderProjectsPage(req, res, {
+          project: projectSnapshot || (projectDoc ? projectDoc.toObject() : null),
+          formValues: buildProjectFormValues(req.body),
+          formErrors: ['Another project already uses that title. Please choose a different one.'],
+          status: 409
+        });
+      }
+      next(err);
     }
-    // Delete old cloudinary image if replaced
-    if (uploadResult && project && project.imagePublicId && cloudinary) {
-      try { await cloudinary.uploader.destroy(project.imagePublicId); } catch (e) { /* ignore */ }
-    }
-    project.title = title;
-    project.description = description;
-    project.imageUrl = uploadResult ? uploadResult.secure_url : (imageUrl || project.imageUrl);
-    project.imagePublicId = uploadResult ? uploadResult.public_id : project.imagePublicId;
-    project.githubUrl = githubUrl;
-    project.demoUrl = demoUrl;
-    project.tech = tech ? tech.split(',').map((t) => t.trim()).filter(Boolean) : [];
-    project.featured = featured === 'on';
-    await project.save();
-    res.redirect('/admin/projects');
-  } catch (err) {
-    next(err);
   }
-});
+);
 
 router.post('/projects/:id/delete', ensureAuth, async (req, res, next) => {
   try {
@@ -220,7 +428,29 @@ router.post('/projects/:id/delete', ensureAuth, async (req, res, next) => {
     if (project && project.imagePublicId && cloudinary) {
       try { await cloudinary.uploader.destroy(project.imagePublicId); } catch (e) { /* ignore */ }
     }
+    req.session.flash = {
+      type: project ? 'success' : 'error',
+      message: project ? 'Project deleted successfully.' : 'Project could not be found.'
+    };
     res.redirect('/admin/projects');
+  } catch (err) {
+    next(err);
+  }
+});
+router.post('/projects/:id/toggle', ensureAuth, async (req, res, next) => {
+  try {
+    const project = await Project.findById(req.params.id);
+    if (!project) {
+      req.session.flash = { type: 'error', message: 'Project not found.' };
+      return res.redirect('/admin/projects');
+    }
+    project.featured = !project.featured;
+    await project.save();
+    req.session.flash = {
+      type: 'success',
+      message: project.featured ? 'Project marked as featured.' : 'Project removed from featured list.'
+    };
+    return res.redirect('/admin/projects');
   } catch (err) {
     next(err);
   }

@@ -1,87 +1,197 @@
-<%- include('../partials/head', { title }) %>
-<main id="main" class="container">
-  <h1>Manage Projects</h1>
+<%- include('../partials/layout-start', { title }) %>
+<% const formData = (() => { const data = {}; if (project) { Object.assign(data, project); } if (formValues) { Object.assign(data, formValues); } return data; })(); %>
+<% const techValue = typeof formData.tech === 'string' ? formData.tech : (Array.isArray(formData.tech) ? formData.tech.join(', ') : ''); %>
+<% const descriptionValue = typeof formData.description === 'string' ? formData.description : ''; %>
+<% const yearValue = typeof formData.year === 'string' ? formData.year : ''; %>
+<% const featuredChecked = formValues ? (formValues.featured === 'on' || formValues.featured === true) : !!(project && project.featured); %>
+<% const previewImage = formData.imageUrl || (project && project.imageUrl) || ''; %>
 
-  <form method="GET" action="/admin/projects" class="contact-form" style="max-width:100%">
-    <input type="text" name="q" value="<%= typeof q !== 'undefined' ? q : '' %>" placeholder="Search title..." />
-    <button class="btn" type="submit">Search</button>
-  </form>
-
-  <section class="admin-grid">
-    <div>
-      <h2><%= project ? 'Edit Project' : 'Add Project' %></h2>
-      <% if (project && project.updatedAt) { %>
-        <p style="margin:-0.25rem 0 1rem 0;color:var(--muted);font-size:.9rem">Last updated <%= new Date(project.updatedAt).toLocaleString() %></p>
-      <% } %>
-      <form method="POST" action="<%= project ? ('/admin/projects/' + project._id) : '/admin/projects' %>" enctype="multipart/form-data">
-        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-        <label>Title</label>
-        <input name="title" required value="<%= project ? project.title : '' %>" />
-        <label>Description</label>
-        <textarea name="description" rows="5" required><%= project ? project.description : '' %></textarea>
-        <label>Image</label>
-        <% if (project && project.imageUrl) { %>
-          <img src="<%= project.imageUrl %>" alt="" style="max-width:100%;height:auto;margin-bottom:.5rem;border:1px solid var(--border);border-radius:.3rem" />
+<main class="container-fluid py-4">
+  <section class="d-flex flex-column gap-4">
+    <div class="d-flex flex-wrap align-items-start justify-content-between gap-3">
+      <div>
+        <h1 class="h3 mb-1"><%= project ? 'Edit project' : 'Projects' %></h1>
+        <p class="text-muted mb-0">Add new case studies and keep your portfolio fresh.</p>
+      </div>
+      <form method="GET" action="/admin/projects" class="d-flex gap-2 flex-wrap">
+        <div class="input-group">
+          <span class="input-group-text bg-transparent text-muted"><svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85zm-5.242.656a5 5 0 1 1 0-10 5 5 0 0 1 0 10z"/></svg></span>
+          <input type="text" class="form-control" name="q" value="<%= typeof q === 'string' ? q : '' %>" placeholder="Search projects" autocomplete="off" />
+        </div>
+        <button class="btn btn-primary" type="submit">Search</button>
+        <% if (typeof q === 'string' && q) { %>
+          <a class="btn btn-outline-light" href="/admin/projects">Clear</a>
         <% } %>
-        <input type="file" name="image" accept="image/*" />
-        <small>Or paste image URL:</small>
-        <input name="imageUrl" value="<%= project ? project.imageUrl : '' %>" />
-        <label>GitHub URL</label>
-        <input name="githubUrl" value="<%= project ? project.githubUrl : '' %>" />
-        <label>Live Demo URL</label>
-        <input name="demoUrl" value="<%= project ? project.demoUrl : '' %>" />
-        <label>Tech (comma-separated)</label>
-        <input name="tech" value="<%= project && project.tech ? project.tech.join(', ') : '' %>" />
-        <label class="checkbox">
-          <input type="checkbox" name="featured" <%= project && project.featured ? 'checked' : '' %> />
-          Featured
-        </label>
-        <button class="btn btn-primary" type="submit"><%= project ? 'Update' : 'Create' %></button>
       </form>
     </div>
-    <div>
-      <h2>All Projects</h2>
-      <table class="table">
-        <thead>
-          <tr>
-            <th>Title</th>
-            <th>Featured</th>
-            <th>Updated</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% (projects || []).forEach(p => { %>
-            <tr>
-              <td><%= p.title %></td>
-              <td><%= p.featured ? 'Yes' : 'No' %></td>
-              <td><%= p.updatedAt ? new Date(p.updatedAt).toLocaleString() : '—' %></td>
-              <td>
-                <a class="btn" href="/admin/projects/<%= p._id %>/edit">Edit</a>
-                <% if (p.slug) { %>
-                  <a class="btn" href="/projects/<%= p.slug %>" target="_blank" rel="noopener">Preview</a>
+
+    <div class="row g-4">
+      <div class="col-xl-4">
+        <div class="card p-4 h-100">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+              <h2 class="h5 mb-0"><%= project ? 'Update project' : 'Add project' %></h2>
+              <% if (project && project.updatedAt) { %>
+                <small class="text-muted">Last updated <%= new Date(project.updatedAt).toLocaleString() %></small>
+              <% } %>
+            </div>
+            <% if (project) { %>
+              <a class="btn btn-sm btn-outline-light" href="/admin/projects">Add new</a>
+            <% } %>
+          </div>
+
+          <% if (formErrors && formErrors.length) { %>
+            <div class="alert alert-danger">
+              <ul class="mb-0 ps-3">
+                <% formErrors.forEach(err => { %>
+                  <li><%= err %></li>
+                <% }) %>
+              </ul>
+            </div>
+          <% } %>
+
+          <form method="POST" action="<%= project ? ('/admin/projects/' + project._id) : '/admin/projects' %>" enctype="multipart/form-data" class="d-flex flex-column gap-3" id="project-form">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+            <div>
+              <label class="form-label">Title</label>
+              <input class="form-control" name="title" required value="<%= formData.title || '' %>">
+            </div>
+
+            <div>
+              <label class="form-label">Year</label>
+              <input class="form-control" name="year" placeholder="2024" value="<%= yearValue %>">
+            </div>
+
+            <div>
+              <label class="form-label">Description</label>
+              <textarea class="form-control" name="description" rows="5" required><%= descriptionValue %></textarea>
+              <small class="text-muted">Keep it concise – you can link to the full case study from the public page.</small>
+            </div>
+
+            <div>
+              <label class="form-label">Upload cover image</label>
+              <% if (previewImage) { %>
+                <figure class="mb-2">
+                  <img src="<%= previewImage %>" alt="Current project preview" class="img-fluid rounded" style="max-height: 180px; object-fit: cover; width: 100%;">
+                </figure>
+              <% } %>
+              <input class="form-control" type="file" name="image" accept="image/*">
+              <small class="text-muted">Optional. Max 5MB. JPG, PNG, or WEBP work best.</small>
+            </div>
+
+            <div>
+              <label class="form-label">External image URL</label>
+              <input class="form-control" name="imageUrl" value="<%= formData.imageUrl || '' %>">
+              <small class="text-muted">Use this if you host screenshots elsewhere.</small>
+            </div>
+
+            <div class="row g-3">
+              <div class="col-12">
+                <label class="form-label">GitHub URL</label>
+                <input class="form-control" name="githubUrl" value="<%= formData.githubUrl || '' %>">
+              </div>
+              <div class="col-12">
+                <label class="form-label">Live demo URL</label>
+                <input class="form-control" name="demoUrl" value="<%= formData.demoUrl || '' %>">
+              </div>
+            </div>
+
+            <div>
+              <label class="form-label">Tech stack (comma separated)</label>
+              <input class="form-control" name="tech" value="<%= techValue %>">
+            </div>
+
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" name="featured" id="project-featured" <%= featuredChecked ? 'checked' : '' %>>
+              <label class="form-check-label" for="project-featured">Highlight on homepage</label>
+            </div>
+
+            <div class="d-flex gap-2">
+              <button class="btn btn-primary" type="submit"><%= project ? 'Save changes' : 'Create project' %></button>
+              <% if (project) { %>
+                <a class="btn btn-outline-light" href="/admin/projects">Cancel editing</a>
+              <% } %>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div class="col-xl-8">
+        <div class="card p-0">
+          <div class="card-header border-0 px-4 pt-4 pb-0 d-flex justify-content-between align-items-center">
+            <div>
+              <h2 class="h5 mb-0">All projects</h2>
+              <small class="text-muted"><%= typeof projectTotal === 'number' ? projectTotal : projects.length %> total</small>
+            </div>
+            <a class="btn btn-sm btn-outline-light" href="/projects" target="_blank" rel="noopener">View public page</a>
+          </div>
+          <div class="table-responsive">
+            <table class="table align-middle mb-0">
+              <thead>
+                <tr>
+                  <th scope="col">Title</th>
+                  <th scope="col" class="text-nowrap">Year</th>
+                  <th scope="col">Featured</th>
+                  <th scope="col" class="text-nowrap">Updated</th>
+                  <th scope="col" class="text-end">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% if (!projects.length) { %>
+                  <tr>
+                    <td colspan="5" class="text-center text-muted py-4">No projects yet. Add your first case study using the form on the left.</td>
+                  </tr>
                 <% } %>
-                <form method="POST" action="/admin/projects/<%= p._id %>/toggle" style="display:inline">
-                  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                  <button class="btn" type="submit"><%= p.featured ? 'Unfeature' : 'Feature' %></button>
-                </form>
-                <form method="POST" action="/admin/projects/<%= p._id %>/delete" style="display:inline">
-                  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                  <button class="btn danger" onclick="return confirm('Delete this project?')" type="submit">Delete</button>
-                </form>
-              </td>
-            </tr>
-          <% }) %>
-        </tbody>
-      </table>
-      <% if (typeof page !== 'undefined' && typeof pages !== 'undefined' && pages > 1) { %>
-        <div style="margin-top:.75rem;display:flex;gap:.5rem;flex-wrap:wrap">
-          <% for (let i=1;i<=pages;i++){ %>
-            <a class="btn" href="/admin/projects?<%= 'page=' + i + (q ? ('&q=' + encodeURIComponent(q)) : '') %>"><%= i === page ? ('['+i+']') : i %></a>
+                <% projects.forEach(p => { %>
+                  <tr>
+                    <td>
+                      <strong><%= p.title %></strong>
+                      <% if (p.slug) { %>
+                        <div><a class="text-decoration-none text-muted" href="/projects/<%= p.slug %>" target="_blank" rel="noopener">Preview</a></div>
+                      <% } %>
+                    </td>
+                    <td><%= p.year || '—' %></td>
+                    <td>
+                      <span class="badge <%= p.featured ? 'bg-primary' : 'bg-secondary' %>"><%= p.featured ? 'Featured' : 'Hidden' %></span>
+                    </td>
+                    <td><%= p.updatedAt ? new Date(p.updatedAt).toLocaleString() : '—' %></td>
+                    <td class="text-end">
+                      <div class="d-inline-flex gap-1">
+                        <a class="btn btn-sm btn-outline-light" href="/admin/projects/<%= p._id %>/edit">Edit</a>
+                        <form method="POST" action="/admin/projects/<%= p._id %>/toggle" class="d-inline">
+                          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                          <button class="btn btn-sm btn-outline-light" type="submit"><%= p.featured ? 'Unfeature' : 'Feature' %></button>
+                        </form>
+                        <form method="POST" action="/admin/projects/<%= p._id %>/delete" class="d-inline" onsubmit="return confirm('Delete this project?');">
+                          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                          <button class="btn btn-sm btn-outline-danger" type="submit">Delete</button>
+                        </form>
+                      </div>
+                    </td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          </div>
+
+          <% if (typeof page !== 'undefined' && typeof pages !== 'undefined' && pages > 1) { %>
+            <div class="card-footer bg-transparent border-0 px-4 py-3">
+              <nav aria-label="Project pagination">
+                <ul class="pagination pagination-sm mb-0">
+                  <% for (let i = 1; i <= pages; i++) { %>
+                    <li class="page-item <%= i === page ? 'active' : '' %>">
+                      <a class="page-link" href="/admin/projects?<%= 'page=' + i + (q ? ('&q=' + encodeURIComponent(q)) : '') %>"><%= i %></a>
+                    </li>
+                  <% } %>
+                </ul>
+              </nav>
+            </div>
           <% } %>
         </div>
-      <% } %>
+      </div>
     </div>
   </section>
 </main>
-<%- include('../partials/footer') %>
+
+<%- include('../partials/layout-end') %>

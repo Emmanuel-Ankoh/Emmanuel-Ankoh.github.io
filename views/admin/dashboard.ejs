@@ -1,36 +1,202 @@
-<%- include('../partials/head', { title }) %>
-<main id="main" class="container">
-  <h1>Admin Dashboard</h1>
-  <form method="POST" action="/admin/logout" style="text-align:right">
-    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-    <button class="btn" type="submit">Logout</button>
-  </form>
-  <div class="cards-2">
-    <div class="stat-card">
-      <h2>Projects</h2>
-      <p><%= projectCount %></p>
-      <a class="btn" href="/admin/projects">Manage</a>
+<%- include('../partials/layout-start', { title }) %>
+<% const settingsData = settings || {}; %>
+<% const missionCopy = settingsData.mission || settingsData.summary || 'Describe your mission in Admin → Profile.'; %>
+<% const latest = Array.isArray(latestProjects) ? latestProjects : []; %>
+<% const inbox = Array.isArray(recentMessages) ? recentMessages : []; %>
+<% const completion = typeof profileCompletion === 'number' ? profileCompletion : 0; %>
+<% const availability = (typeof settingsData.availability === 'boolean') ? settingsData.availability : null; %>
+<% const testimonialCount = Array.isArray(settingsData.testimonials) ? settingsData.testimonials.length : 0; %>
+<% const skillGroupCount = Array.isArray(settingsData.skillGroups) ? settingsData.skillGroups.length : 0; %>
+<% const notesTotal = typeof notesCount === 'number' ? notesCount : 0; %>
+
+<main class="container-fluid py-4">
+  <section class="d-flex flex-column gap-4">
+    <header class="d-flex flex-wrap justify-content-between align-items-start gap-3">
+      <div>
+        <h1 class="h3 mb-1">Welcome back</h1>
+        <p class="text-muted mb-0">Monitor portfolio performance and keep your content up to date.</p>
+      </div>
+      <div class="d-flex gap-2 flex-wrap">
+        <a class="btn btn-primary" href="/admin/projects">Add new project</a>
+        <a class="btn btn-outline-light" href="/" target="_blank" rel="noopener">View site</a>
+      </div>
+    </header>
+
+    <div class="row g-3">
+      <div class="col-12 col-md-3">
+        <div class="stat-tile">
+          <span>Total projects</span>
+          <strong class="display-6"><%= projectCount %></strong>
+          <a class="btn btn-sm btn-outline-light mt-2" href="/admin/projects">Manage projects</a>
+        </div>
+      </div>
+      <div class="col-12 col-md-3">
+        <div class="stat-tile">
+          <span>Featured projects</span>
+          <strong class="display-6"><%= featuredCount %></strong>
+          <a class="btn btn-sm btn-outline-light mt-2" href="/admin/projects?q=&limit=10">Adjust highlights</a>
+        </div>
+      </div>
+      <div class="col-12 col-md-3">
+        <div class="stat-tile">
+          <span>Unread messages</span>
+          <strong class="display-6"><%= unreadMessages %></strong>
+          <a class="btn btn-sm btn-outline-light mt-2" href="/admin/messages">Review inbox</a>
+        </div>
+      </div>
+      <div class="col-12 col-md-3">
+        <div class="stat-tile">
+          <span>Profile completeness</span>
+          <strong class="display-6"><%= completion %>%</strong>
+          <div class="progress mt-2" role="progressbar" aria-label="Profile completion" aria-valuenow="<%= completion %>" aria-valuemin="0" aria-valuemax="100">
+            <div class="progress-bar" style="--progress:<%= completion %>;"></div>
+          </div>
+          <a class="btn btn-sm btn-outline-light mt-2" href="/admin/profile">Complete profile</a>
+        </div>
+      </div>
     </div>
-    <div class="stat-card">
-      <h2>Unread Messages</h2>
-      <p><%= unreadMessages %></p>
-      <a class="btn" href="/admin/messages">View</a>
+
+    <div class="row g-4">
+      <div class="col-xl-8 d-flex flex-column gap-4">
+        <div class="card p-4">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+              <h2 class="h5 mb-0">Quick actions</h2>
+              <small class="text-muted">Jump straight to common workflows.</small>
+            </div>
+          </div>
+          <div class="row g-3">
+            <div class="col-sm-6">
+              <div class="quick-card">
+                <h3>Projects</h3>
+                <p>Create new portfolio entries or update existing case studies.</p>
+                <a class="btn btn-outline-light" href="/admin/projects">Manage projects</a>
+              </div>
+            </div>
+            <div class="col-sm-6">
+              <div class="quick-card">
+                <h3>Profile &amp; settings</h3>
+                <p>Edit hero content, mission, skills, and social links.</p>
+                <a class="btn btn-outline-light" href="/admin/profile">Edit profile</a>
+              </div>
+            </div>
+            <div class="col-sm-6">
+              <div class="quick-card">
+                <h3>Content library</h3>
+                <p>Update notes, testimonials, and highlights showcased on the site.</p>
+                <a class="btn btn-outline-light" href="/admin/profile#advanced">Open advanced settings</a>
+              </div>
+            </div>
+            <div class="col-sm-6">
+              <div class="quick-card">
+                <h3>Security</h3>
+                <p>Rotate admin credentials and review login activity.</p>
+                <a class="btn btn-outline-light" href="/admin/change-password">Update password</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card p-4">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+              <h2 class="h5 mb-0">Recently updated projects</h2>
+              <small class="text-muted">Latest changes across your portfolio.</small>
+            </div>
+            <a class="btn btn-sm btn-outline-light" href="/admin/projects">View all</a>
+          </div>
+          <% if (!latest.length) { %>
+            <p class="text-muted mb-0">No projects recorded yet. Use the quick action above to create your first case study.</p>
+          <% } else { %>
+            <ul class="recent-list list-unstyled mb-0">
+              <% latest.forEach(project => { %>
+                <li class="recent-item">
+                  <div>
+                    <strong><a href="/admin/projects/<%= project._id %>/edit"><%= project.title %></a></strong>
+                    <div class="recent-meta">
+                      <span>Updated <%= new Date(project.updatedAt || project.createdAt).toLocaleDateString() %></span>
+                      <% if (project.featured) { %>
+                        <span class="badge-soft">Featured</span>
+                      <% } %>
+                    </div>
+                  </div>
+                  <div class="recent-actions">
+                    <% if (project.slug) { %>
+                      <a class="btn btn-sm btn-outline-light" href="/projects/<%= project.slug %>" target="_blank" rel="noopener">Preview</a>
+                    <% } %>
+                    <a class="btn btn-sm btn-outline-light" href="/admin/projects/<%= project._id %>/edit">Edit</a>
+                  </div>
+                </li>
+              <% }) %>
+            </ul>
+          <% } %>
+        </div>
+      </div>
+
+      <div class="col-xl-4 d-flex flex-column gap-4">
+        <div class="card p-4">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2 class="h5 mb-0">Inbox snapshot</h2>
+            <span class="badge-soft"><%= unreadMessages %> unread</span>
+          </div>
+          <% if (!inbox.length) { %>
+            <p class="text-muted mb-0">No messages yet. Contact submissions will appear here.</p>
+          <% } else { %>
+            <ul class="recent-list list-unstyled mb-3">
+              <% inbox.forEach(msg => { %>
+                <li class="recent-item">
+                  <div>
+                    <strong><%= msg.name %></strong>
+                    <div class="recent-meta">
+                      <span><a href="mailto:<%= msg.email %>"><%= msg.email %></a></span>
+                      <span><%= new Date(msg.createdAt).toLocaleDateString() %></span>
+                    </div>
+                    <p class="recent-snippet"><%= (msg.message || '').slice(0, 120) %><%= (msg.message || '').length > 120 ? '…' : '' %></p>
+                  </div>
+                  <div class="recent-actions">
+                    <a class="btn btn-sm btn-outline-light" href="mailto:<%= msg.email %>">Reply</a>
+                    <form method="POST" action="/admin/messages/<%= msg._id %>/<%= msg.read ? 'unread' : 'read' %>" class="d-inline">
+                      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                      <button class="btn btn-sm btn-outline-light" type="submit"><%= msg.read ? 'Mark unread' : 'Mark read' %></button>
+                    </form>
+                  </div>
+                </li>
+              <% }) %>
+            </ul>
+            <a class="btn btn-primary w-100" href="/admin/messages">Open full inbox</a>
+          <% } %>
+        </div>
+
+        <div class="card p-4">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2 class="h5 mb-0">System &amp; settings</h2>
+            <span class="badge-soft"><%= cloudinaryEnabled ? 'Cloudinary active' : 'Local uploads' %></span>
+          </div>
+          <p class="text-muted mb-3"><%= missionCopy %></p>
+          <ul class="list-unstyled d-flex flex-column gap-2 mb-3">
+            <% if (settingsData.location) { %>
+              <li class="d-flex justify-content-between"><span class="text-muted">Location</span><span><%= settingsData.location %></span></li>
+            <% } %>
+            <% if (settingsData.socials && settingsData.socials.email) { %>
+              <li class="d-flex justify-content-between"><span class="text-muted">Primary email</span><span><a href="mailto:<%= settingsData.socials.email %>"><%= settingsData.socials.email %></a></span></li>
+            <% } %>
+            <% if (availability !== null) { %>
+              <li class="d-flex justify-content-between"><span class="text-muted">Availability</span><span><%= availability ? 'Open to new work' : 'Booked' %></span></li>
+            <% } %>
+            <li class="d-flex justify-content-between"><span class="text-muted">Skill groups</span><span><%= skillGroupCount %></span></li>
+            <li class="d-flex justify-content-between"><span class="text-muted">Testimonials</span><span><%= testimonialCount %></span></li>
+            <li class="d-flex justify-content-between"><span class="text-muted">Notes</span><span><%= notesTotal %></span></li>
+          </ul>
+          <div class="d-flex flex-column gap-2">
+            <a class="btn btn-outline-light" href="/admin/profile">Update settings</a>
+            <form method="POST" action="/admin/logout">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+              <button class="btn btn-outline-danger w-100" type="submit">Sign out</button>
+            </form>
+          </div>
+        </div>
+      </div>
     </div>
-    <div class="stat-card">
-      <h2>Admins</h2>
-      <p>Manage users</p>
-      <a class="btn" href="/admin/admins">Manage</a>
-    </div>
-    <div class="stat-card">
-      <h2>Security</h2>
-      <p>Change password</p>
-      <a class="btn" href="/admin/change-password">Update</a>
-    </div>
-    <div class="stat-card">
-      <h2>Profile</h2>
-      <p>Home page content</p>
-      <a class="btn" href="/admin/profile">Edit</a>
-    </div>
-  </div>
+  </section>
 </main>
-<%- include('../partials/footer') %>
+<%- include('../partials/layout-end') %>
