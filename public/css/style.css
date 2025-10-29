@@ -31,8 +31,60 @@ a:hover{text-decoration:underline}
 .btn{display:inline-block;padding:.6rem 1rem;border:1px solid var(--border);border-radius:.4rem;color:var(--text);background:transparent}
 .btn:hover{background:#1b2030}
 .btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent-2));border-color:transparent;color:white}
+.btn-soft{background:rgba(124,58,237,.12);border-color:transparent;color:var(--accent-2)}
+.btn-soft:hover{background:rgba(124,58,237,.18)}
 .btn.danger{border-color:#b91c1c;color:#fecaca}
 .btn:focus{outline:2px solid var(--accent-2);outline-offset:2px}
+
+.projects-page{display:flex;flex-direction:column;gap:2.5rem;padding:0 0 4rem 0}
+.projects-hero{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:2rem;background:linear-gradient(135deg,rgba(124,58,237,.22),rgba(34,211,238,.12));border:1px solid rgba(124,58,237,.25);border-radius:1rem;padding:2.5rem;box-shadow:0 24px 60px rgba(15,20,35,.35)}
+.projects-hero h1{margin:.5rem 0 1rem;font-size:2.5rem;line-height:1.2}
+.projects-hero .subtitle{max-width:540px}
+.eyebrow{font-size:.75rem;letter-spacing:.3em;text-transform:uppercase;color:var(--muted)}
+.projects-hero-cta{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:1.25rem}
+.projects-hero-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:1rem;align-items:flex-end}
+.projects-hero-stats .stat{background:rgba(14,15,18,.55);border:1px solid rgba(255,255,255,.08);border-radius:.75rem;padding:1.25rem;display:flex;flex-direction:column;gap:.3rem;text-align:left}
+.projects-hero-stats .stat span{font-size:1.8rem;font-weight:700;color:white}
+.projects-hero-stats .stat small{color:var(--muted);text-transform:uppercase;letter-spacing:.12em}
+
+.projects-filter{display:flex;flex-direction:column;gap:.75rem}
+.projects-toolbar{display:flex;align-items:center;gap:.75rem;flex-wrap:wrap}
+.projects-toolbar .input-field,.projects-toolbar .select-field{display:flex;align-items:center;gap:.5rem;background:#101522;border:1px solid var(--border);border-radius:.6rem;padding:.55rem .75rem;min-width:240px;flex:1}
+.projects-toolbar .icon{width:18px;height:18px;fill:var(--muted)}
+.projects-toolbar input{border:none;background:transparent;color:var(--text);width:100%;font-size:.95rem}
+.projects-toolbar input:focus{outline:none}
+.projects-toolbar select{background:transparent;border:none;color:var(--text);width:100%;font-size:.95rem;appearance:none}
+.projects-toolbar select:focus{outline:none}
+.projects-filter-summary{margin:0;color:var(--muted);font-size:.9rem}
+
+.projects-grid{padding:0}
+.project-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.75rem}
+.project-card{display:flex;flex-direction:column;background:linear-gradient(180deg,rgba(21,32,54,.9),rgba(18,22,32,.95));border:1px solid rgba(255,255,255,.05);border-radius:1rem;overflow:hidden;box-shadow:0 20px 45px rgba(0,0,0,.32);transition:transform .25s ease, box-shadow .25s ease}
+.project-card:hover{transform:translateY(-4px);box-shadow:0 24px 55px rgba(0,0,0,.45)}
+.project-card-media{position:relative;overflow:hidden}
+.project-card-media img{width:100%;height:200px;object-fit:cover;display:block;filter:saturate(1.05)}
+.badge-featured{position:absolute;top:1rem;left:1rem;padding:.35rem .75rem;border-radius:999px;background:rgba(34,211,238,.22);border:1px solid rgba(34,211,238,.35);color:#a5f3fc;font-size:.75rem;letter-spacing:.08em;text-transform:uppercase}
+.project-card-body{padding:1.5rem;display:flex;flex-direction:column;gap:1rem}
+.project-card-header{display:flex;justify-content:space-between;align-items:flex-start;gap:.75rem}
+.project-card-header h3{margin:0;font-size:1.35rem}
+.project-card-header a{color:white}
+.project-meta{color:var(--muted);font-size:.85rem}
+.project-summary{margin:0;color:var(--muted);line-height:1.5}
+.project-tags{display:flex;flex-wrap:wrap;gap:.5rem;margin:0;padding:0;list-style:none}
+.project-tags li{padding:.25rem .6rem;border-radius:999px;background:#1a2130;border:1px solid rgba(255,255,255,.08);font-size:.8rem;color:#cbd5e1}
+.project-actions{display:flex;gap:.6rem;flex-wrap:wrap}
+.project-actions .btn{flex:0 0 auto}
+
+.projects-empty{background:linear-gradient(135deg,rgba(124,58,237,.18),rgba(34,211,238,.08));border:1px solid rgba(124,58,237,.25);border-radius:1rem;padding:2.25rem;text-align:center;display:flex;flex-direction:column;gap:1rem;align-items:center;box-shadow:0 20px 44px rgba(0,0,0,.28)}
+.projects-empty h2{margin:0;font-size:1.6rem}
+.projects-empty p{margin:0;max-width:420px;color:var(--muted)}
+
+.projects-pagination{display:flex;justify-content:center}
+.projects-pagination ul{list-style:none;padding:0;margin:0;display:flex;gap:.5rem;flex-wrap:wrap}
+.projects-pagination a{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border:1px solid var(--border);border-radius:.5rem;color:var(--text);background:#111624;font-weight:500}
+.projects-pagination a:hover{background:#1a2130}
+.projects-pagination a.active{border-color:var(--accent);color:white;background:linear-gradient(135deg,var(--accent),var(--accent-2))}
+
 
 .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}
 .card{background:var(--card);border:1px solid var(--border);border-radius:.6rem;overflow:hidden;display:flex;flex-direction:column}
@@ -170,6 +222,8 @@ a:hover{text-decoration:underline}
 
 @media (max-width: 900px){
   .grid{grid-template-columns:repeat(2,1fr)}
+  .projects-hero{padding:2rem}
+  .projects-hero-stats{grid-template-columns:repeat(auto-fit,minmax(140px,1fr))}
   .admin-grid{grid-template-columns:1fr}
   .cv-columns{grid-template-columns:1fr}
   .contact-grid{grid-template-columns:1fr}
@@ -179,6 +233,12 @@ a:hover{text-decoration:underline}
   .nav-menu{display:none;flex-direction:column;background:var(--bg);position:absolute;right:1rem;top:3.25rem;border:1px solid var(--border);padding:.75rem;border-radius:.5rem;animation:fadeDown .2s ease}
   .nav-menu.open{display:flex}
   .grid{grid-template-columns:1fr}
+  .projects-hero{padding:1.75rem}
+  .projects-hero h1{font-size:1.9rem}
+  .projects-hero-cta{width:100%}
+  .projects-toolbar{flex-direction:column;align-items:stretch}
+  .projects-toolbar .input-field,.projects-toolbar .select-field{width:100%}
+  .project-card-body{padding:1.25rem}
   .about-grid{grid-template-columns:1fr}
   .skills-grid{grid-template-columns:1fr}
   .skill-group-preview{grid-template-columns:1fr}

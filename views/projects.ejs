@@ -1,49 +1,120 @@
 <%- include('partials/head', { title }) %>
-<main id="main" class="container">
-  <h1>Projects</h1>
-  <form method="GET" action="/projects" style="margin:.5rem 0 1rem;display:flex;gap:.5rem;flex-wrap:wrap">
-    <input name="q" value="<%= typeof q !== 'undefined' ? q : '' %>" placeholder="Search by title, tech, description..." style="flex:1;min-width:220px"/>
-    <select name="tech" aria-label="Filter by technology">
-      <option value="">All Tech</option>
-      <% (techs || []).forEach(t => { %>
-        <option value="<%= t %>" <%= tech === t ? 'selected' : '' %>><%= t %></option>
-      <% }) %>
-    </select>
-    <button class="btn" type="submit">Apply</button>
-  </form>
-  <div class="grid">
-    <% if ((projects || []).length === 0) { %>
-      <p>No projects yet. Admin can add some!</p>
-    <% } %>
-    <% (projects || []).forEach((p, i) => { %>
-      <article class="card" data-aos="fade-up" data-aos-delay="<%= i * 40 %>">
-        <img src="<%= p.imageUrl || '/images/placeholder.svg' %>" alt="Screenshot of <%= p.title %>" loading="lazy" decoding="async"
-             <% if (p.imageUrl && clSrcset(p.imageUrl)) { %>
-               srcset="<%= clSrcset(p.imageUrl) %>" sizes="<%= clSizesDefault %>"
-             <% } %>
-        />
-        <div class="card-body">
-          <h3><a href="/projects/<%= p.slug %>"><%= p.title %></a></h3>
-          <p><%= p.description %></p>
-          <div class="tags">
-            <% (p.tech || []).forEach(t => { %>
-              <span class="tag"><%= t %></span>
-            <% }) %>
-          </div>
-          <div class="actions">
-            <% if (p.githubUrl) { %><a class="btn" href="<%= p.githubUrl %>" target="_blank" rel="noopener">Code</a><% } %>
-            <% if (p.demoUrl) { %><a class="btn btn-primary" href="<%= p.demoUrl %>" target="_blank" rel="noopener">Live</a><% } %>
-          </div>
-        </div>
-      </article>
-    <% }) %>
-  </div>
-  <% if (typeof page !== 'undefined' && typeof pages !== 'undefined' && pages > 1) { %>
-    <div style="margin-top:1rem;display:flex;gap:.5rem;flex-wrap:wrap">
-      <% for (let i=1;i<=pages;i++){ %>
-        <a class="btn" href="/projects?<%= 'page=' + i + (q ? ('&q=' + encodeURIComponent(q)) : '') + (tech ? ('&tech=' + encodeURIComponent(tech)) : '') %>"><%= i === page ? ('['+i+']') : i %></a>
-      <% } %>
+<main id="main" class="projects-page">
+  <% const list = Array.isArray(projects) ? projects : []; %>
+  <% const totalProjects = list.length; %>
+  <% const featuredCount = list.filter(p => p && p.featured).length; %>
+  <% const techSet = new Set(); list.forEach(p => (p && Array.isArray(p.tech)) && p.tech.forEach(t => t && techSet.add(t))); %>
+  <% const techCount = techSet.size; %>
+
+  <section class="projects-hero container" data-aos="fade-up">
+    <div class="projects-hero-copy">
+      <p class="eyebrow">Selected work</p>
+      <h1>Building thoughtful products with polish.</h1>
+      <p class="subtitle">A collection of client engagements, personal experiments, and shipped features that balance design, reliability, and measurable outcomes.</p>
+      <div class="projects-hero-cta">
+        <a class="btn btn-primary" href="/contact">Request a project</a>
+        <a class="btn" href="/notes">Read build notes</a>
+      </div>
     </div>
+    <div class="projects-hero-stats">
+      <div class="stat">
+        <span><%= totalProjects %></span>
+        <small>Total projects</small>
+      </div>
+      <div class="stat">
+        <span><%= techCount %></span>
+        <small>Technologies</small>
+      </div>
+      <div class="stat">
+        <span><%= featuredCount %></span>
+        <small>Featured launches</small>
+      </div>
+    </div>
+  </section>
+
+  <section class="projects-filter container" data-aos="fade-up" data-aos-delay="80">
+    <form method="GET" action="/projects" class="projects-toolbar" role="search">
+      <label class="input-field" for="project-search">
+        <svg aria-hidden="true" class="icon" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27a6.5 6.5 0 1 0-.71.71l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9z"/></svg>
+        <input id="project-search" name="q" value="<%= typeof q !== 'undefined' ? q : '' %>" placeholder="Search by title, tech, description…" autocomplete="off">
+      </label>
+      <label class="select-field" for="project-tech">
+        <svg aria-hidden="true" class="icon" viewBox="0 0 24 24"><path d="M3 5h18v2l-7 7v5l-4-2v-3L3 7z"/></svg>
+        <select id="project-tech" name="tech" aria-label="Filter by technology">
+          <option value="">All technologies</option>
+          <% (techs || []).forEach(t => { %>
+            <option value="<%= t %>" <%= tech === t ? 'selected' : '' %>><%= t %></option>
+          <% }) %>
+        </select>
+      </label>
+      <button class="btn btn-primary" type="submit">Apply</button>
+      <% if ((typeof q === 'string' && q) || (typeof tech === 'string' && tech)) { %>
+        <a class="btn btn-soft" href="/projects">Clear</a>
+      <% } %>
+    </form>
+    <% if ((typeof q === 'string' && q) || (typeof tech === 'string' && tech)) { %>
+      <p class="projects-filter-summary">Showing results for <strong><%= q || 'all queries' %></strong> in <strong><%= tech || 'any technology' %></strong>.</p>
+    <% } %>
+  </section>
+
+  <section class="projects-grid container">
+    <div class="project-grid">
+      <% if (!totalProjects) { %>
+        <div class="projects-empty" data-aos="fade-up">
+          <h2>No projects yet</h2>
+          <p>Once new work ships it will appear here. Check back soon or explore the notes section in the meantime.</p>
+          <a class="btn btn-primary" href="/contact">Start a new engagement</a>
+        </div>
+      <% } %>
+
+      <% list.forEach((p, i) => { %>
+        <article class="project-card" data-aos="fade-up" data-aos-delay="<%= i * 60 %>">
+          <div class="project-card-media">
+            <img src="<%= p.imageUrl || '/images/placeholder.svg' %>" alt="Screenshot of <%= p.title %>" loading="lazy" decoding="async"
+                 <% if (p.imageUrl && clSrcset(p.imageUrl)) { %>
+                   srcset="<%= clSrcset(p.imageUrl) %>" sizes="<%= clSizesDefault %>"
+                 <% } %>
+            >
+            <% if (p.featured) { %>
+              <span class="badge badge-featured">Featured</span>
+            <% } %>
+          </div>
+          <div class="project-card-body">
+            <div class="project-card-header">
+              <h3><a href="/projects/<%= p.slug %>"><%= p.title %></a></h3>
+              <% if (p.year) { %><span class="project-meta"><%= p.year %></span><% } %>
+            </div>
+            <% if (p.description) { %>
+              <p class="project-summary"><%= p.description %></p>
+            <% } %>
+            <% if (Array.isArray(p.tech) && p.tech.length) { %>
+              <ul class="project-tags">
+                <% p.tech.forEach(t => { %>
+                  <li><%= t %></li>
+                <% }) %>
+              </ul>
+            <% } %>
+            <div class="project-actions">
+              <a class="btn" href="/projects/<%= p.slug %>">Case study</a>
+              <% if (p.githubUrl) { %><a class="btn" href="<%= p.githubUrl %>" target="_blank" rel="noopener">Source</a><% } %>
+              <% if (p.demoUrl) { %><a class="btn btn-primary" href="<%= p.demoUrl %>" target="_blank" rel="noopener">Live demo</a><% } %>
+            </div>
+          </div>
+        </article>
+      <% }) %>
+    </div>
+  </section>
+
+  <% if (typeof page !== 'undefined' && typeof pages !== 'undefined' && pages > 1) { %>
+    <nav class="projects-pagination" aria-label="Project pagination">
+      <ul>
+        <% for (let i = 1; i <= pages; i++) { %>
+          <li>
+            <a class="<%= i === page ? 'active' : '' %>" href="/projects?<%= 'page=' + i + (q ? ('&q=' + encodeURIComponent(q)) : '') + (tech ? ('&tech=' + encodeURIComponent(tech)) : '') %>"><%= i %></a>
+          </li>
+        <% } %>
+      </ul>
+    </nav>
   <% } %>
 </main>
 <%- include('partials/footer') %>
