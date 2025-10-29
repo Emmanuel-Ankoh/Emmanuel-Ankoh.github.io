@@ -1,4 +1,4 @@
-<%- include('../partials/layout-start', { title }) %>
+<%- include('partials/layout-start', { title }) %>
 <% const settingsData = settings || {}; %>
 <% const missionCopy = settingsData.mission || settingsData.summary || 'Describe your mission in Admin → Profile.'; %>
 <% const latest = Array.isArray(latestProjects) ? latestProjects : []; %>
@@ -199,4 +199,4 @@
     </div>
   </section>
 </main>
-<%- include('../partials/layout-end') %>
+<%- include('partials/layout-end') %>

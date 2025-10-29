@@ -1,4 +1,4 @@
-<%- include('../partials/layout-start', { title }) %>
+<%- include('partials/layout-start', { title }) %>
 <% const formData = (() => { const data = {}; if (project) { Object.assign(data, project); } if (formValues) { Object.assign(data, formValues); } return data; })(); %>
 <% const techValue = typeof formData.tech === 'string' ? formData.tech : (Array.isArray(formData.tech) ? formData.tech.join(', ') : ''); %>
 <% const descriptionValue = typeof formData.description === 'string' ? formData.description : ''; %>
@@ -194,4 +194,4 @@
   </section>
 </main>
 
-<%- include('../partials/layout-end') %>
+<%- include('partials/layout-end') %>
