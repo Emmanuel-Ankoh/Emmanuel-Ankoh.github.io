@@ -1,33 +1,110 @@
 <%- include('partials/head', { title }) %>
-<main id="main" class="container">
-  <h1>Contact</h1>
-  <% if (profile && profile.contactIntro) { %>
-    <p class="subtitle"><%= profile.contactIntro %></p>
-  <% } %>
-  <% if (success) { %>
-    <div class="alert success"><%= success %></div>
-  <% } %>
-  <% if (error) { %>
-    <div class="alert error"><%= error %></div>
-  <% } %>
-  <form class="contact-form" method="POST" action="/contact" novalidate>
-    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-    <!-- Honeypot field (hidden for humans, visible to bots) -->
-    <div style="position:absolute;left:-9999px;opacity:0" aria-hidden="true">
-      <label for="company">Company</label>
-      <input id="company" name="company" type="text" tabindex="-1" autocomplete="off" />
+<main id="main" class="container contact-page">
+  <% const contactIntro = (profile && profile.contactIntro) || 'I usually reply within one business day. Share a bit about your project and I’ll follow up with next steps.'; %>
+  <% const location = profile && profile.location; %>
+  <% const phone = profile && profile.phone; %>
+  <% const socials = (profile && profile.socials) || {}; %>
+  <% const availability = profile && (typeof profile.availability === 'boolean') ? profile.availability : null; %>
+  <% const resumeUrl = (profile && profile.resumeUrl) || '/resume.pdf'; %>
+  <header class="contact-header" data-aos="fade-up">
+    <div>
+      <h1>Let’s collaborate</h1>
+      <p class="subtitle"><%= contactIntro %></p>
     </div>
-    <label for="name">Name</label>
-    <input id="name" name="name" type="text" required />
-    <label for="email">Email</label>
-    <input id="email" name="email" type="email" required />
-    <label for="message">Message</label>
-    <textarea id="message" name="message" rows="6" required></textarea>
-    <% if (recaptchaSiteKey) { %>
-      <div class="g-recaptcha" data-sitekey="<%= recaptchaSiteKey %>"></div>
-      <script src="https://www.google.com/recaptcha/api.js" async defer></script>
-    <% } %>
-    <button class="btn btn-primary" type="submit">Send</button>
-  </form>
+    <div class="contact-header-actions">
+      <a class="btn" href="<%= resumeUrl %>" target="_blank" rel="noopener">Download CV</a>
+      <a class="btn btn-primary" href="mailto:<%= socials.email || 'hello@example.com' %>">Email directly</a>
+    </div>
+  </header>
+
+  <div class="contact-grid">
+    <aside class="contact-sidebar" data-aos="fade-right" data-aos-delay="120">
+      <article class="contact-card">
+        <h2>Direct contact</h2>
+        <ul>
+          <% if (socials.email) { %>
+            <li>
+              <span>📧 Email</span>
+              <a href="mailto:<%= socials.email %>"><%= socials.email %></a>
+            </li>
+          <% } %>
+          <% if (phone) { %>
+            <li>
+              <span>📞 Phone</span>
+              <a href="tel:<%= phone %>"><%= phone %></a>
+            </li>
+          <% } %>
+          <% if (location) { %>
+            <li>
+              <span>📍 Location</span>
+              <%= location %>
+            </li>
+          <% } %>
+          <li>
+            <span>🕒 Response</span>
+            <span><%= availability === false ? 'Currently closed for new engagements' : 'Replies within 24h' %></span>
+          </li>
+        </ul>
+      </article>
+
+      <% if (socials.github || socials.linkedin || socials.twitter || socials.instagram || socials.youtube || socials.stackoverflow) { %>
+        <article class="contact-card">
+          <h2>Social & platforms</h2>
+          <ul>
+            <% if (socials.linkedin) { %><li><span>LinkedIn</span><a href="<%= socials.linkedin %>" target="_blank" rel="noopener">Connect</a></li><% } %>
+            <% if (socials.github) { %><li><span>GitHub</span><a href="<%= socials.github %>" target="_blank" rel="noopener">Projects</a></li><% } %>
+            <% if (socials.twitter) { %><li><span>Twitter</span><a href="<%= socials.twitter %>" target="_blank" rel="noopener">Follow</a></li><% } %>
+            <% if (socials.instagram) { %><li><span>Instagram</span><a href="<%= socials.instagram %>" target="_blank" rel="noopener">Stories</a></li><% } %>
+            <% if (socials.youtube) { %><li><span>YouTube</span><a href="<%= socials.youtube %>" target="_blank" rel="noopener">Talks</a></li><% } %>
+            <% if (socials.stackoverflow) { %><li><span>Stack Overflow</span><a href="<%= socials.stackoverflow %>" target="_blank" rel="noopener">Profile</a></li><% } %>
+          </ul>
+        </article>
+      <% } %>
+
+      <article class="contact-card">
+        <h2>Availability</h2>
+        <p>
+          <% if (availability === false) { %>
+            I’m currently at capacity but happy to chat about future collaborations.
+          <% } else { %>
+            Open to freelance work, workshops, and long-term product engagements.
+          <% } %>
+        </p>
+        <div class="contact-tags">
+          <span>Workshops</span>
+          <span>Mentoring</span>
+          <span>Consulting</span>
+        </div>
+      </article>
+    </aside>
+
+    <section class="contact-form-card" data-aos="fade-left" data-aos-delay="200">
+      <% if (success) { %>
+        <div class="alert success"><%= success %></div>
+      <% } %>
+      <% if (error) { %>
+        <div class="alert error"><%= error %></div>
+      <% } %>
+      <form class="contact-form" method="POST" action="/contact" novalidate>
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <div style="position:absolute;left:-9999px;opacity:0" aria-hidden="true">
+          <label for="company">Company</label>
+          <input id="company" name="company" type="text" tabindex="-1" autocomplete="off" />
+        </div>
+        <label for="name">Name</label>
+        <input id="name" name="name" type="text" required />
+        <label for="email">Email</label>
+        <input id="email" name="email" type="email" required />
+        <label for="message">How can I help?</label>
+        <textarea id="message" name="message" rows="6" required placeholder="Tell me about your project, timeline, and desired outcomes."></textarea>
+        <% if (recaptchaSiteKey) { %>
+          <div class="g-recaptcha" data-sitekey="<%= recaptchaSiteKey %>"></div>
+          <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+        <% } %>
+        <button class="btn btn-primary" type="submit">Send message</button>
+      </form>
+      <p class="contact-note">Prefer a quick call? Book a slot via email and I’ll share a calendar invite.</p>
+    </section>
+  </div>
 </main>
 <%- include('partials/footer') %>
