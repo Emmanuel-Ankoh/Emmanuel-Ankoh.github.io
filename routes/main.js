@@ -25,6 +25,14 @@ router.get('/about', (req, res) => {
   res.render('about', { title: 'About' });
 });
 
+// Notes / Blog feed
+router.get('/notes', (req, res) => {
+  const profile = res.locals.profile || {};
+  const name = profile.name || 'Emmanuel Ankoh';
+  const meta = { description: `Latest notes, talks, and articles from ${name}.` };
+  res.render('notes', { title: 'Notes', meta });
+});
+
 // Projects
 router.get('/projects', async (req, res, next) => {
   try {

@@ -1,6 +1,9 @@
 <%- include('../partials/head', { title }) %>
 <main id="main" class="container">
   <h1>Profile</h1>
+  <% if (settings && settings.updatedAt) { %>
+    <p style="margin:-0.25rem 0 1rem 0;color:var(--muted);font-size:.9rem">Last updated <%= new Date(settings.updatedAt).toLocaleString() %></p>
+  <% } %>
   <% if (error) { %><div class="alert error"><%= error %></div><% } %>
   <% if (success) { %><div class="alert success"><%= success %></div><% } %>
   <form method="POST" action="/admin/profile" enctype="multipart/form-data" class="contact-form" style="max-width:720px">
@@ -112,6 +115,30 @@
         return (s.name || '') + (lvl!=='' ? (':' + lvl) : '');
       }).join('\n')) : '') %></textarea>
     </fieldset>
+    <fieldset style="border:1px solid var(--border);padding:1rem;border-radius:.5rem;margin-top:1rem">
+      <legend>Testimonials</legend>
+      <small>One testimonial per row. Format: Name | Role | Quote | Avatar URL (optional) | Link (optional).</small>
+      <div id="testimonials-list" class="repeater" style="display:flex;flex-direction:column;gap:.5rem;margin-top:.5rem"></div>
+      <div>
+        <button type="button" class="btn" id="add-testimonial-item">Add testimonial</button>
+      </div>
+      <textarea name="testimonialsText" style="display:none"><%=(Array.isArray(settings && settings.testimonials) ? (settings.testimonials.map(function(t){
+        var parts=[]; if (t.name) parts.push(t.name); if (t.role) parts.push(t.role); if (t.quote) parts.push(t.quote); if (t.avatarUrl) parts.push(t.avatarUrl); if (t.link) parts.push(t.link);
+        return parts.join(' | ');
+      }).join('\n')) : '') %></textarea>
+    </fieldset>
+    <fieldset style="border:1px solid var(--border);padding:1rem;border-radius:.5rem;margin-top:1rem">
+      <legend>Latest Notes / Blog Feed</legend>
+      <small>One entry per row. Format: Title | URL (optional) | Summary | Date (optional – e.g., 2024-04-05).</small>
+      <div id="notes-list" class="repeater" style="display:flex;flex-direction:column;gap:.5rem;margin-top:.5rem"></div>
+      <div>
+        <button type="button" class="btn" id="add-note-item">Add entry</button>
+      </div>
+      <textarea name="notesText" style="display:none"><%=(Array.isArray(settings && settings.notes) ? (settings.notes.map(function(n){
+        var parts=[]; if (n.title) parts.push(n.title); if (n.url) parts.push(n.url); if (n.summary) parts.push(n.summary); if (n.date) parts.push(n.date);
+        return parts.join(' | ');
+      }).join('\n')) : '') %></textarea>
+    </fieldset>
     <link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
     <script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
     <script>
@@ -151,64 +178,73 @@
           });
         }
         // Timeline repeater
-        const timelineList = form.querySelector('#timeline-list');
-        const timelineHidden = form.querySelector('textarea[name="timelineText"]');
-        const addTimelineBtn = form.querySelector('#add-timeline-item');
-        function makeRow(value){
-          const row = document.createElement('div');
-          row.style.display='flex'; row.style.gap='.5rem';
-          const input = document.createElement('input');
-          input.type='text'; input.placeholder='year | title | subtitle | description'; input.style.flex='1';
-          if (value) input.value = value;
-          const remove = document.createElement('button'); remove.type='button'; remove.textContent='Remove'; remove.className='btn';
-          remove.addEventListener('click', ()=>{ row.remove(); });
-          row.appendChild(input); row.appendChild(remove);
-          return row;
+        function setupSimpleRepeater(options){
+          const { listSelector, hiddenSelector, addSelector, placeholder } = options;
+          const list = form.querySelector(listSelector);
+          const hidden = form.querySelector(hiddenSelector);
+          const addBtn = form.querySelector(addSelector);
+          if (!list || !hidden || !addBtn) return null;
+          function makeRow(value){
+            const row = document.createElement('div');
+            row.style.display='flex'; row.style.gap='.5rem';
+            const input = document.createElement('input');
+            input.type='text'; input.placeholder = placeholder; input.style.flex='1';
+            if (value) input.value = value;
+            const remove = document.createElement('button'); remove.type='button'; remove.textContent='Remove'; remove.className='btn';
+            remove.addEventListener('click', ()=>{ row.remove(); });
+            row.appendChild(input); row.appendChild(remove);
+            return row;
+          }
+          function loadFromHidden(){
+            list.innerHTML='';
+            const lines = (hidden.value || '').split(/\r?\n/).map(l=>l.trim()).filter(Boolean);
+            if (!lines.length) { list.appendChild(makeRow('')); }
+            else { lines.forEach(l=> list.appendChild(makeRow(l))); }
+          }
+          addBtn.addEventListener('click', ()=> list.appendChild(makeRow('')));
+          loadFromHidden();
+          return { list, hidden };
         }
-        function loadFromHidden(){
-          timelineList.innerHTML='';
-          const lines = (timelineHidden.value || '').split(/\r?\n/).map(l=>l.trim()).filter(Boolean);
-          if (!lines.length) { timelineList.appendChild(makeRow('')); }
-          else { lines.forEach(l=> timelineList.appendChild(makeRow(l))); }
-        }
-        addTimelineBtn.addEventListener('click', ()=> timelineList.appendChild(makeRow('')));
-        // Skills repeater
-        const skillsList = form.querySelector('#skills-list');
-        const skillsHidden = form.querySelector('textarea[name="skillsText"]');
-        const addSkillBtn = form.querySelector('#add-skill-item');
-        function makeSkillRow(value){
-          const row = document.createElement('div');
-          row.style.display='flex'; row.style.gap='.5rem';
-          const input = document.createElement('input');
-          input.type='text'; input.placeholder='Name:Level or Name (Level%)'; input.style.flex='1';
-          if (value) input.value = value;
-          const remove = document.createElement('button'); remove.type='button'; remove.textContent='Remove'; remove.className='btn';
-          remove.addEventListener('click', ()=>{ row.remove(); });
-          row.appendChild(input); row.appendChild(remove);
-          return row;
-        }
-        function loadSkillsFromHidden(){
-          skillsList.innerHTML='';
-          const lines = (skillsHidden.value || '').split(/\r?\n/).map(l=>l.trim()).filter(Boolean);
-          if (!lines.length) { skillsList.appendChild(makeSkillRow('')); }
-          else { lines.forEach(l=> skillsList.appendChild(makeSkillRow(l))); }
-        }
+        const timelineRepeater = setupSimpleRepeater({
+          listSelector: '#timeline-list',
+          hiddenSelector: 'textarea[name="timelineText"]',
+          addSelector: '#add-timeline-item',
+          placeholder: 'year | title | subtitle | description'
+        });
+        const skillsRepeater = setupSimpleRepeater({
+          listSelector: '#skills-list',
+          hiddenSelector: 'textarea[name="skillsText"]',
+          addSelector: '#add-skill-item',
+          placeholder: 'Name:Level or Name (Level%)'
+        });
+        const testimonialsRepeater = setupSimpleRepeater({
+          listSelector: '#testimonials-list',
+          hiddenSelector: 'textarea[name="testimonialsText"]',
+          addSelector: '#add-testimonial-item',
+          placeholder: 'Name | Role | Quote | Avatar URL | Link'
+        });
+        const notesRepeater = setupSimpleRepeater({
+          listSelector: '#notes-list',
+          hiddenSelector: 'textarea[name="notesText"]',
+          addSelector: '#add-note-item',
+          placeholder: 'Title | URL | Summary | Date'
+        });
         // Serialize on submit
         form.addEventListener('submit', ()=>{
-          const tlValues = Array.from(timelineList.querySelectorAll('input[type="text"]')).map(i=>i.value.trim()).filter(Boolean);
-          timelineHidden.value = tlValues.join('\n');
-          const skValues = Array.from(skillsList.querySelectorAll('input[type="text"]')).map(i=>i.value.trim()).filter(Boolean);
-          skillsHidden.value = skValues.join('\n');
+          const repeaters = [timelineRepeater, skillsRepeater, testimonialsRepeater, notesRepeater].filter(Boolean);
+          repeaters.forEach(({ list, hidden }) => {
+            const values = Array.from(list.querySelectorAll('input[type="text"]')).map(i=>i.value.trim()).filter(Boolean);
+            hidden.value = values.join('\n');
+          });
         });
-        // Init
-        loadFromHidden();
-        loadSkillsFromHidden();
       })();
     </script>
 
     
     <div class="toolbar">
-      <div></div>
+      <div>
+        <a class="btn" href="<%= (site && site.baseUrl) ? site.baseUrl : '/' %>" target="_blank" rel="noopener">Preview site</a>
+      </div>
       <button class="btn btn-primary" type="submit">Save</button>
     </div>
   </form>

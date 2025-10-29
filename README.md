@@ -5,6 +5,7 @@ A modern, responsive developer portfolio with dynamic projects, contact form wit
 ## Features
 - Home with animated hero and featured projects
 - About with profile and timeline
+- Testimonials carousel + writing feed for recent notes/blog posts
 - Projects grid (from MongoDB)
 - Skills with progress bars
 - Contact form (saves to MongoDB, server-side validation, optional email notifications)
@@ -35,6 +36,8 @@ This app includes a simple CMS powered by a singleton Settings document. From th
 - Skills: Simple text input. One per line using either of these:
 	- Name:Level (0–100), e.g., JavaScript:90
 	- Name (Level%), e.g., CSS (70%)
+- Testimonials: One per line (`Name | Role | Quote | Avatar URL | Link`). Avatar/Link are optional.
+- Notes/Blog feed: One per line (`Title | URL | Summary | Date`). URL/Date optional; summary is used for the card copy.
 
 Changes are saved securely with CSRF protection and reflected across pages immediately. Settings are lightly cached to reduce DB reads, and the cache is auto-busted after each save.
 
@@ -129,6 +132,7 @@ Finally, edit `index.html` in the repo and set the "Open Portfolio" link to your
 ## API/Routes
 - `/` Home (featured projects)
 - `/about`, `/projects`, `/skills`, `/contact`
+- `/notes` latest notes/blog feed surfaced on the homepage
 - POST `/contact` saves a message
 - `/admin/login` (POST for login)
 - `/admin` dashboard

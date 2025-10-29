@@ -43,6 +43,22 @@ a:hover{text-decoration:underline}
 .tags{display:flex;flex-wrap:wrap;gap:.4rem}
 .tag{background:#1f2433;color:#cbd5e1;border:1px solid var(--border);border-radius:999px;padding:.2rem .5rem;font-size:.8rem}
 
+.testimonials{padding:4rem 0;background:linear-gradient(180deg,rgba(17,20,30,.15),transparent)}
+.testimonials-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1.5rem}
+.testimonial-card{background:var(--card);border:1px solid var(--border);border-radius:.6rem;padding:1.25rem;display:flex;flex-direction:column;gap:.75rem;box-shadow:0 8px 24px rgba(0,0,0,.15)}
+.testimonial-card img{width:60px;height:60px;border-radius:50%;object-fit:cover;border:1px solid var(--border)}
+.testimonial-card blockquote{margin:0;font-style:italic;color:var(--text)}
+.testimonial-card footer{display:flex;justify-content:space-between;align-items:center;font-size:.9rem;color:var(--muted)}
+
+.notes{padding:4rem 0}
+.notes-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.5rem}
+.note-card{background:var(--card);border:1px solid var(--border);border-radius:.6rem;padding:1.25rem;display:flex;flex-direction:column;gap:.6rem}
+.note-card header{display:flex;justify-content:space-between;align-items:flex-start;gap:.75rem}
+.note-card h2,.note-card h3{margin:0;font-size:1.2rem}
+.note-date{font-size:.85rem;color:var(--muted);margin:0}
+.notes-page .note-card{box-shadow:0 8px 24px rgba(0,0,0,.1)}
+.notes-page .note-card .actions{margin-top:.25rem}
+
 .about-grid{display:grid;grid-template-columns:180px 1fr;gap:1rem}
 .avatar{width:180px;height:180px;border-radius:50%;object-fit:cover;border:2px solid var(--border)}
 .timeline{list-style:none;padding:0;margin:0;border-left:2px solid var(--border)}
@@ -108,6 +124,7 @@ a:hover{text-decoration:underline}
   .skills-grid{grid-template-columns:1fr}
   .cards-2{grid-template-columns:1fr}
   .hero-grid{grid-template-columns:1fr}
+  .testimonials-grid,.notes-list{grid-template-columns:1fr}
 }
 
 @keyframes fadeDown{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}

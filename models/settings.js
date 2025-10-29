@@ -38,6 +38,23 @@ const settingsSchema = new mongoose.Schema(
         name: String,
         level: Number
       }
+    ],
+    testimonials: [
+      {
+        name: { type: String, trim: true },
+        role: { type: String, trim: true },
+        quote: { type: String, trim: true },
+        avatarUrl: { type: String, trim: true },
+        link: { type: String, trim: true }
+      }
+    ],
+    notes: [
+      {
+        title: { type: String, trim: true },
+        url: { type: String, trim: true },
+        summary: { type: String, trim: true },
+        date: { type: String, trim: true }
+      }
     ]
   },
   { timestamps: true }

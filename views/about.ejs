@@ -48,6 +48,29 @@
     </div>
   </section>
   <section>
+    <h2>Core Skills</h2>
+    <% if (profile && Array.isArray(profile.skills) && profile.skills.length) { %>
+      <div class="skills-grid" style="margin-top:1rem">
+        <div>
+          <p>Here are a few of the technologies I work with regularly. Each bar reflects my current confidence level out of 100.</p>
+        </div>
+        <div>
+          <ul class="skills">
+            <% const sortedSkills = [...profile.skills].sort((a,b)=> (b.level||0)-(a.level||0)); %>
+            <% sortedSkills.slice(0,8).forEach((s) => { %>
+              <li><span><%= s.name %></span><div class="bar"><span class="bar-fill" data-level="<%= Math.max(0, Math.min(100, s.level||0)) %>"></span></div></li>
+            <% }) %>
+          </ul>
+          <% if (profile.skills.length > 8) { %>
+            <p style="margin-top:.5rem"><a class="btn" href="/skills">See all skills</a></p>
+          <% } %>
+        </div>
+      </div>
+    <% } else { %>
+      <p>Add skills in Admin → Profile to showcase them here.</p>
+    <% } %>
+  </section>
+  <section>
     <h2>Education & Experience</h2>
     <ol class="timeline">
       <% if (profile && Array.isArray(profile.timeline) && profile.timeline.length) { %>
@@ -69,6 +92,31 @@
         </li>
       <% } %>
     </ol>
+  </section>
+  <section>
+    <h2>Testimonials</h2>
+    <% const testimonials = (profile && Array.isArray(profile.testimonials)) ? profile.testimonials.filter(t => t.name && t.quote) : []; %>
+    <% if (testimonials.length) { %>
+      <div class="testimonials-grid" style="margin-top:1rem">
+        <% testimonials.forEach((t, idx) => { %>
+          <article class="testimonial-card" data-aos="fade-up" <%= idx ? ('data-aos-delay="' + (idx*60) + '"') : '' %>>
+            <% if (t.avatarUrl) { %>
+              <img src="<%= t.avatarUrl %>" alt="Portrait of <%= t.name %>" loading="lazy" decoding="async">
+            <% } %>
+            <blockquote>“<%= t.quote %>”</blockquote>
+            <footer>
+              <div>
+                <strong><%= t.name %></strong>
+                <% if (t.role) { %><span> · <%= t.role %></span><% } %>
+              </div>
+              <% if (t.link) { %><a href="<%= t.link %>" target="_blank" rel="noopener">Source</a><% } %>
+            </footer>
+          </article>
+        <% }) %>
+      </div>
+    <% } else { %>
+      <p>Add testimonials to highlight client feedback and speaking engagements.</p>
+    <% } %>
   </section>
 </main>
 <%- include('partials/footer') %>

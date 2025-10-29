@@ -363,6 +363,34 @@ router.post('/profile', ensureAuth, upload.single('avatar'),
           settings.skills = [];
         }
       }
+      if ('testimonialsText' in req.body) {
+        const testimonialsText = (req.body.testimonialsText || '').trim();
+        if (testimonialsText) {
+          const lines = testimonialsText.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+          const testimonials = lines.map(line => {
+            const parts = line.split('|').map(p => p.trim()).filter(Boolean);
+            const [name, role, quote, avatarUrl, link] = parts;
+            return { name, role, quote, avatarUrl, link };
+          }).filter(item => item.name && item.quote);
+          settings.testimonials = testimonials;
+        } else {
+          settings.testimonials = [];
+        }
+      }
+      if ('notesText' in req.body) {
+        const notesText = (req.body.notesText || '').trim();
+        if (notesText) {
+          const lines = notesText.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+          const notes = lines.map(line => {
+            const parts = line.split('|').map(p => p.trim());
+            const [title, url, summary, date] = parts;
+            return { title, url, summary, date };
+          }).filter(item => item.title && (item.summary || item.url));
+          settings.notes = notes;
+        } else {
+          settings.notes = [];
+        }
+      }
       try {
         await settings.save();
       } catch (e) {

@@ -10,6 +10,9 @@
   <section class="admin-grid">
     <div>
       <h2><%= project ? 'Edit Project' : 'Add Project' %></h2>
+      <% if (project && project.updatedAt) { %>
+        <p style="margin:-0.25rem 0 1rem 0;color:var(--muted);font-size:.9rem">Last updated <%= new Date(project.updatedAt).toLocaleString() %></p>
+      <% } %>
       <form method="POST" action="<%= project ? ('/admin/projects/' + project._id) : '/admin/projects' %>" enctype="multipart/form-data">
         <input type="hidden" name="_csrf" value="<%= csrfToken %>">
         <label>Title</label>
@@ -43,6 +46,7 @@
           <tr>
             <th>Title</th>
             <th>Featured</th>
+            <th>Updated</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -51,8 +55,12 @@
             <tr>
               <td><%= p.title %></td>
               <td><%= p.featured ? 'Yes' : 'No' %></td>
+              <td><%= p.updatedAt ? new Date(p.updatedAt).toLocaleString() : '—' %></td>
               <td>
                 <a class="btn" href="/admin/projects/<%= p._id %>/edit">Edit</a>
+                <% if (p.slug) { %>
+                  <a class="btn" href="/projects/<%= p.slug %>" target="_blank" rel="noopener">Preview</a>
+                <% } %>
                 <form method="POST" action="/admin/projects/<%= p._id %>/toggle" style="display:inline">
                   <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                   <button class="btn" type="submit"><%= p.featured ? 'Unfeature' : 'Feature' %></button>
