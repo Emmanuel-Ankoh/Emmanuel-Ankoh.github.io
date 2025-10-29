@@ -61,86 +61,170 @@
           <div class="skill-groups" style="margin-top:1rem">
             <% skillGroups.forEach((group, idx) => { %>
               <article class="skill-group" data-aos="fade-up" <%= idx ? ('data-aos-delay="' + (idx*60) + '"') : '' %>>
-                <h3><%= group.title || 'Skills' %></h3>
-                <ul class="skills">
-                  <% (group.skills || []).forEach(skill => { %>
-                    <li><span><%= skill.name %></span><div class="bar"><span class="bar-fill" data-level="<%= Math.max(0, Math.min(100, skill.level||0)) %>"></span></div></li>
-                  <% }) %>
-                </ul>
-              </article>
-            <% }) %>
-          </div>
-          <% if (skillGroups.length > 0 || (profile.skills && profile.skills.length)) { %>
-            <p style="margin-top:.75rem"><a class="btn" href="/skills">See full skills matrix</a></p>
-          <% } %>
-        <% } else if (profile && Array.isArray(profile.skills) && profile.skills.length) { %>
-          <div class="skills-grid" style="margin-top:1rem">
-            <div>
-              <p>Here are a few of the technologies I work with regularly. Each bar reflects my current confidence level out of 100.</p>
-            </div>
-            <div>
-              <ul class="skills">
-                <% const sortedSkills = [...profile.skills].sort((a,b)=> (b.level||0)-(a.level||0)); %>
-                <% sortedSkills.slice(0,8).forEach((s) => { %>
-                  <li><span><%= s.name %></span><div class="bar"><span class="bar-fill" data-level="<%= Math.max(0, Math.min(100, s.level||0)) %>"></span></div></li>
-                <% }) %>
-              </ul>
-              <% if (profile.skills.length > 8) { %>
-                <p style="margin-top:.5rem"><a class="btn" href="/skills">See all skills</a></p>
-              <% } %>
-            </div>
-          </div>
-        <% } else { %>
-          <p>Add skills in Admin → Profile to showcase them here.</p>
-        <% } %>
-  </section>
-  <section>
-    <h2>Education & Experience</h2>
-    <ol class="timeline">
-      <% if (profile && Array.isArray(profile.timeline) && profile.timeline.length) { %>
-        <% profile.timeline.forEach((item, idx) => { %>
-          <li data-aos="fade-up" <%= idx ? ('data-aos-delay="' + (idx*80) + '"') : '' %>>
-            <h3><%= item.title %></h3>
-            <p><%= item.subtitle || '' %> · <%= item.year || '' %></p>
-            <% if (item.description) { %><p><%= item.description %></p><% } %>
-          </li>
-        <% }) %>
-      <% } else { %>
-        <li data-aos="fade-up">
-          <h3>Software Engineer</h3>
-          <p>Company · 2023 – Present</p>
-        </li>
-        <li data-aos="fade-up" data-aos-delay="100">
-          <h3>B.Sc. Computer Science</h3>
-          <p>University · 2019 – 2023</p>
-        </li>
-      <% } %>
-    </ol>
-  </section>
-  <section>
-    <h2>Testimonials</h2>
-    <% const testimonials = (profile && Array.isArray(profile.testimonials)) ? profile.testimonials.filter(t => t.name && t.quote) : []; %>
-    <% if (testimonials.length) { %>
-      <div class="testimonials-grid" style="margin-top:1rem">
-        <% testimonials.forEach((t, idx) => { %>
-          <article class="testimonial-card" data-aos="fade-up" <%= idx ? ('data-aos-delay="' + (idx*60) + '"') : '' %>>
-            <% if (t.avatarUrl) { %>
-              <img src="<%= t.avatarUrl %>" alt="Portrait of <%= t.name %>" loading="lazy" decoding="async">
-            <% } %>
-            <blockquote>“<%= t.quote %>”</blockquote>
-            <footer>
-              <div>
-                <strong><%= t.name %></strong>
-                <% if (t.role) { %><span> · <%= t.role %></span><% } %>
-              </div>
-              <% if (t.link) { %><a href="<%= t.link %>" target="_blank" rel="noopener">Source</a><% } %>
-            </footer>
-          </article>
-        <% }) %>
-      </div>
-    <% } else { %>
-      <p>Add testimonials to highlight client feedback and speaking engagements.</p>
-    <% } %>
-  </section>
-</main>
-<%- include('partials/footer') %>
+                <main id="main" class="container cv-layout">
+                  <% const name = (profile && profile.name) || (site && site.name) || 'Your Name'; %>
+                  <% const headline = (profile && profile.headline) || 'Full-Stack Developer'; %>
+                  <% const mission = (profile && profile.mission) || (profile && profile.summary); %>
+                  <% const summaryHtml = profile && profile.aboutBody; %>
+                  <% const loc = profile && profile.location; %>
+                  <% const phone = profile && profile.phone; %>
+                  <% const socials = (profile && profile.socials) || {}; %>
+                  <% const avail = profile && (typeof profile.availability === 'boolean') ? profile.availability : undefined; %>
+                  <% const skillGroups = (profile && Array.isArray(profile.skillGroups)) ? profile.skillGroups.filter(g => g && g.skills && g.skills.length) : []; %>
+                  <% const languagesGroup = skillGroups.find(g => /language/i.test(g.title || '')); %>
+                  <% const groupedSkills = skillGroups.filter(g => g !== languagesGroup); %>
+                  <% const testimonials = (profile && Array.isArray(profile.testimonials)) ? profile.testimonials.filter(t => t.name && t.quote) : []; %>
+                  <header class="cv-header" data-aos="fade-up">
+                    <div>
+                      <h1><%= name %></h1>
+                      <p class="cv-headline"><%= headline %></p>
+                      <% if (mission) { %>
+                        <p class="cv-mission"><%= mission %></p>
+                      <% } %>
+                    </div>
+                    <div class="cv-photo">
+                      <img src="<%= (profile && profile.avatarUrl) || '/images/placeholder.svg' %>" alt="Portrait of <%= name %>" loading="lazy" decoding="async">
+                    </div>
+                  </header>
+
+                  <div class="cv-columns">
+                    <aside class="cv-sidebar" data-aos="fade-right" data-aos-delay="100">
+                      <section>
+                        <h2>Contact</h2>
+                        <ul class="cv-list">
+                          <% if (loc) { %><li><span>Address</span><strong><%= loc %></strong></li><% } %>
+                          <% if (phone) { %><li><span>Phone</span><strong><a href="tel:<%= phone %>"><%= phone %></a></strong></li><% } %>
+                          <% if (socials.email) { %><li><span>Email</span><strong><a href="mailto:<%= socials.email %>"><%= socials.email %></a></strong></li><% } %>
+                          <% if (typeof avail === 'boolean') { %><li><span>Availability</span><strong><%= avail ? 'Open to work' : 'Not available' %></strong></li><% } %>
+                        </ul>
+                      </section>
+                      <% if (socials.github || socials.linkedin || socials.twitter || socials.instagram || socials.youtube || socials.stackoverflow) { %>
+                        <section>
+                          <h2>Social</h2>
+                          <ul class="cv-list">
+                            <% if (socials.github) { %><li><span>GitHub</span><strong><a href="<%= socials.github %>" target="_blank" rel="noopener">/github</a></strong></li><% } %>
+                            <% if (socials.linkedin) { %><li><span>LinkedIn</span><strong><a href="<%= socials.linkedin %>" target="_blank" rel="noopener">/linkedin</a></strong></li><% } %>
+                            <% if (socials.twitter) { %><li><span>Twitter</span><strong><a href="<%= socials.twitter %>" target="_blank" rel="noopener">/twitter</a></strong></li><% } %>
+                            <% if (socials.instagram) { %><li><span>Instagram</span><strong><a href="<%= socials.instagram %>" target="_blank" rel="noopener">/instagram</a></strong></li><% } %>
+                            <% if (socials.youtube) { %><li><span>YouTube</span><strong><a href="<%= socials.youtube %>" target="_blank" rel="noopener">/youtube</a></strong></li><% } %>
+                            <% if (socials.stackoverflow) { %><li><span>Stack Overflow</span><strong><a href="<%= socials.stackoverflow %>" target="_blank" rel="noopener">/stackoverflow</a></strong></li><% } %>
+                          </ul>
+                        </section>
+                      <% } %>
+                      <% if (languagesGroup) { %>
+                        <section>
+                          <h2><%= languagesGroup.title %></h2>
+                          <ul class="cv-list">
+                            <% (languagesGroup.skills || []).forEach(lang => { %>
+                              <li>
+                                <span><%= lang.name %></span>
+                                <% if (typeof lang.level === 'number') { %><strong><%= lang.level %>%</strong><% } %>
+                              </li>
+                            <% }) %>
+                          </ul>
+                        </section>
+                      <% } %>
+                      <section>
+                        <h2>Documents</h2>
+                        <div class="cv-actions">
+                          <a class="btn btn-primary" href="<%= (profile && profile.resumeUrl) || '/resume.pdf' %>" target="_blank" rel="noopener">Download CV</a>
+                          <a class="btn" href="/contact">Request reference</a>
+                        </div>
+                      </section>
+                    </aside>
+
+                    <section class="cv-main" data-aos="fade-left" data-aos-delay="180">
+                      <article>
+                        <h2>Profile</h2>
+                        <% if (summaryHtml) { %>
+                          <div class="cv-richtext"><%- summaryHtml %></div>
+                        <% } else { %>
+                          <p>Full-stack engineer focused on building accessible, performant products with maintainable code and strong collaboration across design and product teams.</p>
+                        <% } %>
+                      </article>
+
+                      <article>
+                        <h2>Experience & Education</h2>
+                        <ol class="timeline cv-timeline">
+                          <% if (profile && Array.isArray(profile.timeline) && profile.timeline.length) { %>
+                            <% profile.timeline.forEach((item, idx) => { %>
+                              <li data-aos="fade-up" <%= idx ? ('data-aos-delay="' + (idx*60) + '"') : '' %>>
+                                <div class="cv-timeline-header">
+                                  <span class="cv-timeline-title"><%= item.title || 'Role' %></span>
+                                  <span class="cv-timeline-date"><%= item.year || '' %></span>
+                                </div>
+                                <% if (item.subtitle) { %><p class="cv-timeline-subtitle"><%= item.subtitle %></p><% } %>
+                                <% if (item.description) { %><p><%= item.description %></p><% } %>
+                              </li>
+                            <% }) %>
+                          <% } else { %>
+                            <li data-aos="fade-up">
+                              <div class="cv-timeline-header">
+                                <span class="cv-timeline-title">Software Engineer</span>
+                                <span class="cv-timeline-date">2023 – Present</span>
+                              </div>
+                              <p class="cv-timeline-subtitle">Company</p>
+                              <p>Delivering full-stack features, leading code reviews, and mentoring junior developers.</p>
+                            </li>
+                            <li data-aos="fade-up" data-aos-delay="60">
+                              <div class="cv-timeline-header">
+                                <span class="cv-timeline-title">B.Sc. Computer Science</span>
+                                <span class="cv-timeline-date">2019 – 2023</span>
+                              </div>
+                              <p class="cv-timeline-subtitle">University</p>
+                              <p>Graduated with honors; focused on distributed systems and human-computer interaction.</p>
+                            </li>
+                          <% } %>
+                        </ol>
+                      </article>
+
+                      <article>
+                        <h2>Key Skills</h2>
+                        <% if (groupedSkills.length) { %>
+                          <div class="cv-skill-groups">
+                            <% groupedSkills.forEach(group => { %>
+                              <div class="cv-skill-group">
+                                <h3><%= group.title || 'Skills' %></h3>
+                                <ul class="skills">
+                                  <% (group.skills || []).forEach(skill => { %>
+                                    <li><span><%= skill.name %></span><div class="bar"><span class="bar-fill" data-level="<%= Math.max(0, Math.min(100, skill.level||0)) %>"></span></div></li>
+                                  <% }) %>
+                                </ul>
+                              </div>
+                            <% }) %>
+                          </div>
+                          <p class="cv-skill-link"><a class="btn" href="/skills">Full skills matrix</a></p>
+                        <% } else if (profile && Array.isArray(profile.skills) && profile.skills.length) { %>
+                          <ul class="skills">
+                            <% profile.skills.forEach(skill => { %>
+                              <li><span><%= skill.name %></span><div class="bar"><span class="bar-fill" data-level="<%= Math.max(0, Math.min(100, skill.level||0)) %>"></span></div></li>
+                            <% }) %>
+                          </ul>
+                        <% } else { %>
+                          <p>Add skills in Admin → Profile to populate this section.</p>
+                        <% } %>
+                      </article>
+
+                      <% if (testimonials.length) { %>
+                        <article>
+                          <h2>References</h2>
+                          <div class="testimonials-grid cv-references">
+                            <% testimonials.slice(0,3).forEach((t, idx) => { %>
+                              <blockquote class="testimonial-card" data-aos="fade-up" <%= idx ? ('data-aos-delay="' + (idx*60) + '"') : '' %>>
+                                <% if (t.avatarUrl) { %>
+                                  <img src="<%= t.avatarUrl %>" alt="Portrait of <%= t.name %>" loading="lazy" decoding="async">
+                                <% } %>
+                                <p>“<%= t.quote %>”</p>
+                                <footer>
+                                  <strong><%= t.name %></strong>
+                                  <% if (t.role) { %><span> · <%= t.role %></span><% } %>
+                                </footer>
+                              </blockquote>
+                            <% }) %>
+                          </div>
+                        </article>
+                      <% } %>
+                    </section>
+                  </div>
+                </main>
+                <%- include('partials/footer') %>
