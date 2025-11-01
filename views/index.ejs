@@ -1,225 +1,369 @@
 <%- include('partials/head', { title }) %>
-<main id="main">
-  <section class="hero" aria-label="Intro">
-    <div class="container hero-grid">
-      <div>
-        <h1 data-aos="fade-up">Hi, I'm <span class="accent"><%= (settings && settings.name) || (profile && profile.name) || 'Your Name' %></span></h1>
-  <p class="subtitle" data-aos="fade-up" data-aos-delay="100"><%= (settings && settings.headline) || (profile && profile.headline) || 'Full-Stack Developer' %></p>
-  <% const missionCopy = (settings && settings.mission) || (profile && profile.mission); %>
-  <p data-aos="fade-up" data-aos-delay="200"><%= missionCopy || (settings && settings.summary) || (profile && profile.summary) || 'I build fast, accessible, and delightful web apps with clean code and solid engineering practices.' %></p>
-        <div class="hero-ctas" data-aos="fade-up" data-aos-delay="300">
-          <a href="<%= (settings && settings.homeCta && settings.homeCta.primaryUrl) || '/projects' %>" class="btn btn-primary"><%= (settings && settings.homeCta && settings.homeCta.primaryText) || 'View Projects' %></a>
-          <a href="<%= (settings && settings.homeCta && settings.homeCta.secondaryUrl) || '/contact' %>" class="btn"><%= (settings && settings.homeCta && settings.homeCta.secondaryText) || 'Get in Touch' %></a>
-          <% if ((settings && settings.resumeUrl) || (profile && profile.resumeUrl)) { %>
-            <a href="<%= (settings && settings.resumeUrl) || (profile && profile.resumeUrl) %>" class="btn" target="_blank" rel="noopener">Resume</a>
+<main id="main" class="home">
+  <% const profileData = profile || {}; %>
+  <% const settingsData = settings || profileData || {}; %>
+  <% const displayName = settingsData.name || profileData.name || 'Your Name'; %>
+  <% const firstName = String(displayName).split(' ')[0]; %>
+  <% const heroHeadline = settingsData.headline || profileData.headline || 'Full-Stack Developer'; %>
+  <% const heroMission = settingsData.mission || profileData.mission || settingsData.summary || profileData.summary || 'I build fast, accessible, and delightful web apps with clean code and solid engineering practices.'; %>
+  <% const heroSocials = settingsData.socials || profileData.socials || {}; %>
+  <% const heroLocation = settingsData.location || profileData.location || ''; %>
+  <% const heroPhone = settingsData.phone || profileData.phone || ''; %>
+  <% const heroAvailability = (typeof settingsData.availability === 'boolean') ? settingsData.availability : (typeof profileData.availability === 'boolean' ? profileData.availability : null); %>
+  <% const heroEmail = heroSocials.email || ''; %>
+  <% const timeline = Array.isArray(profileData.timeline) ? profileData.timeline.filter(Boolean) : []; %>
+  <% const testimonials = Array.isArray(profileData.testimonials) ? profileData.testimonials.filter(t => t && t.name && t.quote) : []; %>
+  <% const notes = Array.isArray(profileData.notes) ? profileData.notes.filter(n => n && n.title && (n.summary || n.url)) : []; %>
+  <% const skillGroups = Array.isArray(profileData.skillGroups) ? profileData.skillGroups.filter(g => g && Array.isArray(g.skills) && g.skills.length) : []; %>
+  <% const baseSkills = Array.isArray(profileData.skills) ? profileData.skills.filter(Boolean) : []; %>
+  <% const featuredProjects = Array.isArray(featured) ? featured : []; %>
+  <% const yearMatches = timeline.map(item => { if (!item || !item.year) return null; const match = String(item.year).match(/\d{4}/); return match ? parseInt(match[0], 10) : null; }).filter(year => Number.isFinite(year)); %>
+  <% const experienceYears = yearMatches.length ? Math.max(1, new Date().getFullYear() - Math.min.apply(null, yearMatches)) : null; %>
+  <% const heroStatsRaw = [
+    experienceYears ? { label: 'Years of impact', value: experienceYears + '+' } : null,
+    featuredProjects.length ? { label: 'Signature builds', value: featuredProjects.length } : null,
+    testimonials.length ? { label: 'Client endorsements', value: testimonials.length } : null,
+    notes.length ? { label: 'Knowledge notes', value: notes.length } : null
+  ].filter(Boolean); %>
+
+  <section class="home-hero" aria-label="Intro">
+    <div class="container home-hero__layout">
+      <div class="home-hero__primary" data-aos="fade-up">
+        <span class="home-hero__pill"><%= heroHeadline %></span>
+        <h1 class="home-hero__title">
+          <span class="home-hero__greeting">Hi, I'm <%= firstName %>.</span>
+          <span>I craft <em class="home-hero__highlight">elegant digital experiences</em> that deliver measurable impact.</span>
+        </h1>
+        <p class="home-hero__lede"><%= heroMission %></p>
+        <div class="home-hero__ctas">
+          <a href="<%= (settingsData.homeCta && settingsData.homeCta.primaryUrl) || '/projects' %>" class="btn btn-primary"><%= (settingsData.homeCta && settingsData.homeCta.primaryText) || 'View Projects' %></a>
+          <a href="<%= (settingsData.homeCta && settingsData.homeCta.secondaryUrl) || '/contact' %>" class="btn btn-ghost"> <span>Book a discovery call</span> </a>
+          <% if (settingsData.resumeUrl || profileData.resumeUrl) { %>
+            <a href="<%= settingsData.resumeUrl || profileData.resumeUrl %>" class="btn btn-soft" target="_blank" rel="noopener">Download résumé</a>
           <% } %>
         </div>
-        <% if (settings && settings.socials || (profile && profile.socials)) { %>
-          <ul class="socials" style="margin-top:.75rem;display:flex;gap:.75rem;flex-wrap:wrap" data-aos="fade-up" data-aos-delay="350">
-            <% const socials = (settings && settings.socials) || (profile && profile.socials) || {}; %>
-            <% if (socials.github) { %><li><a href="<%= socials.github %>" target="_blank" rel="noopener">GitHub</a></li><% } %>
-            <% if (socials.linkedin) { %><li><a href="<%= socials.linkedin %>" target="_blank" rel="noopener">LinkedIn</a></li><% } %>
-            <% if (socials.twitter) { %><li><a href="<%= socials.twitter %>" target="_blank" rel="noopener">Twitter</a></li><% } %>
-            <% if (socials.instagram) { %><li><a href="<%= socials.instagram %>" target="_blank" rel="noopener">Instagram</a></li><% } %>
-            <% if (socials.youtube) { %><li><a href="<%= socials.youtube %>" target="_blank" rel="noopener">YouTube</a></li><% } %>
-            <% if (socials.stackoverflow) { %><li><a href="<%= socials.stackoverflow %>" target="_blank" rel="noopener">Stack Overflow</a></li><% } %>
-            <% if (socials.email) { %><li><a href="mailto:<%= socials.email %>">Email</a></li><% } %>
+
+        <% if (heroSocials && Object.keys(heroSocials).length) { %>
+          <ul class="home-hero__socials" data-aos="fade-up" data-aos-delay="150">
+            <% if (heroSocials.github) { %><li><a href="<%= heroSocials.github %>" target="_blank" rel="noopener">GitHub</a></li><% } %>
+            <% if (heroSocials.linkedin) { %><li><a href="<%= heroSocials.linkedin %>" target="_blank" rel="noopener">LinkedIn</a></li><% } %>
+            <% if (heroSocials.twitter) { %><li><a href="<%= heroSocials.twitter %>" target="_blank" rel="noopener">Twitter</a></li><% } %>
+            <% if (heroSocials.instagram) { %><li><a href="<%= heroSocials.instagram %>" target="_blank" rel="noopener">Instagram</a></li><% } %>
+            <% if (heroSocials.youtube) { %><li><a href="<%= heroSocials.youtube %>" target="_blank" rel="noopener">YouTube</a></li><% } %>
+            <% if (heroSocials.stackoverflow) { %><li><a href="<%= heroSocials.stackoverflow %>" target="_blank" rel="noopener">Stack Overflow</a></li><% } %>
+            <% if (heroEmail) { %><li><a href="mailto:<%= heroEmail %>">Email</a></li><% } %>
           </ul>
         <% } %>
-        <% const loc = (settings && settings.location) || (profile && profile.location); const phone = (settings && settings.phone) || (profile && profile.phone); const avail = (settings && settings.availability) ?? (profile && profile.availability); const s2 = (settings && settings.socials) || (profile && profile.socials) || {}; %>
-        <% if (loc || phone || s2.email || typeof avail === 'boolean') { %>
-          <ul class="meta" style="margin-top:.5rem;display:flex;gap:1rem;flex-wrap:wrap;color:var(--muted)">
-            <% if (loc) { %><li>📍 <%= loc %></li><% } %>
-            <% if (s2.email) { %><li>✉️ <a href="mailto:<%= s2.email %>"><%= s2.email %></a></li><% } %>
-            <% if (phone) { %><li>☎️ <a href="tel:<%= phone %>"><%= phone %></a></li><% } %>
-            <% if (typeof avail === 'boolean') { %><li><span class="badge" style="border:1px solid var(--border);padding:.15rem .5rem;border-radius:999px"><%= avail ? 'Open to work' : 'Not available' %></span></li><% } %>
+
+        <% if (heroLocation || heroPhone || heroEmail || heroAvailability !== null) { %>
+          <ul class="home-hero__meta">
+            <% if (heroLocation) { %><li><i class="home-hero__icon">📍</i><span><%= heroLocation %></span></li><% } %>
+            <% if (heroEmail) { %><li><i class="home-hero__icon">✉️</i><span><a href="mailto:<%= heroEmail %>"><%= heroEmail %></a></span></li><% } %>
+            <% if (heroPhone) { %><li><i class="home-hero__icon">☎️</i><span><a href="tel:<%= heroPhone %>"><%= heroPhone %></a></span></li><% } %>
+            <% if (heroAvailability !== null) { %><li><i class="home-hero__icon">🗓</i><span><span class="badge badge-availability <%= heroAvailability ? 'badge-availability--open' : 'badge-availability--closed' %>"><%= heroAvailability ? 'Accepting new work' : 'Currently booked' %></span></span></li><% } %>
+          </ul>
+        <% } %>
+
+        <% if (heroStatsRaw.length) { %>
+          <ul class="home-hero__stats" data-aos="fade-up" data-aos-delay="200">
+            <% heroStatsRaw.forEach((stat, idx) => { %>
+              <li class="home-hero__stat" aria-label="<%= stat.label %>">
+                <strong><%= stat.value %></strong>
+                <span><%= stat.label %></span>
+              </li>
+            <% }) %>
           </ul>
         <% } %>
       </div>
-      <div data-aos="fade-left" data-aos-delay="150" style="text-align:right">
-  <img src="<%= (settings && settings.avatarUrl) || (profile && profile.avatarUrl) || '/images/placeholder.svg' %>" alt="Avatar" style="width:280px;max-width:100%;height:280px;object-fit:cover;border-radius:50%;border:2px solid var(--border)" loading="lazy" decoding="async" />
+
+      <div class="home-hero__secondary" data-aos="fade-left" data-aos-delay="150">
+        <figure class="home-hero__portrait">
+          <div class="home-hero__portrait-glow"></div>
+          <img src="<%= settingsData.avatarUrl || profileData.avatarUrl || '/images/placeholder.svg' %>" alt="Portrait of <%= displayName %>" loading="lazy" decoding="async">
+        </figure>
+        <div class="home-hero__card">
+          <h3>Currently focused on</h3>
+          <ul>
+            <li><span>Craft</span><strong><%= heroHeadline %></strong></li>
+            <% if (heroAvailability !== null) { %>
+              <li><span>Status</span><strong><%= heroAvailability ? 'Open for collaborations' : 'Heads down on client work' %></strong></li>
+            <% } %>
+            <% if (heroLocation) { %>
+              <li><span>Location</span><strong><%= heroLocation %></strong></li>
+            <% } %>
+            <% if (experienceYears) { %>
+              <li><span>Experience</span><strong><%= experienceYears %>+ years</strong></li>
+            <% } %>
+          </ul>
+        </div>
       </div>
     </div>
   </section>
 
-  <section class="timeline-preview" aria-labelledby="timeline-preview-heading">
+  <section class="capabilities" aria-labelledby="capabilities-heading">
     <div class="container">
-      <h2 id="timeline-preview-heading">Recent Experience</h2>
-      <% if (profile && Array.isArray(profile.timeline) && profile.timeline.length) { %>
-        <ol class="timeline">
-          <% profile.timeline.slice(0,3).forEach((item, idx) => { %>
-            <li data-aos="fade-up" <%= idx ? ('data-aos-delay="' + (idx*80) + '"') : '' %>>
-              <h3><%= item.title || (item.year || 'Entry') %></h3>
-              <p>
-                <%= item.subtitle || '' %>
-                <%= (item.subtitle && item.year) ? ' · ' : '' %>
-                <%= item.year || '' %>
-              </p>
-              <% if (item.description) { %><p><%= item.description %></p><% } %>
-            </li>
+      <div class="section-heading" data-aos="fade-up">
+        <span class="section-eyebrow">Core strengths</span>
+        <h2 id="capabilities-heading">What I bring to every engagement</h2>
+        <p>Human-centered thinking, meticulous execution, and a collaborative spirit that keeps projects moving swiftly from concept to launch.</p>
+      </div>
+      <% if (skillGroups.length) { %>
+        <div class="capabilities__grid">
+          <% skillGroups.slice(0,3).forEach((group, idx) => { const skills = (group.skills || []).slice(0,5); %>
+            <article class="capability-card" data-aos="fade-up" data-aos-delay="<%= idx * 80 %>">
+              <span class="capability-card__badge">Area <%= idx + 1 %></span>
+              <h3><%= group.title || 'Capabilities' %></h3>
+              <% if (skills.length) { %>
+                <ul>
+                  <% skills.forEach(skill => { %>
+                    <li><%= skill.name %></li>
+                  <% }) %>
+                </ul>
+              <% } %>
+              <a class="capability-card__cta" href="/skills">Explore practice</a>
+            </article>
           <% }) %>
-        </ol>
-        <p style="margin-top:.5rem"><a class="btn" href="/about">See full timeline</a></p>
+        </div>
+      <% } else if (baseSkills.length) { %>
+        <div class="capabilities__grid">
+          <article class="capability-card" data-aos="fade-up">
+            <span class="capability-card__badge">Focus</span>
+            <h3>Technical toolset</h3>
+            <ul>
+              <% baseSkills.slice(0,8).forEach(skill => { %>
+                <li><%= skill.name %></li>
+              <% }) %>
+            </ul>
+            <a class="capability-card__cta" href="/skills">See full stack</a>
+          </article>
+          <article class="capability-card" data-aos="fade-up" data-aos-delay="80">
+            <span class="capability-card__badge">Approach</span>
+            <h3>Product craftsmanship</h3>
+            <p>I partner closely with product teams to translate ideas into resilient systems, focusing on maintainability, accessibility, and performance.</p>
+          </article>
+          <article class="capability-card" data-aos="fade-up" data-aos-delay="160">
+            <span class="capability-card__badge">Mindset</span>
+            <h3>Collaborative leadership</h3>
+            <p>From discovery workshops to production roll-outs, I communicate clearly, plan pragmatically, and keep stakeholders aligned without losing momentum.</p>
+          </article>
+        </div>
       <% } else { %>
-        <p>Add timeline items in Admin → Profile to showcase your experience here.</p>
+        <p class="capabilities__empty">Add skill groups in Admin → Profile to showcase your expertise here.</p>
       <% } %>
     </div>
   </section>
 
-  <section class="about-preview" aria-labelledby="about-preview-heading">
-    <div class="container about-grid" style="display:grid;grid-template-columns:1.2fr .8fr;gap:2rem;align-items:start">
-      <div data-aos="fade-up">
-        <h2 id="about-preview-heading">About Me</h2>
-        <% if (profile && profile.aboutBody) { %>
-          <div class="about-snippet"><%- profile.aboutBody %></div>
+  <section class="experience-suite" aria-labelledby="experience-heading">
+    <div class="container experience-suite__grid">
+      <article class="experience-card" data-aos="fade-up">
+        <span class="section-eyebrow">About</span>
+        <h2 id="experience-heading">Strategic engineering, thoughtful design</h2>
+        <% if (profileData.aboutBody) { %>
+          <div class="experience-card__body"><%- profileData.aboutBody %></div>
         <% } else { %>
-          <p><%= (profile && profile.summary) || 'I’m a developer focused on building fast, accessible products with clean code.' %></p>
+          <p class="experience-card__body">I help product teams transform ambitious ideas into polished products, combining robust architecture with moments of delight that users remember.</p>
         <% } %>
-        <p style="margin-top:.75rem"><a class="btn" href="/about">Read more</a></p>
-      </div>
-      <div data-aos="fade-left">
-        <h2>Skills</h2>
-        <% const skillGroups = (profile && Array.isArray(profile.skillGroups)) ? profile.skillGroups.filter(g => g && g.skills && g.skills.length) : []; %>
+        <a class="experience-card__cta" href="/about">Meet the person behind the work</a>
+      </article>
+
+      <article class="experience-card experience-card--timeline" data-aos="fade-up" data-aos-delay="100">
+        <span class="section-eyebrow">Recent milestones</span>
+        <% if (timeline.length) { %>
+          <ol class="experience-timeline">
+            <% timeline.slice(0,3).forEach((item, idx) => { %>
+              <li>
+                <div>
+                  <h3><%= item.title || item.year || 'Experience' %></h3>
+                  <p class="experience-timeline__meta">
+                    <%= item.subtitle || '' %>
+                    <%= (item.subtitle && item.year) ? ' · ' : '' %>
+                    <%= item.year || '' %>
+                  </p>
+                  <% if (item.description) { %>
+                    <p class="experience-timeline__copy"><%= item.description %></p>
+                  <% } %>
+                </div>
+              </li>
+            <% }) %>
+          </ol>
+          <a class="experience-card__cta" href="/about">Review full journey</a>
+        <% } else { %>
+          <p class="experience-card__body">Timeline entries will appear once you add them in Admin → Profile.</p>
+        <% } %>
+      </article>
+
+      <article class="experience-card experience-card--skills" data-aos="fade-up" data-aos-delay="180">
+        <span class="section-eyebrow">Toolkit</span>
         <% if (skillGroups.length) { %>
-          <div class="skill-group-preview">
-            <% skillGroups.slice(0,2).forEach(group => { %>
-              <article>
+          <div class="skill-palette">
+            <% skillGroups.slice(0,2).forEach(group => { const subset = (group.skills || []).slice(0,4); %>
+              <div class="skill-palette__column">
                 <h3><%= group.title || 'Skills' %></h3>
-                <ul class="skills mini">
-                  <% (group.skills || []).slice(0,4).forEach(s => { %>
-                    <li><span><%= s.name %></span><div class="bar"><span class="bar-fill" data-level="<%= Math.max(0, Math.min(100, s.level||0)) %>"></span></div></li>
+                <ul>
+                  <% subset.forEach(skill => { %>
+                    <li><%= skill.name %></li>
                   <% }) %>
                 </ul>
-              </article>
+              </div>
             <% }) %>
           </div>
-          <p style="margin-top:.5rem"><a class="btn" href="/skills">See all skills</a></p>
-        <% } else if (profile && Array.isArray(profile.skills) && profile.skills.length) { %>
-          <ul class="skills">
-            <% profile.skills.slice(0,6).forEach((s) => { %>
-              <li><span><%= s.name %></span><div class="bar"><span class="bar-fill" data-level="<%= Math.max(0, Math.min(100, s.level||0)) %>"></span></div></li>
-            <% }) %>
-          </ul>
-          <p style="margin-top:.5rem"><a class="btn" href="/skills">See all skills</a></p>
+        <% } else if (baseSkills.length) { %>
+          <div class="skill-palette">
+            <div class="skill-palette__column">
+              <h3>Key technologies</h3>
+              <ul>
+                <% baseSkills.slice(0,6).forEach(skill => { %>
+                  <li><%= skill.name %></li>
+                <% }) %>
+              </ul>
+            </div>
+          </div>
         <% } else { %>
-          <p>Skills will appear here after you add them in Admin → Profile.</p>
+          <p class="experience-card__body">Add skills to spotlight your favourite tools and frameworks.</p>
         <% } %>
-      </div>
+        <a class="experience-card__cta" href="/skills">See complete capabilities</a>
+      </article>
     </div>
   </section>
 
-  <section class="featured" aria-labelledby="featured-heading">
+  <section class="feature-showcase" aria-labelledby="feature-showcase-heading">
     <div class="container">
-      <h2 id="featured-heading">Featured Projects</h2>
-      <div class="grid">
-        <% if ((featured || []).length === 0) { %>
-          <p>No featured projects yet. Check back soon!</p>
-        <% } %>
-        <% (featured || []).forEach((p, i) => { %>
-          <article class="card" data-aos="fade-up" data-aos-delay="<%= i * 50 %>">
-            <img src="<%= p.imageUrl || '/images/placeholder.svg' %>" alt="Screenshot of <%= p.title %>" loading="lazy" decoding="async"
-                 <% if (p.imageUrl && clSrcset(p.imageUrl)) { %>
-                   srcset="<%= clSrcset(p.imageUrl) %>" sizes="<%= clSizesDefault %>"
-                 <% } %>
-            />
-            <div class="card-body">
-              <h3><%= p.title %></h3>
-              <p><%= p.description %></p>
-              <div class="tags">
-                <% (p.tech || []).forEach(t => { %>
-                  <span class="tag"><%= t %></span>
-                <% }) %>
-              </div>
-              <div class="actions">
-                <% if (p.githubUrl) { %><a class="btn" href="<%= p.githubUrl %>" target="_blank" rel="noopener">Code</a><% } %>
-                <% if (p.demoUrl) { %><a class="btn btn-primary" href="<%= p.demoUrl %>" target="_blank" rel="noopener">Live</a><% } %>
-              </div>
-            </div>
-          </article>
-        <% }) %>
+      <div class="section-heading" data-aos="fade-up">
+        <span class="section-eyebrow">Case studies</span>
+        <h2 id="feature-showcase-heading">Selected work that blends craft and conversion</h2>
+        <p>Each project pairs elegant UI with resilient engineering to launch faster and perform longer.</p>
       </div>
-      <% if ((featured || []).length) { %>
-        <div style="margin-top:1rem;text-align:center">
-          <a class="btn" href="/projects">See all projects</a>
+      <% if (featuredProjects.length) { %>
+        <div class="case-study-grid">
+          <% featuredProjects.forEach((p, i) => { %>
+            <article class="case-study-card" data-aos="fade-up" data-aos-delay="<%= i * 70 %>">
+              <figure class="case-study-card__media">
+                <img src="<%= p.imageUrl || '/images/placeholder.svg' %>" alt="Screenshot of <%= p.title %>"
+                  loading="lazy" decoding="async"
+                  <% if (p.imageUrl && clSrcset(p.imageUrl)) { %>
+                    srcset="<%= clSrcset(p.imageUrl) %>" sizes="<%= clSizesDefault %>"
+                  <% } %>
+                >
+                <span class="case-study-card__badge">Featured</span>
+              </figure>
+              <div class="case-study-card__body">
+                <header>
+                  <h3><%= p.title %></h3>
+                  <% if (p.year) { %><span class="case-study-card__meta"><%= p.year %></span><% } %>
+                </header>
+                <p><%= p.description %></p>
+                <% if (Array.isArray(p.tech) && p.tech.length) { %>
+                  <ul class="case-study-card__tags">
+                    <% p.tech.slice(0,6).forEach(tag => { %>
+                      <li><%= tag %></li>
+                    <% }) %>
+                  </ul>
+                <% } %>
+                <div class="case-study-card__actions">
+                  <% if (p.githubUrl) { %><a class="btn btn-ghost" href="<%= p.githubUrl %>" target="_blank" rel="noopener">View code</a><% } %>
+                  <% if (p.demoUrl) { %><a class="btn btn-primary" href="<%= p.demoUrl %>" target="_blank" rel="noopener">Launch project</a><% } %>
+                </div>
+              </div>
+            </article>
+          <% }) %>
+        </div>
+        <div class="section-footer" data-aos="fade-up" data-aos-delay="100">
+          <a class="btn btn-soft" href="/projects">Explore the full portfolio</a>
+        </div>
+      <% } else { %>
+        <div class="case-study-empty" data-aos="fade-up">
+          <h3>No featured projects yet</h3>
+          <p>Showcase a few recent wins by marking projects as featured in the admin dashboard.</p>
+          <a class="btn btn-primary" href="/projects">Browse all projects</a>
         </div>
       <% } %>
     </div>
   </section>
 
-  <section class="testimonials" aria-labelledby="testimonials-heading">
+  <section class="acclaim" aria-labelledby="acclaim-heading">
     <div class="container">
-      <h2 id="testimonials-heading">Testimonials</h2>
-      <% const testimonials = (profile && Array.isArray(profile.testimonials)) ? profile.testimonials.filter(t => t.name && t.quote) : []; %>
+      <div class="section-heading" data-aos="fade-up">
+        <span class="section-eyebrow">Testimonials</span>
+        <h2 id="acclaim-heading">Trusted by collaborators & clients</h2>
+        <p>Relationships thrive on clarity, reliability, and consistent delivery&mdash;that’s the foundation of every engagement.</p>
+      </div>
       <% if (testimonials.length) { %>
-        <div class="testimonials-grid">
+        <div class="acclaim__grid">
           <% testimonials.slice(0,6).forEach((t, idx) => { %>
-            <article class="testimonial-card" data-aos="fade-up" data-aos-delay="<%= idx * 60 %>">
+            <article class="acclaim-card" data-aos="fade-up" data-aos-delay="<%= idx * 70 %>">
               <% if (t.avatarUrl) { %>
-                <img src="<%= t.avatarUrl %>" alt="Portrait of <%= t.name %>" loading="lazy" decoding="async">
+                <img class="acclaim-card__avatar" src="<%= t.avatarUrl %>" alt="Portrait of <%= t.name %>" loading="lazy" decoding="async">
               <% } %>
               <blockquote>“<%= t.quote %>”</blockquote>
               <footer>
                 <div>
                   <strong><%= t.name %></strong>
-                  <% if (t.role) { %>
-                    <span> · <%= t.role %></span>
-                  <% } %>
+                  <% if (t.role) { %><span> · <%= t.role %></span><% } %>
                 </div>
                 <% if (t.link) { %>
-                  <a href="<%= t.link %>" target="_blank" rel="noopener">View</a>
+                  <a href="<%= t.link %>" target="_blank" rel="noopener">Read more</a>
                 <% } %>
               </footer>
             </article>
           <% }) %>
         </div>
       <% } else { %>
-        <p>Add testimonials in Admin → Profile to build social proof.</p>
+        <p class="acclaim__empty">Add testimonials in Admin → Profile to build social proof here.</p>
       <% } %>
     </div>
   </section>
 
-  <section class="notes" aria-labelledby="notes-heading">
+  <section class="knowledge-hub" aria-labelledby="knowledge-heading">
     <div class="container">
-      <h2 id="notes-heading">Latest Writing</h2>
-      <% const notes = (profile && Array.isArray(profile.notes)) ? profile.notes.filter(n => n.title && (n.summary || n.url)) : []; %>
+      <div class="section-heading" data-aos="fade-up">
+        <span class="section-eyebrow">Insights</span>
+        <h2 id="knowledge-heading">Latest thinking from the notebook</h2>
+        <p>Short notes, deep dives, and resources that explore the craft of building modern products.</p>
+      </div>
       <% if (notes.length) { %>
-        <div class="notes-list">
+        <div class="knowledge-hub__grid">
           <% notes.slice(0,4).forEach((entry, idx) => { %>
-            <article class="note-card" data-aos="fade-up" data-aos-delay="<%= idx * 60 %>">
-              <h3><%= entry.title %></h3>
-              <% if (entry.date) { %><p class="note-date"><%= entry.date %></p><% } %>
-              <% if (entry.summary) { %><p><%= entry.summary %></p><% } %>
-              <div class="actions">
+            <article class="knowledge-card" data-aos="fade-up" data-aos-delay="<%= idx * 70 %>">
+              <header>
+                <h3><%= entry.title %></h3>
+                <% if (entry.date) { %><span class="knowledge-card__date"><%= entry.date %></span><% } %>
+              </header>
+              <% if (entry.summary) { %>
+                <p><%= entry.summary %></p>
+              <% } %>
+              <div class="knowledge-card__actions">
                 <% if (entry.url) { %>
-                  <a class="btn btn-primary" href="<%= entry.url %>" target="_blank" rel="noopener">Read</a>
+                  <a class="btn btn-ghost" href="<%= entry.url %>" target="_blank" rel="noopener">Read article</a>
                 <% } else { %>
-                  <a class="btn" href="/notes#note-<%= idx %>">Details</a>
+                  <a class="btn btn-soft" href="/notes">View details</a>
                 <% } %>
               </div>
             </article>
           <% }) %>
         </div>
         <% if (notes.length > 4) { %>
-          <p style="margin-top:1rem"><a class="btn" href="/notes">View all notes</a></p>
+          <div class="section-footer" data-aos="fade-up" data-aos-delay="100">
+            <a class="btn btn-primary" href="/notes">Browse all writing</a>
+          </div>
         <% } %>
       <% } else { %>
-        <p>Use Admin → Profile to add a few recent posts, talks, or resources.</p>
+        <p class="knowledge-hub__empty">Use Admin → Profile to add recent talks, articles, or resources.</p>
       <% } %>
     </div>
   </section>
 
-  <section class="contact-cta" aria-labelledby="contact-cta-heading">
-    <div class="container" data-aos="fade-up">
-      <h2 id="contact-cta-heading">Get in touch</h2>
-      <p>
-        <%= (settings && settings.contactIntro) || (profile && profile.contactIntro) || 'Feel free to reach out for collaborations or just a friendly hello.' %>
-      </p>
-      <div class="toolbar" style="margin-top:.5rem">
-        <a class="btn btn-primary" href="/contact">Contact me</a>
-        <% const email2 = ((settings && settings.socials && settings.socials.email) || (profile && profile.socials && profile.socials.email)); %>
-        <% if (email2) { %>
-          <a class="btn" href="mailto:<%= email2 %>">Email</a>
-        <% } %>
+  <section class="closing-cta" aria-labelledby="closing-cta-heading">
+    <div class="container">
+      <div class="closing-cta__content" data-aos="fade-up">
+        <span class="section-eyebrow">Collaborate</span>
+        <h2 id="closing-cta-heading">Let’s build the next standout experience</h2>
+        <p><%= settingsData.contactIntro || profileData.contactIntro || 'Feel free to reach out for collaborations or just a friendly hello.' %></p>
+        <div class="closing-cta__actions">
+          <a class="btn btn-primary" href="/contact">Start a project</a>
+          <% if (heroEmail) { %>
+            <a class="btn btn-ghost" href="mailto:<%= heroEmail %>">Email directly</a>
+          <% } %>
+        </div>
       </div>
     </div>
   </section>
