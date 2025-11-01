@@ -264,25 +264,93 @@
         </div>
 
         <div class="card p-4">
+          <% const home = (settingsData && settingsData.homeCopy) || {}; %>
+          <% const email = (settingsData.socials && settingsData.socials.email) || ''; %>
           <div class="d-flex justify-content-between align-items-center mb-3">
-            <h2 class="h5 mb-0">System &amp; settings</h2>
+            <div>
+              <h2 class="h5 mb-0">Settings overview</h2>
+              <small class="text-muted">Snapshot of your public-facing configuration.</small>
+            </div>
             <span class="badge-soft"><%= cloudinaryEnabled ? 'Cloudinary active' : 'Local uploads' %></span>
           </div>
-          <p class="text-muted mb-3"><%= missionCopy %></p>
-          <ul class="list-unstyled d-flex flex-column gap-2 mb-3">
-            <% if (settingsData.location) { %>
-              <li class="d-flex justify-content-between"><span class="text-muted">Location</span><span><%= settingsData.location %></span></li>
-            <% } %>
-            <% if (settingsData.socials && settingsData.socials.email) { %>
-              <li class="d-flex justify-content-between"><span class="text-muted">Primary email</span><span><a href="mailto:<%= settingsData.socials.email %>"><%= settingsData.socials.email %></a></span></li>
-            <% } %>
-            <% if (availability !== null) { %>
-              <li class="d-flex justify-content-between"><span class="text-muted">Availability</span><span><%= availability ? 'Open to new work' : 'Booked' %></span></li>
-            <% } %>
-            <li class="d-flex justify-content-between"><span class="text-muted">Skill groups</span><span><%= skillGroupCount %></span></li>
-            <li class="d-flex justify-content-between"><span class="text-muted">Testimonials</span><span><%= testimonialCount %></span></li>
-            <li class="d-flex justify-content-between"><span class="text-muted">Notes</span><span><%= notesTotal %></span></li>
-          </ul>
+          <div class="kv-grid mb-3">
+            <div class="kv-item">
+              <span class="kv-label">Name</span>
+              <span class="kv-value"><%= settingsData.name || '—' %></span>
+            </div>
+            <div class="kv-item">
+              <span class="kv-label">Headline</span>
+              <span class="kv-value"><%= settingsData.headline || '—' %></span>
+            </div>
+            <div class="kv-item">
+              <span class="kv-label">Email</span>
+              <span class="kv-value"><% if (email) { %><a class="chip chip-link" href="mailto:<%= email %>"><i class="bi bi-envelope-open"></i> <%= email %></a><% } else { %>—<% } %></span>
+            </div>
+            <div class="kv-item">
+              <span class="kv-label">Phone</span>
+              <span class="kv-value"><%= settingsData.phone || '—' %></span>
+            </div>
+            <div class="kv-item">
+              <span class="kv-label">Location</span>
+              <span class="kv-value"><%= settingsData.location || '—' %></span>
+            </div>
+            <div class="kv-item">
+              <span class="kv-label">Availability</span>
+              <span class="kv-value"><% if (availability === null) { %>—<% } else { %><span class="badge-availability <%= availability ? 'badge-availability--open' : 'badge-availability--closed' %>"><%= availability ? 'Open to new work' : 'Booked' %></span><% } %></span>
+            </div>
+            <div class="kv-item">
+              <span class="kv-label">Résumé</span>
+              <span class="kv-value"><% if (settingsData.resumeUrl) { %><a class="chip chip-link" href="<%= settingsData.resumeUrl %>" target="_blank" rel="noopener"><i class="bi bi-box-arrow-up-right"></i> Resume</a><% } else { %>—<% } %></span>
+            </div>
+            <div class="kv-item">
+              <span class="kv-label">Primary CTA</span>
+              <span class="kv-value">
+                <% if (settingsData.homeCta && (settingsData.homeCta.primaryText || settingsData.homeCta.primaryUrl)) { %>
+                  <span class="chip"><i class="bi bi-bullseye"></i> <%= settingsData.homeCta.primaryText || '—' %></span>
+                  <% if (settingsData.homeCta.primaryUrl) { %>
+                    <a class="chip chip-link" href="<%= settingsData.homeCta.primaryUrl %>" target="_blank" rel="noopener"><i class="bi bi-link-45deg"></i> <%= settingsData.homeCta.primaryUrl %></a>
+                  <% } %>
+                <% } else { %>—<% } %>
+              </span>
+            </div>
+            <div class="kv-item">
+              <span class="kv-label">Secondary CTA</span>
+              <span class="kv-value">
+                <% if (settingsData.homeCta && (settingsData.homeCta.secondaryText || settingsData.homeCta.secondaryUrl)) { %>
+                  <span class="chip"><i class="bi bi-bullseye"></i> <%= settingsData.homeCta.secondaryText || '—' %></span>
+                  <% if (settingsData.homeCta.secondaryUrl) { %>
+                    <a class="chip chip-link" href="<%= settingsData.homeCta.secondaryUrl %>" target="_blank" rel="noopener"><i class="bi bi-link-45deg"></i> <%= settingsData.homeCta.secondaryUrl %></a>
+                  <% } %>
+                <% } else { %>—<% } %>
+              </span>
+            </div>
+          </div>
+          <div class="kv-grid mb-3">
+            <div class="kv-item">
+              <span class="kv-label">Hero greeting</span>
+              <span class="kv-value"><%= home.heroGreeting || '—' %></span>
+            </div>
+            <div class="kv-item">
+              <span class="kv-label">Hero highlight</span>
+              <span class="kv-value"><%= home.heroHighlight || '—' %></span>
+            </div>
+            <div class="kv-item">
+              <span class="kv-label">Capabilities heading</span>
+              <span class="kv-value"><%= home.capabilitiesHeading || '—' %></span>
+            </div>
+            <div class="kv-item">
+              <span class="kv-label">Feature heading</span>
+              <span class="kv-value"><%= home.featureHeading || '—' %></span>
+            </div>
+            <div class="kv-item">
+              <span class="kv-label">Testimonials heading</span>
+              <span class="kv-value"><%= home.testimonialsHeading || '—' %></span>
+            </div>
+            <div class="kv-item">
+              <span class="kv-label">Closing heading</span>
+              <span class="kv-value"><%= home.closingHeading || '—' %></span>
+            </div>
+          </div>
           <div class="d-flex flex-column gap-2">
             <a class="btn btn-outline-light" href="/admin/profile">Update settings</a>
             <form method="POST" action="/admin/logout">
