@@ -480,6 +480,7 @@ router.post('/profile', ensureAuth, upload.single('avatar'),
         }
         return typeof val === 'string' ? val : '';
       };
+      const getTrimmed = (val) => toStringField(val).trim();
   const { name, headline, summary, mission, avatarUrl } = req.body;
       settings.name = name;
       settings.headline = headline;
@@ -510,27 +511,27 @@ router.post('/profile', ensureAuth, upload.single('avatar'),
         settings.avatarUrl = avatarUrl;
       }
       // Extra fields
-  settings.resumeUrl = toStringField(req.body.resumeUrl) || settings.resumeUrl;
-  settings.contactIntro = toStringField(req.body.contactIntro) || settings.contactIntro;
-  settings.location = toStringField(req.body.location).trim();
-  settings.phone = toStringField(req.body.phone).trim();
+  settings.resumeUrl = getTrimmed(req.body.resumeUrl);
+  settings.contactIntro = getTrimmed(req.body.contactIntro);
+  settings.location = getTrimmed(req.body.location);
+  settings.phone = getTrimmed(req.body.phone);
   settings.availability = req.body.availability === 'on';
       // Social links (optional)
       settings.socials = {
-        github: toStringField(req.body['socials.github']) || settings.socials?.github || '',
-        linkedin: toStringField(req.body['socials.linkedin']) || settings.socials?.linkedin || '',
-        twitter: toStringField(req.body['socials.twitter']) || settings.socials?.twitter || '',
-        instagram: toStringField(req.body['socials.instagram']) || settings.socials?.instagram || '',
-        youtube: toStringField(req.body['socials.youtube']) || settings.socials?.youtube || '',
-        stackoverflow: toStringField(req.body['socials.stackoverflow']) || settings.socials?.stackoverflow || '',
-        email: toStringField(req.body['socials.email']) || settings.socials?.email || ''
+        github: getTrimmed(req.body['socials.github']),
+        linkedin: getTrimmed(req.body['socials.linkedin']),
+        twitter: getTrimmed(req.body['socials.twitter']),
+        instagram: getTrimmed(req.body['socials.instagram']),
+        youtube: getTrimmed(req.body['socials.youtube']),
+        stackoverflow: getTrimmed(req.body['socials.stackoverflow']),
+        email: getTrimmed(req.body['socials.email'])
       };
       // Home CTAs (optional, must be in pairs if provided)
       settings.homeCta = {
-        primaryText: toStringField(req.body.homeCtaPrimaryText) || settings.homeCta?.primaryText,
-        primaryUrl: toStringField(req.body.homeCtaPrimaryUrl) || settings.homeCta?.primaryUrl,
-        secondaryText: toStringField(req.body.homeCtaSecondaryText) || settings.homeCta?.secondaryText,
-        secondaryUrl: toStringField(req.body.homeCtaSecondaryUrl) || settings.homeCta?.secondaryUrl
+        primaryText: getTrimmed(req.body.homeCtaPrimaryText),
+        primaryUrl: getTrimmed(req.body.homeCtaPrimaryUrl),
+        secondaryText: getTrimmed(req.body.homeCtaSecondaryText),
+        secondaryUrl: getTrimmed(req.body.homeCtaSecondaryUrl)
       };
       if ((settings.homeCta?.primaryText && !settings.homeCta?.primaryUrl) || (!settings.homeCta?.primaryText && settings.homeCta?.primaryUrl)) {
         return res.status(400).render('admin/profile', { title: 'Profile', settings, error: 'Primary CTA text and URL must both be provided.', success: null });
@@ -538,6 +539,48 @@ router.post('/profile', ensureAuth, upload.single('avatar'),
       if ((settings.homeCta?.secondaryText && !settings.homeCta?.secondaryUrl) || (!settings.homeCta?.secondaryText && settings.homeCta?.secondaryUrl)) {
         return res.status(400).render('admin/profile', { title: 'Profile', settings, error: 'Secondary CTA text and URL must both be provided.', success: null });
       }
+      const heroSecondaryLines = getTrimmed(req.body.homeHeroSecondaryItemsText);
+      const heroSecondaryItems = heroSecondaryLines
+        ? heroSecondaryLines.split(/\r?\n/)
+            .map(line => {
+              const segments = line.split('|');
+              if (!segments.length) return null;
+              const label = (segments.shift() || '').trim();
+              const value = segments.map(part => part.trim()).filter(Boolean).join(' | ');
+              if (!label && !value) return null;
+              return { label, value };
+            })
+            .filter(Boolean)
+        : [];
+
+      const homeCopyPayload = {
+        heroGreeting: getTrimmed(req.body.homeHeroGreeting),
+        heroHighlight: getTrimmed(req.body.homeHeroHighlight),
+        heroStatement: getTrimmed(req.body.homeHeroStatement),
+        heroSecondaryTitle: getTrimmed(req.body.homeHeroSecondaryTitle),
+        heroSecondaryItems,
+        capabilitiesHeading: getTrimmed(req.body.homeCapabilitiesHeading),
+        capabilitiesLead: getTrimmed(req.body.homeCapabilitiesLead),
+        experienceHeading: getTrimmed(req.body.homeExperienceHeading),
+        experienceLead: getTrimmed(req.body.homeExperienceLead),
+        timelineHeading: getTrimmed(req.body.homeTimelineHeading),
+        timelineLead: getTrimmed(req.body.homeTimelineLead),
+        skillsHeading: getTrimmed(req.body.homeSkillsHeading),
+        skillsLead: getTrimmed(req.body.homeSkillsLead),
+        featureHeading: getTrimmed(req.body.homeFeatureHeading),
+        featureLead: getTrimmed(req.body.homeFeatureLead),
+        testimonialsHeading: getTrimmed(req.body.homeTestimonialsHeading),
+        testimonialsLead: getTrimmed(req.body.homeTestimonialsLead),
+        notesHeading: getTrimmed(req.body.homeNotesHeading),
+        notesLead: getTrimmed(req.body.homeNotesLead),
+        closingHeading: getTrimmed(req.body.homeClosingHeading),
+        closingLead: getTrimmed(req.body.homeClosingLead),
+        closingPrimaryText: getTrimmed(req.body.homeClosingPrimaryText),
+        closingPrimaryUrl: getTrimmed(req.body.homeClosingPrimaryUrl),
+        closingSecondaryText: getTrimmed(req.body.homeClosingSecondaryText),
+        closingSecondaryUrl: getTrimmed(req.body.homeClosingSecondaryUrl)
+      };
+      settings.homeCopy = homeCopyPayload;
       // Do not change socials, homeCta, timeline, skills in simplified mode
       if (typeof req.body.aboutBody === 'string') {
         const clean = sanitizeHtml(req.body.aboutBody, {

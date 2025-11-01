@@ -13,6 +13,41 @@ const settingsSchema = new mongoose.Schema(
   location: { type: String, default: '' },
   phone: { type: String, default: '' },
   availability: { type: Boolean, default: true },
+    homeCopy: {
+      heroGreeting: { type: String, default: 'Hi, I\'m' },
+      heroHighlight: { type: String, default: 'elegant digital experiences' },
+      heroStatement: { type: String, default: 'I craft elegant digital experiences that deliver measurable impact.' },
+      heroSecondaryTitle: { type: String, default: 'Currently focused on' },
+      heroSecondaryItems: {
+        type: [
+        {
+          label: { type: String, trim: true },
+          value: { type: String, trim: true }
+        }
+        ],
+        default: []
+      },
+      capabilitiesHeading: { type: String, default: 'What I bring to every engagement' },
+      capabilitiesLead: { type: String, default: 'Human-centered thinking, meticulous execution, and a collaborative spirit that keeps projects moving swiftly from concept to launch.' },
+      experienceHeading: { type: String, default: 'Strategic engineering, thoughtful design' },
+      experienceLead: { type: String, default: 'I help product teams transform ambitious ideas into polished products, combining robust architecture with moments of delight that users remember.' },
+      timelineHeading: { type: String, default: 'Recent milestones' },
+      timelineLead: { type: String, default: '' },
+      skillsHeading: { type: String, default: 'Toolkit' },
+      skillsLead: { type: String, default: '' },
+      featureHeading: { type: String, default: 'Selected work that blends craft and conversion' },
+      featureLead: { type: String, default: 'Each project pairs elegant UI with resilient engineering to launch faster and perform longer.' },
+  testimonialsHeading: { type: String, default: 'Trusted by collaborators & clients' },
+  testimonialsLead: { type: String, default: 'Relationships thrive on clarity, reliability, and consistent delivery - that\'s the foundation of every engagement.' },
+  notesHeading: { type: String, default: 'Latest thinking from the notebook' },
+      notesLead: { type: String, default: 'Short notes, deep dives, and resources that explore the craft of building modern products.' },
+  closingHeading: { type: String, default: 'Let\'s build the next standout experience' },
+  closingLead: { type: String, default: 'Feel free to reach out for collaborations or just a friendly hello.' },
+      closingPrimaryText: { type: String, default: 'Start a project' },
+      closingPrimaryUrl: { type: String, default: '/contact' },
+      closingSecondaryText: { type: String, default: 'Email directly' },
+      closingSecondaryUrl: { type: String, default: '' }
+    },
     socials: {
       github: { type: String, default: '' },
       linkedin: { type: String, default: '' },
