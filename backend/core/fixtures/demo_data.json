@@ -1,0 +1,76 @@
+[
+  {
+    "model": "core.sitesettings",
+    "pk": 1,
+    "fields": {
+      "site_name": "Your Portfolio",
+      "full_name": "Your Name",
+      "title": "Full-stack Developer",
+      "tagline": "Building wonderful web experiences",
+      "about": "Write a short bio here.",
+      "profile_image": "",
+      "cv": "",
+      "footer_text": "© Your Name 2025"
+    }
+  },
+  {
+    "model": "core.sociallink",
+    "pk": 1,
+    "fields": { "platform": "GitHub", "url": "https://github.com/yourname", "order": 1 }
+  },
+  {
+    "model": "core.sociallink",
+    "pk": 2,
+    "fields": { "platform": "LinkedIn", "url": "https://www.linkedin.com/in/yourname", "order": 2 }
+  },
+  {
+    "model": "core.skill",
+    "pk": 1,
+    "fields": { "name": "Python", "level": "Expert", "order": 1 }
+  },
+  {
+    "model": "core.skill",
+    "pk": 2,
+    "fields": { "name": "Django", "level": "Advanced", "order": 2 }
+  },
+  {
+    "model": "core.service",
+    "pk": 1,
+    "fields": { "icon": "💻", "title": "Web Development", "description": "Full-stack web applications", "order": 1 }
+  },
+  {
+    "model": "core.projectcategory",
+    "pk": 1,
+    "fields": { "name": "Webapps", "slug": "webapps" }
+  },
+  {
+    "model": "core.project",
+    "pk": 1,
+    "fields": { "title": "Sample Project", "slug": "sample-project", "description": "A demo project.", "url": "", "repo": "https://github.com/yourname/sample-project", "category": 1, "order": 1 }
+  },
+  {
+    "model": "core.resumeentry",
+    "pk": 1,
+    "fields": { "kind": "work", "title": "Software Engineer", "organization": "ACME Corp", "start": "2022", "end": "Present", "description": "Worked on product X.", "order": 1 }
+  },
+  {
+    "model": "core.testimonial",
+    "pk": 1,
+    "fields": { "client_name": "Client A", "client_role": "CTO", "message": "Great work!", "image": "", "order": 1 }
+  },
+  {
+    "model": "core.blogcategory",
+    "pk": 1,
+    "fields": { "name": "Tech", "slug": "tech" }
+  },
+  {
+    "model": "core.tag",
+    "pk": 1,
+    "fields": { "name": "django", "slug": "django" }
+  },
+  {
+    "model": "core.blogpost",
+    "pk": 1,
+    "fields": { "title": "Welcome", "slug": "welcome", "category": 1, "content": "### Hello\nThis is a demo post.", "published": true, "created": "2025-11-07T00:00:00Z" }
+  }
+]
