@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+
+{% block title %}Home — {{ settings.site_name }}{% endblock %}
+
+{% block content %}
+
+<section id="hero" class="py-12">
+  <div class="grid md:grid-cols-2 gap-8 items-center">
+    <div>
+      <h2 class="text-4xl font-bold">{{ settings.site_name }}</h2>
+      <p class="mt-4 text-lg text-gray-700">{{ settings.tagline }}</p>
+      <p class="mt-4 text-gray-600">{{ settings.about|linebreaks }}</p>
+    </div>
+    <div>
+      <div class="bg-gray-100 p-6 rounded shadow">Showcase or image here</div>
+    </div>
+  </div>
+</section>
+
+<section id="projects" class="py-8">
+  <h3 class="text-2xl font-semibold mb-4">Projects</h3>
+  <div class="grid md:grid-cols-3 gap-6">
+    {% for project in projects %}
+    <article class="bg-white border rounded p-4">
+      <h4 class="font-bold">{{ project.title }}</h4>
+      <p class="text-sm text-gray-600">{{ project.description|truncatechars:160 }}</p>
+      {% if project.url %}<a class="text-sm text-blue-600" href="{{ project.url }}">View</a>{% endif %}
+    </article>
+    {% empty %}
+    <p class="text-gray-500">No projects yet — add some in the admin.</p>
+    {% endfor %}
+  </div>
+</section>
+
+<section id="about" class="py-8">
+  <h3 class="text-2xl font-semibold mb-4">Experience & Skills</h3>
+  <div class="grid md:grid-cols-2 gap-6">
+    <div>
+      <h4 class="font-semibold">Experience</h4>
+      <ul class="mt-2">
+        {% for e in experiences %}
+        <li class="mb-2">
+          <strong>{{ e.title }}</strong> — {{ e.company }} <div class="text-sm text-gray-600">{{ e.start }} — {{ e.end }}</div>
+        </li>
+        {% empty %}
+        <li class="text-gray-500">Add experiences via admin.</li>
+        {% endfor %}
+      </ul>
+    </div>
+    <div>
+      <h4 class="font-semibold">Skills</h4>
+      <ul class="mt-2 flex flex-wrap gap-2">
+        {% for s in skills %}
+        <li class="px-3 py-1 bg-gray-200 rounded">{{ s.name }}</li>
+        {% empty %}
+        <li class="text-gray-500">Add skills via admin.</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="blog" class="py-8">
+  <h3 class="text-2xl font-semibold mb-4">Blog</h3>
+  <div class="space-y-4">
+    {% for post in posts %}
+    <article class="bg-white border rounded p-4">
+      <h4 class="font-bold">{{ post.title }}</h4>
+      <p class="text-sm text-gray-600">{{ post.content|truncatechars:200 }}</p>
+      <a href="{% url 'blog_detail' post.slug %}" class="text-blue-600">Read</a>
+    </article>
+    {% empty %}
+    <p class="text-gray-500">No blog posts published.</p>
+    {% endfor %}
+  </div>
+</section>
+
+<section id="contact" class="py-8">
+  <h3 class="text-2xl font-semibold mb-4">Contact</h3>
+  <form x-data="contactForm()" @submit.prevent="submit()" class="max-w-xl">
+    <div class="mb-3">
+      <label class="block text-sm">Name</label>
+      <input x-model="name" class="w-full border rounded px-3 py-2" />
+    </div>
+    <div class="mb-3">
+      <label class="block text-sm">Email</label>
+      <input x-model="email" type="email" class="w-full border rounded px-3 py-2" />
+    </div>
+    <div class="mb-3">
+      <label class="block text-sm">Message</label>
+      <textarea x-model="message" class="w-full border rounded px-3 py-2"></textarea>
+    </div>
+    <div>
+      <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Send</button>
+      <span x-text="status" class="ml-3 text-sm text-gray-600"></span>
+    </div>
+  </form>
+
+  <script>
+  function contactForm(){
+    return {
+      name: '', email: '', message: '', status: '',
+      async submit(){
+        this.status = 'Sending...'
+        try{
+          const res = await postJSON('{% url "api_contact" %}', {name:this.name,email:this.email,message:this.message})
+          if(res.ok){ this.status = 'Sent — thanks!'; this.name='';this.email='';this.message=''; }
+          else { this.status = 'Error: '+(res.error || 'unknown') }
+        }catch(e){ this.status = 'Network error' }
+      }
+    }
+  }
+  </script>
+
+</section>
+
+{% endblock %}

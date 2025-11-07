@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{% block title %}{{ settings.site_name|default:'Portfolio' }}{% endblock %}</title>
+    <!-- Tailwind CDN for quick setup -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <link rel="stylesheet" href="/static/css/styles.css">
+  </head>
+  <body class="bg-gray-50 text-gray-900">
+    <header class="bg-white shadow">
+      <div class="container mx-auto px-4 py-6 flex justify-between items-center">
+        <div>
+          <h1 class="text-2xl font-bold">{{ settings.site_name }}</h1>
+          <p class="text-sm text-gray-600">{{ settings.tagline }}</p>
+        </div>
+        <nav>
+          <a href="#projects" class="px-3">Projects</a>
+          <a href="#about" class="px-3">About</a>
+          <a href="#contact" class="px-3">Contact</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-8">
+      {% block content %}{% endblock %}
+    </main>
+
+    <footer class="bg-white border-t mt-12">
+      <div class="container mx-auto px-4 py-6 text-sm text-gray-600">
+        © {{ settings.site_name }} • Built with Django
+      </div>
+    </footer>
+
+    <script>
+    // global ajax helper
+    async function postJSON(url, data){
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: {'Content-Type':'application/json','X-CSRFToken': getCookie('csrftoken')},
+        body: JSON.stringify(data)
+      });
+      return res.json();
+    }
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          if (cookie.substring(0, name.length + 1) === (name + '=')) {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+    </script>
+  </body>
+</html>
