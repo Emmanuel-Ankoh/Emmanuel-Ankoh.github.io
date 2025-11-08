@@ -1,0 +1,8 @@
+Hello {{ recipient }},
+
+This is a test email from {{ project_name }}.
+
+If you received this, your SMTP configuration is working.
+
+Regards,
+{{ project_name }}
