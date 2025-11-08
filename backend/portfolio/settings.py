@@ -9,7 +9,9 @@ load_dotenv(BASE_DIR / '.env')
 
 SECRET_KEY = os.getenv('SECRET_KEY', 'dev-secret-key')
 DEBUG = os.getenv('DEBUG', 'True') == 'True'
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost').split(',')
+# Allow a sensible set of development hosts by default; can be overridden via ALLOWED_HOSTS env var
+DEFAULT_HOSTS = 'localhost,127.0.0.1,0.0.0.0'
+ALLOWED_HOSTS = [h for h in os.getenv('ALLOWED_HOSTS', DEFAULT_HOSTS).split(',') if h]
 
 INSTALLED_APPS = [
     'django.contrib.admin',
