@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h1>Manage subscription</h1>
+  <p>Email: <strong>{{ subscriber.email }}</strong></p>
+  <p>Status: <strong>{{ subscriber.active|yesno:"Active,Unsubscribed" }}</strong></p>
+  {% if subscriber.active %}
+  <form method="post">
+    {% csrf_token %}
+    <button class="btn btn-danger" type="submit">Unsubscribe</button>
+    <a class="btn btn-secondary" href="{% url 'blog:post_list' %}">Back to blog</a>
+  </form>
+  {% else %}
+  <p>This subscription is inactive.</p>
+  {% endif %}
+{% endblock %}

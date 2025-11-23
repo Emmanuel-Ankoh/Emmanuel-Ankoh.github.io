@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: lokwo12-portfolio
+    runtime: python
+    plan: free
+    branch: main
+    buildCommand: ./build.sh
+    startCommand: gunicorn myportfolio.wsgi:application --bind 0.0.0.0:$PORT --log-file -
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "False"
+      - key: WEB_CONCURRENCY
+        value: "2"
+    # Optionally attach a managed Postgres database (uncomment and configure if needed)
+    # databases:
+    #  - name: lokwo12-db
+    #    plan: free

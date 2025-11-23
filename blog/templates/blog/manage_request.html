@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h1>Manage your subscription</h1>
+  {% if message %}<p class="text-danger">{{ message }}</p>{% endif %}
+  <p>Enter the email address you subscribed with. We'll send a secure link to manage your subscription.</p>
+  <form method="post">
+    {% csrf_token %}
+    <input type="email" name="email" required placeholder="you@domain.com" class="form-control">
+    <button class="btn mt-2" type="submit">Send link</button>
+  </form>
+{% endblock %}

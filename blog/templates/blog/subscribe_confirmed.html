@@ -1,0 +1,7 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h1>Subscription confirmed</h1>
+  <p>Thanks — {{ email }} has been confirmed and will receive updates when new posts are published.</p>
+  <p><a href="{% url 'blog:post_list' %}">Back to blog</a></p>
+{% endblock %}

@@ -1,0 +1,7 @@
+Hi,
+
+Please confirm your subscription by clicking the link below:
+
+{{ confirm_url }}
+
+If you didn't request this, ignore this message.

@@ -1,0 +1,7 @@
+Hi,
+
+You requested a link to manage your subscription. Click the link below to view or unsubscribe:
+
+{{ manage_url }}
+
+If you didn't request this, ignore this message.
