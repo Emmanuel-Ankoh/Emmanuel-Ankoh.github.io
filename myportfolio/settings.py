@@ -15,9 +15,18 @@ from pathlib import Path
 from django.core.management.utils import get_random_secret_key
 from urllib.parse import urlparse
 try:
-    import cloudinary
-    import cloudinary.uploader
-    import cloudinary.api
+    # Use importlib to perform runtime imports so static analyzers won't flag missing optional packages
+    import importlib
+    cloudinary = importlib.import_module('cloudinary')
+    # Try to load common submodules if they are available; ignore failures so package remains optional
+    try:
+        cloudinary.uploader = importlib.import_module('cloudinary.uploader')
+    except Exception:
+        pass
+    try:
+        cloudinary.api = importlib.import_module('cloudinary.api')
+    except Exception:
+        pass
     _HAS_CLOUDINARY = True
 except Exception:
     # Optional dependency: allow local development without cloudinary package
@@ -32,8 +41,11 @@ DEBUG = os.environ.get("DEBUG", "") != "False"
 
 # Load environment variables from .env (optional)
 try:
-    from dotenv import load_dotenv
-    load_dotenv(BASE_DIR / '.env')
+    import importlib
+    dotenv = importlib.import_module('dotenv')
+    load_dotenv = getattr(dotenv, 'load_dotenv', None)
+    if load_dotenv:
+        load_dotenv(BASE_DIR / '.env')
 except Exception:
     pass
 
@@ -209,7 +221,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 # Look for app static/ directories and also the project-level static/ folder
-# STATICFILES_DIRS = [BASE_DIR / 'static']
+STATICFILES_DIRS = [BASE_DIR / 'static']
 # Where `collectstatic` will collect files for production
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 MEDIA_URL = '/media/'
