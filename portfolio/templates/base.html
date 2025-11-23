@@ -26,9 +26,9 @@
 	<link rel="manifest" href="{% static 'site.webmanifest' %}">
 	{% block head_meta %}{% endblock %}
 
-			{# Analytics loaded dynamically after consent; see footer script #}
+	{# Analytics loaded dynamically after consent; see footer script #}
 
-		<meta name="theme-color" content="#0f172a">
+	<meta name="theme-color" content="#0f172a">
 
 	{# JSON-LD Person structured data #}
 	<script type="application/ld+json">
@@ -283,7 +283,7 @@ nav, footer { transition: opacity 0.8s; }
 	// Cookie consent + conditional GA loader
 	(function(){
 		const GA_ID = '{{ SITE.analytics_measurement_id|default:GA_MEASUREMENT_ID|default:"" }}';
-		const CONSENT_REQUIRED = {{ SITE.consent_required|default:True|yesno:"true,false" }};
+		const CONSENT_REQUIRED = {% if SITE.consent_required|default:True %}true{% else %}false{% endif %};
 		function loadGA(){
 			if(!GA_ID) return;
 			if(window.gtag) return; // already loaded
