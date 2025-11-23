@@ -57,7 +57,7 @@
 }
 	</script>
 </head>
-<body>
+<body data-ga-id="{{ SITE.analytics_measurement_id|default:GA_MEASUREMENT_ID|default:'' }}" data-consent-required="{{ SITE.consent_required|default:True|yesno:"true,false" }}">
 	<div id="scroll-progress" class="scroll-progress" aria-hidden="true"></div>
 		<a class="sr-only" href="#main-content">Skip to content</a>
 		<header class="site-header" role="banner">
@@ -282,8 +282,8 @@ nav, footer { transition: opacity 0.8s; }
 	<script>
 	// Cookie consent + conditional GA loader
 	(function(){
-		const GA_ID = '{{ SITE.analytics_measurement_id|default:GA_MEASUREMENT_ID|default:"" }}';
-		const CONSENT_REQUIRED = {{ SITE.consent_required|default:True|yesno:"true,false" }};
+		const GA_ID = document.body.dataset.gaId || '';
+		const CONSENT_REQUIRED = document.body.dataset.consentRequired === 'true';
 		function loadGA(){
 			if(!GA_ID) return;
 			if(window.gtag) return; // already loaded
