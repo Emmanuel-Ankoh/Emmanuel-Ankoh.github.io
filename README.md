@@ -1,4 +1,4 @@
-# Denis Lokwo — Portfolio (Django)
+# Emmanuel ankoh — Portfolio (Django)
 
 ![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white)
 ![Django](https://img.shields.io/badge/Django-5.2%2B-092E20?logo=django&logoColor=white)
