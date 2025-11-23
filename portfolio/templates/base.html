@@ -283,7 +283,7 @@ nav, footer { transition: opacity 0.8s; }
 	// Cookie consent + conditional GA loader
 	(function(){
 		const GA_ID = '{{ SITE.analytics_measurement_id|default:GA_MEASUREMENT_ID|default:"" }}';
-		const CONSENT_REQUIRED = {% if SITE.consent_required|default:True %}true{% else %}false{% endif %};
+		const CONSENT_REQUIRED = {{ SITE.consent_required|default:True|yesno:"true,false" }};
 		function loadGA(){
 			if(!GA_ID) return;
 			if(window.gtag) return; // already loaded
