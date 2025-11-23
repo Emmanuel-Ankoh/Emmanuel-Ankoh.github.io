@@ -221,7 +221,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 # Look for app static/ directories and also the project-level static/ folder
-STATICFILES_DIRS = [BASE_DIR / 'static']
+STATICFILES_DIRS = [BASE_DIR / 'portfolio' / 'static']
 # Where `collectstatic` will collect files for production
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 MEDIA_URL = '/media/'
