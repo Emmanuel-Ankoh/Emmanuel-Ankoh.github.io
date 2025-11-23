@@ -61,6 +61,18 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-64idji^07q4l_qfqlyal#
 # Read from env for deploys; defaults to True for local dev
 DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
+# In production, fail fast if SECRET_KEY is insecure or still the dev key.
+if not DEBUG:
+    from django.core.exceptions import ImproperlyConfigured
+
+    insecure_prefix = 'django-insecure-'
+    if (not SECRET_KEY) or SECRET_KEY.startswith(insecure_prefix) or len(SECRET_KEY) < 50:
+        raise ImproperlyConfigured(
+            'Insecure SECRET_KEY detected. Set a secure SECRET_KEY in the environment '
+            'before starting the application (generate one with Django\'s '
+            '`get_random_secret_key()` or `secrets.token_urlsafe`).'
+        )
+
 # Allow common local hosts by default; extend via ALLOWED_HOSTS env var for deploys
 _env_hosts = [h for h in os.environ.get('ALLOWED_HOSTS', '').split(',') if h]
 ALLOWED_HOSTS = _env_hosts or ['127.0.0.1', 'localhost', 'testserver', 'lokwodenis.me', 'www.lokwodenis.me']
